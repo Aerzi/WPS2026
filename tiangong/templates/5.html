@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>创新崛起：高新技术企业爆发式增长</title>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://picture-search.tiangong.cn/tailwindcss.com"></script>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap");
+      body {
+        position: relative;
+        width: 1280px;
+        min-height: 720px;
+        overflow: hidden;
+        font-family: "Noto Sans SC", sans-serif;
+        margin: 0;
+        padding: 0;
+      }
+      .slide {
+        width: 1280px;
+        min-height: 720px;
+        position: relative;
+      }
+      .highlight-box {
+        background-color: rgba(245, 230, 211, 0.7);
+        border-left: 4px solid #a93226;
+      }
+      .stat-card {
+        transition: all 0.3s ease;
+      }
+      .stat-card:hover {
+        transform: translateY(-5px);
+      }
+      .bar {
+        fill: #f8d5a3;
+        transition: fill 0.3s ease;
+      }
+      .bar:hover {
+        fill: #a93226;
+      }
+      .axis text {
+        font-size: 12px;
+        fill: #666;
+      }
+      .axis path,
+      .axis line {
+        stroke: #ddd;
+      }
+
+      html {
+        overflow: hidden;
+      }
+      .skywork-water-mark {
+        position: absolute;
+        bottom: 6px;
+        right: 6px;
+        z-index: 99;
+        border-radius: 6px;
+        background: rgba(0, 0, 0, 0.56);
+        padding: 1px 6px;
+        color: #fff;
+        /* Level_5 */
+        text-shadow: 0 7px 24px rgba(0, 8, 24, 0.28);
+        /* CN Web/Regular/12 */
+        font-family: "PingFang SC";
+        font-size: 12px;
+        font-style: normal;
+        font-weight: 400;
+        line-height: 150%; /* 18px */
+      }
+    </style>
+  </head>
+  <body>
+    <div class="slide bg-gray-50" style="overflow: hidden">
+      <!-- Header -->
+      <div class="bg-white shadow-md p-6">
+        <h1 class="text-4xl font-bold text-gray-800">
+          创新崛起：高新技术企业爆发式增长
+        </h1>
+        <div class="flex items-center mt-2">
+          <div class="h-1 w-16 bg-red-700"></div>
+          <p class="text-gray-600 ml-4">武汉创新驱动发展战略的成功实践</p>
+        </div>
+      </div>
+      <!-- Content Container -->
+      <div class="p-8 grid grid-cols-12 gap-6">
+        <!-- Left Column - Chart -->
+        <div class="col-span-7">
+          <div class="bg-white rounded-lg shadow-md p-6 h-full">
+            <h2 class="text-2xl font-bold text-gray-700 mb-4">
+              2024年武汉创新指标成就
+            </h2>
+            <!-- D3.js Chart Container -->
+            <div
+              class="w-full h-80"
+              id="chart"
+              data-sk-source-container="chart"
+              data-sk-source-id="1980639850408050690"
+              data-sk-source-type="web_search"
+            ></div>
+            <!-- Chart Legend -->
+            <div class="flex justify-center mt-4 space-x-8">
+              <div class="flex items-center">
+                <div class="w-4 h-4 bg-red-700 mr-2"></div>
+                <span class="text-sm text-gray-600">高新技术企业</span>
+              </div>
+              <div class="flex items-center">
+                <div class="w-4 h-4 bg-yellow-400 mr-2"></div>
+                <span class="text-sm text-gray-600"
+                  >高技术制造业增加值占比</span
+                >
+              </div>
+              <div class="flex items-center">
+                <div class="w-4 h-4 bg-blue-400 mr-2"></div>
+                <span class="text-sm text-gray-600">企业总量</span>
+              </div>
+              <div class="flex items-center">
+                <div class="w-4 h-4 bg-green-400 mr-2"></div>
+                <span class="text-sm text-gray-600">进出口总额增速</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Right Column - Key Points -->
+        <div class="col-span-5">
+          <div class="space-y-6">
+            <!-- Highlight Box -->
+            <div class="highlight-box rounded-lg p-5 shadow-md">
+              <div class="flex items-center mb-3">
+                <div class="bg-red-700 rounded-full p-2 mr-3">
+                  <i class="fas fa-rocket text-white"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-800">
+                  高新技术企业突破1.6万家
+                </h3>
+              </div>
+              <p class="text-gray-700">
+                2024年，武汉高新技术企业总量突破1.6万家，实现了三年翻番的成就，展现出强劲的创新活力。
+              </p>
+            </div>
+            <!-- Key Stats Cards -->
+            <div class="grid grid-cols-2 gap-4">
+              <div class="stat-card bg-white rounded-lg shadow-md p-4">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-sm text-gray-600">高技术制造业增加值占比</p>
+                    <h4 class="text-2xl font-bold text-red-700">20.8%</h4>
+                  </div>
+                  <div class="text-3xl text-yellow-400">
+                    <i class="fas fa-industry"></i>
+                  </div>
+                </div>
+                <p class="text-xs text-gray-500 mt-2">
+                  占比达五分之一，显示高技术产业在工业经济中的主导地位
+                </p>
+              </div>
+              <div class="stat-card bg-white rounded-lg shadow-md p-4">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-sm text-gray-600">企业总量</p>
+                    <h4 class="text-2xl font-bold text-red-700">100万+</h4>
+                  </div>
+                  <div class="text-3xl text-blue-400">
+                    <i class="fas fa-building"></i>
+                  </div>
+                </div>
+                <p class="text-xs text-gray-500 mt-2">
+                  位居副省级城市第四，市场活力显著提升
+                </p>
+              </div>
+              <div class="stat-card bg-white rounded-lg shadow-md p-4">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-sm text-gray-600">进出口总额增速</p>
+                    <h4 class="text-2xl font-bold text-red-700">11.8%</h4>
+                  </div>
+                  <div class="text-3xl text-green-400">
+                    <i class="fas fa-globe-asia"></i>
+                  </div>
+                </div>
+                <p class="text-xs text-gray-500 mt-2">
+                  增速居副省级城市前列，对外开放水平不断提高
+                </p>
+              </div>
+              <div class="stat-card bg-white rounded-lg shadow-md p-4">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-sm text-gray-600">中欧班列开行量</p>
+                    <h4 class="text-2xl font-bold text-red-700">1008列</h4>
+                  </div>
+                  <div class="text-3xl text-purple-400">
+                    <i class="fas fa-train"></i>
+                  </div>
+                </div>
+                <p class="text-xs text-gray-500 mt-2">
+                  2024年开行1008列，货值达183.84亿元
+                </p>
+              </div>
+            </div>
+            <!-- Conclusion -->
+            <div class="bg-red-700 text-white rounded-lg p-4 shadow-md">
+              <div class="flex items-center">
+                <i class="fas fa-lightbulb text-yellow-300 text-2xl mr-3"></i>
+                <p class="font-medium">
+                  创新已成为武汉经济发展的新引擎，创新驱动发展战略取得显著成效
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>
+      // Simple D3.js visualization
+      document.addEventListener("DOMContentLoaded", function () {
+        // Data based on the document
+        const data = [
+          { category: "高新技术企业", value: 16000, color: "#A93226" },
+          { category: "高技术制造业占比", value: 20.8, color: "#F8D5A3" },
+          { category: "企业总量", value: 1000000, color: "#3B82F6" },
+          { category: "进出口增速", value: 11.8, color: "#10B981" },
+        ];
+
+        // Set up dimensions
+        const width = document.getElementById("chart").clientWidth;
+        const height = document.getElementById("chart").clientHeight;
+        const margin = { top: 30, right: 30, bottom: 70, left: 60 };
+        const chartWidth = width - margin.left - margin.right;
+        const chartHeight = height - margin.top - margin.bottom;
+
+        // Create SVG
+        const svg = d3
+          .select("#chart")
+          .append("svg")
+          .attr("width", width)
+          .attr("height", height)
+          .append("g")
+          .attr("transform", `translate(${margin.left},${margin.top})`);
+
+        // Create scales
+        const x = d3
+          .scaleBand()
+          .domain(data.map((d) => d.category))
+          .range([0, chartWidth])
+          .padding(0.3);
+
+        const y = d3
+          .scaleLinear()
+          .domain([0, d3.max(data, (d) => d.value) * 1.1])
+          .range([chartHeight, 0]);
+
+        // Add X axis
+        svg
+          .append("g")
+          .attr("class", "axis")
+          .attr("transform", `translate(0,${chartHeight})`)
+          .call(d3.axisBottom(x))
+          .selectAll("text")
+          .style("text-anchor", "end")
+          .attr("dx", "-.8em")
+          .attr("dy", ".15em")
+          .attr("transform", "rotate(-25)");
+
+        // Add Y axis
+        svg.append("g").attr("class", "axis").call(d3.axisLeft(y));
+
+        // Add bars
+        svg
+          .selectAll(".bar")
+          .data(data)
+          .enter()
+          .append("rect")
+          .attr("class", "bar")
+          .attr("x", (d) => x(d.category))
+          .attr("width", x.bandwidth())
+          .attr("y", (d) => y(d.value))
+          .attr("height", (d) => chartHeight - y(d.value))
+          .attr("fill", (d) => d.color)
+          .on("mouseover", function () {
+            d3.select(this).style("opacity", 0.8);
+          })
+          .on("mouseout", function () {
+            d3.select(this).style("opacity", 1);
+          });
+
+        // Add value labels
+        svg
+          .selectAll(".label")
+          .data(data)
+          .enter()
+          .append("text")
+          .attr("class", "label")
+          .attr("x", (d) => x(d.category) + x.bandwidth() / 2)
+          .attr("y", (d) => y(d.value) - 10)
+          .attr("text-anchor", "middle")
+          .text((d) => (d.value >= 1000 ? `${d.value / 1000}k` : d.value))
+          .style("font-size", "12px")
+          .style("font-weight", "bold")
+          .style("fill", "#333");
+      });
+    </script>
+    <div class="skywork-water-mark">天工 AI 生成</div>
+  </body>
+</html>

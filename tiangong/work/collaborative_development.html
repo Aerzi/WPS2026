@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>现代前端开发的核心要素</title>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://picture-search.tiangong.cn/tailwindcss.com"></script>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap");
+
+      body {
+        font-family: "Noto Sans SC", sans-serif;
+        margin: 0;
+        padding: 0;
+        width: 1280px;
+        height: 720px;
+        overflow: hidden;
+        background-color: #f1f5f9;
+      }
+
+      .slide {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        overflow: hidden;
+        background: linear-gradient(
+          135deg,
+          #f8fafc 0%,
+          #e2e8f0 30%,
+          #cbd5e1 100%
+        );
+      }
+
+      .main-title {
+        background: linear-gradient(90deg, #6366f1, #8b5cf6, #a855f7);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        font-weight: 700;
+        text-align: center;
+        font-size: 2.5rem;
+        margin-bottom: 2rem;
+        text-shadow: 0 2px 4px rgba(99, 102, 241, 0.1);
+      }
+
+      .tech-card {
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 15px;
+        padding: 1rem;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        transition: all 0.4s ease;
+        backdrop-filter: blur(10px);
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .tech-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: var(--card-color);
+      }
+
+      .tech-card:hover {
+        transform: translateY(-8px) scale(1.05);
+        box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.2);
+        border-color: var(--card-color);
+      }
+
+      .tech-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 0.8rem;
+        background: var(--card-color);
+        color: white;
+        font-size: 1.5rem;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+      }
+
+      .html-card {
+        --card-color: linear-gradient(135deg, #f97316, #ea580c);
+      }
+
+      .atomic-card {
+        --card-color: linear-gradient(135deg, #06b6d4, #0891b2);
+      }
+
+      .ai-card {
+        --card-color: linear-gradient(135deg, #8b5cf6, #7c3aed);
+      }
+
+      .collaboration-circle {
+        width: 200px;
+        height: 200px;
+        background: linear-gradient(
+          135deg,
+          rgba(255, 255, 255, 0.95),
+          rgba(248, 250, 252, 0.9)
+        );
+        border-radius: 50%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.15);
+        border: 3px solid rgba(99, 102, 241, 0.3);
+        position: relative;
+        backdrop-filter: blur(20px);
+      }
+
+      .collaboration-circle::before {
+        content: "";
+        position: absolute;
+        top: -10px;
+        left: -10px;
+        right: -10px;
+        bottom: -10px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #6366f1, #8b5cf6, #a855f7);
+        z-index: -1;
+        opacity: 0.1;
+      }
+
+      .star-icon {
+        color: #fbbf24;
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .result-summary {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        border-left: 5px solid #6366f1;
+      }
+
+      .page-indicator {
+        position: absolute;
+        bottom: 20px;
+        right: 20px;
+        background: rgba(0, 0, 0, 0.1);
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.875rem;
+        color: #64748b;
+      }
+
+      html {
+        overflow: hidden;
+        background-color: #f1f5f9;
+      }
+
+      .watermark {
+        position: absolute;
+        bottom: 6px;
+        right: 6px;
+        z-index: 99;
+        border-radius: 6px;
+        background: rgba(0, 0, 0, 0.56);
+        padding: 1px 6px;
+        color: #fff;
+        text-shadow: 0 7px 24px rgba(0, 8, 24, 0.28);
+        font-family: "PingFang SC";
+        font-size: 12px;
+        font-style: normal;
+        font-weight: 400;
+        line-height: 150%;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="slide">
+      <!-- Main Title -->
+      <div class="pt-4 pb-2">
+        <h1 class="main-title" style="font-size: 2rem; margin-bottom: 1rem">
+          现代前端开发的核心要素
+        </h1>
+      </div>
+
+      <!-- Top Three Tech Cards -->
+      <div class="grid grid-cols-3 gap-6 px-8 mb-4">
+        <!-- HTML Card -->
+        <div class="tech-card html-card">
+          <div
+            class="tech-icon"
+            style="background: linear-gradient(135deg, #f97316, #ea580c)"
+          >
+            <i class="fab fa-html5"></i>
+          </div>
+          <h3 class="text-lg font-bold text-center text-gray-800 mb-2">
+            HTML结构化
+          </h3>
+          <ul class="text-gray-600 space-y-1 text-xs">
+            <li class="flex items-start">
+              <i class="fas fa-check text-orange-500 mt-1 mr-2 text-xs"></i>
+              <span>语义化标签构建清晰结构</span>
+            </li>
+            <li class="flex items-start">
+              <i class="fas fa-check text-orange-500 mt-1 mr-2 text-xs"></i>
+              <span>无障碍访问与SEO优化</span>
+            </li>
+            <li class="flex items-start">
+              <i class="fas fa-check text-orange-500 mt-1 mr-2 text-xs"></i>
+              <span>组件化思维与模块设计</span>
+            </li>
+            <li class="flex items-start">
+              <i class="fas fa-check text-orange-500 mt-1 mr-2 text-xs"></i>
+              <span>满足用户体验的第一步</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Atomic CSS Card -->
+        <div class="tech-card atomic-card">
+          <div
+            class="tech-icon"
+            style="background: linear-gradient(135deg, #06b6d4, #0891b2)"
+          >
+            <i class="fas fa-atom"></i>
+          </div>
+          <h3 class="text-lg font-bold text-center text-gray-800 mb-2">
+            原子化CSS
+          </h3>
+          <ul class="text-gray-600 space-y-1 text-xs">
+            <li class="flex items-start">
+              <i class="fas fa-check text-cyan-500 mt-1 mr-2 text-xs"></i>
+              <span>高效的样式复用与维护</span>
+            </li>
+            <li class="flex items-start">
+              <i class="fas fa-check text-cyan-500 mt-1 mr-2 text-xs"></i>
+              <span>快速原型设计与迭代</span>
+            </li>
+            <li class="flex items-start">
+              <i class="fas fa-check text-cyan-500 mt-1 mr-2 text-xs"></i>
+              <span>一致的设计系统实现</span>
+            </li>
+            <li class="flex items-start">
+              <i class="fas fa-check text-cyan-500 mt-1 mr-2 text-xs"></i>
+              <span>减少样式冲突与冗余</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- AI Model Card -->
+        <div class="tech-card ai-card">
+          <div
+            class="tech-icon"
+            style="background: linear-gradient(135deg, #8b5cf6, #7c3aed)"
+          >
+            <i class="fas fa-brain"></i>
+          </div>
+          <h3 class="text-lg font-bold text-center text-gray-800 mb-2">
+            大模型辅助
+          </h3>
+          <ul class="text-gray-600 space-y-1 text-xs">
+            <li class="flex items-start">
+              <i class="fas fa-check text-purple-500 mt-1 mr-2 text-xs"></i>
+              <span>智能代码生成与优化</span>
+            </li>
+            <li class="flex items-start">
+              <i class="fas fa-check text-purple-500 mt-1 mr-2 text-xs"></i>
+              <span>自动化测试用例编写</span>
+            </li>
+            <li class="flex items-start">
+              <i class="fas fa-check text-purple-500 mt-1 mr-2 text-xs"></i>
+              <span>代码审查与重构建议</span>
+            </li>
+            <li class="flex items-start">
+              <i class="fas fa-check text-purple-500 mt-1 mr-2 text-xs"></i>
+              <span>提升开发效率与质量</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Central Collaboration Circle -->
+      <div class="flex justify-center mb-3">
+        <div class="collaboration-circle">
+          <i
+            class="star-icon fas fa-star"
+            style="font-size: 1.5rem; margin-bottom: 0.3rem"
+          ></i>
+          <h2 class="text-lg font-bold text-gray-800 mb-1">三者协同合作</h2>
+          <p class="text-center text-gray-600 text-xs px-2 leading-tight">
+            <span class="text-indigo-600 font-medium">创造卓越的前端体验</span>
+          </p>
+        </div>
+      </div>
+
+      <!-- Bottom Summary -->
+      <div class="px-8">
+        <div class="result-summary" style="padding: 1rem">
+          <div class="flex items-start">
+            <i class="fas fa-chart-line text-indigo-600 text-lg mr-2 mt-1"></i>
+            <div>
+              <h3 class="font-bold text-gray-800 mb-1 text-indigo-600">
+                实现复杂图表生成：
+              </h3>
+              <p class="text-gray-700 text-xs leading-relaxed">
+                通过HTML语义化结构为数据可视化提供坚实基础，原子化CSS确保图表样式的一致性与可维护性，大模型智能分析数据特征并生成最优的图表配置。三者深度融合，实现从数据处理到视觉呈现的全流程自动化，大幅提升复杂图表的开发效率与用户体验质量。
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Page Indicator -->
+      <div class="page-indicator">1 / 1</div>
+    </div>
+    <div class="watermark">天工 AI 生成</div>
+  </body>
+</html>

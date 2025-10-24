@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>环境保护 - 绿色地球行动</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <style>
+      html {
+        overflow: hidden;
+        background-color: #f0f9f0;
+      }
+
+      body {
+        font-family: "Noto Sans SC", sans-serif;
+        margin: 0;
+        padding: 0;
+        width: 1280px;
+        height: 720px;
+        overflow: hidden;
+        background-color: #f0f9f0;
+      }
+
+      .slide {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        overflow: hidden;
+        background: linear-gradient(
+          135deg,
+          #e8f5e8 0%,
+          #c8e6c9 30%,
+          #81c784 70%,
+          #66bb6a 100%
+        );
+      }
+
+      .container {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        padding: 15px;
+      }
+
+      /* Header */
+      .header {
+        text-align: center;
+        margin-bottom: 10px;
+      }
+
+      .main-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #1b5e20;
+        margin: 0;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .subtitle {
+        font-size: 0.8rem;
+        color: #2e7d32;
+        margin: 3px 0 0 0;
+        font-weight: 500;
+      }
+
+      /* Main Content */
+      .main-content {
+        display: flex;
+        gap: 25px;
+        height: calc(100% - 90px);
+        align-items: stretch;
+      }
+
+      /* Left Table Section */
+      .table-section {
+        flex: 0 0 45%;
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 12px;
+        padding: 15px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+      }
+
+      .table-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #1b5e20;
+        margin-bottom: 10px;
+        text-align: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+      }
+
+      .env-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.75rem;
+      }
+
+      .env-table th {
+        background: linear-gradient(135deg, #43a047, #66bb6a);
+        color: white;
+        padding: 6px 4px;
+        text-align: center;
+        font-weight: 600;
+        font-size: 0.7rem;
+        border: 1px solid #4caf50;
+      }
+
+      .env-table td {
+        padding: 4px;
+        text-align: center;
+        border: 1px solid #c8e6c9;
+        background: rgba(255, 255, 255, 0.8);
+      }
+
+      .env-table tr:nth-child(even) td {
+        background: rgba(232, 245, 232, 0.6);
+      }
+
+      .trend-up {
+        color: #d32f2f;
+        font-weight: bold;
+      }
+
+      .trend-down {
+        color: #388e3c;
+        font-weight: bold;
+      }
+
+      /* Right Content Section */
+      .content-section {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .content-card {
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 10px;
+        padding: 10px;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        border-left: 4px solid #4caf50;
+      }
+
+      .card-title {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #1b5e20;
+        margin-bottom: 6px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .card-content {
+        font-size: 0.7rem;
+        color: #2e7d32;
+        line-height: 1.3;
+        margin: 0;
+      }
+
+      .highlight {
+        background: linear-gradient(120deg, #c8e6c9 0%, #e8f5e8 100%);
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-weight: 500;
+      }
+
+      /* Action List */
+      .action-list {
+        list-style: none;
+        padding: 0;
+        margin: 6px 0 0 0;
+      }
+
+      .action-list li {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-bottom: 2px;
+        font-size: 0.65rem;
+        color: #388e3c;
+      }
+
+      .action-list li i {
+        color: #4caf50;
+        font-size: 0.6rem;
+      }
+
+      /* Watermark */
+      .watermark {
+        position: absolute;
+        bottom: 15px;
+        right: 25px;
+        font-size: 0.7rem;
+        color: rgba(27, 94, 32, 0.4);
+        font-weight: 300;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="slide">
+      <div class="container">
+        <!-- Header -->
+        <div class="header">
+          <h1 class="main-title">
+            <i class="fas fa-leaf"></i>
+            环境保护 - 绿色地球行动
+          </h1>
+          <p class="subtitle">共建美好家园，守护绿水青山</p>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+          <!-- Left Table Section -->
+          <div class="table-section">
+            <h2 class="table-title">
+              <i class="fas fa-chart-bar"></i>
+              全球环境数据监测
+            </h2>
+            <table class="env-table">
+              <thead>
+                <tr>
+                  <th>环境指标</th>
+                  <th>2020年</th>
+                  <th>2023年</th>
+                  <th>变化趋势</th>
+                  <th>目标值</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>CO₂浓度(ppm)</strong></td>
+                  <td>414.2</td>
+                  <td>421.8</td>
+                  <td class="trend-up">↑1.8%</td>
+                  <td>350</td>
+                </tr>
+                <tr>
+                  <td><strong>森林覆盖率(%)</strong></td>
+                  <td>30.7</td>
+                  <td>30.9</td>
+                  <td class="trend-down">↑0.2%</td>
+                  <td>35</td>
+                </tr>
+                <tr>
+                  <td><strong>可再生能源(%)</strong></td>
+                  <td>26.2</td>
+                  <td>32.1</td>
+                  <td class="trend-down">↑5.9%</td>
+                  <td>50</td>
+                </tr>
+                <tr>
+                  <td><strong>塑料回收率(%)</strong></td>
+                  <td>14.5</td>
+                  <td>18.2</td>
+                  <td class="trend-down">↑3.7%</td>
+                  <td>30</td>
+                </tr>
+                <tr>
+                  <td><strong>水资源利用率(%)</strong></td>
+                  <td>87.3</td>
+                  <td>89.6</td>
+                  <td class="trend-down">↑2.3%</td>
+                  <td>95</td>
+                </tr>
+                <tr>
+                  <td><strong>物种保护数量</strong></td>
+                  <td>28,400</td>
+                  <td>31,200</td>
+                  <td class="trend-down">↑9.9%</td>
+                  <td>40,000</td>
+                </tr>
+                <tr>
+                  <td><strong>清洁能源投资(万亿$)</strong></td>
+                  <td>3.1</td>
+                  <td>4.8</td>
+                  <td class="trend-down">↑54.8%</td>
+                  <td>8.0</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Right Content Section -->
+          <div class="content-section">
+            <!-- Card 1: Climate Action -->
+            <div class="content-card">
+              <h3 class="card-title">
+                <i class="fas fa-temperature-low"></i>
+                气候行动倡议
+              </h3>
+              <p class="card-content">
+                全球气候变化已成为人类面临的最严峻挑战之一。<span
+                  class="highlight"
+                  >碳中和目标</span
+                >的实现需要各国政府、企业和个人的共同努力。通过推广清洁能源、提高能源效率、发展碳捕集技术等多元化手段，我们正在朝着<span
+                  class="highlight"
+                  >2050年碳中和</span
+                >的目标稳步前进。
+              </p>
+              <ul class="action-list">
+                <li>
+                  <i class="fas fa-check-circle"></i>推广太阳能和风能发电技术
+                </li>
+                <li>
+                  <i class="fas fa-check-circle"></i>发展电动汽车和公共交通
+                </li>
+                <li><i class="fas fa-check-circle"></i>提升建筑能效标准</li>
+              </ul>
+            </div>
+
+            <!-- Card 2: Biodiversity -->
+            <div class="content-card">
+              <h3 class="card-title">
+                <i class="fas fa-paw"></i>
+                生物多样性保护
+              </h3>
+              <p class="card-content">
+                地球生物多样性正面临前所未有的威胁。<span class="highlight"
+                  >生态系统修复</span
+                >和<span class="highlight">物种保护</span
+                >是维护地球生命支持系统的关键。通过建立自然保护区、实施濒危物种繁育计划、恢复退化生态系统等措施，我们致力于保护地球上每一个珍贵的生命。
+              </p>
+              <ul class="action-list">
+                <li>
+                  <i class="fas fa-check-circle"></i>建设国家公园和自然保护区
+                </li>
+                <li><i class="fas fa-check-circle"></i>实施濒危物种救护计划</li>
+                <li>
+                  <i class="fas fa-check-circle"></i>推进湿地和森林恢复工程
+                </li>
+              </ul>
+            </div>
+
+            <!-- Card 3: Circular Economy -->
+            <div class="content-card">
+              <h3 class="card-title">
+                <i class="fas fa-recycle"></i>
+                循环经济发展
+              </h3>
+              <p class="card-content">
+                从线性经济向<span class="highlight">循环经济</span
+                >转型是实现可持续发展的必由之路。通过<span class="highlight"
+                  >减量化、再利用、再循环</span
+                >的3R原则，我们可以最大限度地减少资源消耗和废物产生，构建资源节约型和环境友好型社会。
+              </p>
+              <ul class="action-list">
+                <li><i class="fas fa-check-circle"></i>推广零废物生产模式</li>
+                <li><i class="fas fa-check-circle"></i>发展共享经济平台</li>
+                <li><i class="fas fa-check-circle"></i>完善废物分类回收体系</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Watermark -->
+      <div class="watermark">绿色地球 · 共同行动</div>
+    </div>
+  </body>
+</html>

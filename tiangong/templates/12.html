@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>生态宜居：绿色武汉的新画卷</title>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://picture-search.tiangong.cn/tailwindcss.com"></script>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap");
+      body {
+        position: relative;
+        width: 1280px;
+        min-height: 720px;
+        overflow: hidden;
+        font-family: "Noto Sans SC", sans-serif;
+        margin: 0;
+        padding: 0;
+      }
+      .slide {
+        width: 1280px;
+        min-height: 720px;
+        position: relative;
+      }
+      .feature-card {
+        background-color: rgba(245, 230, 211, 0.7);
+        transition: all 0.3s ease;
+      }
+      .feature-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+          0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      }
+      .eco-icon {
+        background-color: #1e8449;
+        color: white;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        margin-right: 12px;
+      }
+      .highlight-box {
+        border-left: 4px solid #1e8449;
+      }
+
+      html {
+        overflow: hidden;
+      }
+      .skywork-water-mark {
+        position: absolute;
+        bottom: 6px;
+        right: 6px;
+        z-index: 99;
+        border-radius: 6px;
+        background: rgba(0, 0, 0, 0.56);
+        padding: 1px 6px;
+        color: #fff;
+        /* Level_5 */
+        text-shadow: 0 7px 24px rgba(0, 8, 24, 0.28);
+        /* CN Web/Regular/12 */
+        font-family: "PingFang SC";
+        font-size: 12px;
+        font-style: normal;
+        font-weight: 400;
+        line-height: 150%; /* 18px */
+      }
+    </style>
+  </head>
+  <body>
+    <div class="slide bg-gray-50" style="overflow: hidden">
+      <!-- Header -->
+      <div class="bg-white shadow-md p-6">
+        <h1 class="text-4xl font-bold text-center text-gray-800">
+          生态宜居：绿色武汉的新画卷
+        </h1>
+        <div class="flex justify-center mt-2">
+          <div class="h-1 w-16 bg-green-700"></div>
+        </div>
+      </div>
+      <!-- Main Content -->
+      <div class="grid grid-cols-2 gap-6 p-6">
+        <!-- Left Column - Image and Key Stats -->
+        <div class="space-y-6">
+          <!-- East Lake Greenway Image -->
+          <div class="rounded-lg overflow-hidden shadow-lg">
+            <img
+              alt="武汉东湖绿道"
+              class="w-full h-64 object-cover"
+              src="https://picture-search.tiangong.cn/aippt/image/sheet/3b12c55ab1d94934431cd7cc4f348448.jpg"
+              data-sk-source-container="img"
+              data-sk-source-url="http://hbwh.wenming.cn/oldweb/dhshengtailvyou/202506/t20250625_8950801.html"
+              data-sk-source-id="1980642697673424901"
+            />
+            <div class="bg-white p-3 text-center text-sm text-gray-600">
+              <p>东湖绿道三期建成开放，105公里世界级滨湖绿道"画圆成环"</p>
+            </div>
+          </div>
+          <!-- Key Ecological Achievements -->
+          <div class="feature-card rounded-lg p-5 shadow-md">
+            <h3 class="text-xl font-bold text-gray-800 mb-4">生态建设成就</h3>
+            <div class="space-y-3">
+              <div class="flex items-center">
+                <div class="eco-icon">
+                  <i class="fas fa-tree"></i>
+                </div>
+                <div>
+                  <p class="font-medium">城市绿化显著提升</p>
+                  <p class="text-sm text-gray-600">
+                    东湖绿道三期建成开放，极大提升城市生态品质
+                  </p>
+                </div>
+              </div>
+              <div class="flex items-center">
+                <div class="eco-icon">
+                  <i class="fas fa-water"></i>
+                </div>
+                <div>
+                  <p class="font-medium">滨水空间优化</p>
+                  <p class="text-sm text-gray-600">
+                    105公里世界级滨湖绿道"画圆成环"，提升居民休闲空间
+                  </p>
+                </div>
+              </div>
+              <div class="flex items-center">
+                <div class="eco-icon">
+                  <i class="fas fa-wind"></i>
+                </div>
+                <div>
+                  <p class="font-medium">生态环境改善</p>
+                  <p class="text-sm text-gray-600">
+                    城市生态环境显著改善，居民生活质量提升
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Right Column - Details and Visualization -->
+        <div class="space-y-6">
+          <!-- East Lake Greenway Before/After -->
+          <div class="feature-card rounded-lg p-5 shadow-md">
+            <h3 class="text-xl font-bold text-gray-800 mb-4">
+              东湖绿道建设前后对比
+            </h3>
+            <div class="grid grid-cols-2 gap-4">
+              <div class="bg-gray-100 p-4 rounded-lg">
+                <div class="flex items-center mb-2">
+                  <i class="fas fa-history text-red-700 mr-2"></i>
+                  <h4 class="font-bold">2015年</h4>
+                </div>
+                <div class="highlight-box pl-3">
+                  <p class="text-sm text-gray-700">
+                    城市绿化有待提升，滨水空间利用不足
+                  </p>
+                  <p class="text-sm text-gray-700 mt-2">
+                    缺乏连贯的生态廊道，居民休闲空间有限
+                  </p>
+                </div>
+              </div>
+              <div class="bg-gray-100 p-4 rounded-lg">
+                <div class="flex items-center mb-2">
+                  <i class="fas fa-leaf text-green-700 mr-2"></i>
+                  <h4 class="font-bold">2025年</h4>
+                </div>
+                <div class="highlight-box pl-3">
+                  <p class="text-sm text-gray-700">东湖绿道三期建成开放</p>
+                  <p class="text-sm text-gray-700 mt-2">
+                    105公里世界级滨湖绿道"画圆成环"
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Ecological Quality Improvement -->
+          <div class="feature-card rounded-lg p-5 shadow-md">
+            <h3 class="text-xl font-bold text-gray-800 mb-4">生态品质提升</h3>
+            <div class="space-y-4">
+              <div class="flex items-start">
+                <div class="flex-shrink-0">
+                  <i
+                    class="fas fa-check-circle text-green-600 text-xl mr-3"
+                  ></i>
+                </div>
+                <div>
+                  <p class="font-medium">城市生态空间优化</p>
+                  <p class="text-sm text-gray-600">
+                    通过生态廊道建设，优化城市空间布局，提升生态韧性
+                  </p>
+                </div>
+              </div>
+              <div class="flex items-start">
+                <div class="flex-shrink-0">
+                  <i
+                    class="fas fa-check-circle text-green-600 text-xl mr-3"
+                  ></i>
+                </div>
+                <div>
+                  <p class="font-medium">居民休闲品质提升</p>
+                  <p class="text-sm text-gray-600">
+                    为市民提供更多的绿色休闲空间，提升生活品质
+                  </p>
+                </div>
+              </div>
+              <div class="flex items-start">
+                <div class="flex-shrink-0">
+                  <i
+                    class="fas fa-check-circle text-green-600 text-xl mr-3"
+                  ></i>
+                </div>
+                <div>
+                  <p class="font-medium">城市可持续发展</p>
+                  <p class="text-sm text-gray-600">
+                    生态建设为武汉可持续发展奠定坚实基础
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Footer with Quote -->
+      <div
+        class="absolute bottom-0 w-full bg-green-700 bg-opacity-90 p-3 text-center"
+      >
+        <p class="text-white italic">
+          "城市生态环境显著改善，为居民创造更美好的生活空间"
+        </p>
+      </div>
+    </div>
+    <div class="skywork-water-mark">天工 AI 生成</div>
+  </body>
+</html>

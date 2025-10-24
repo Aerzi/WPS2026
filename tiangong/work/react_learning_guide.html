@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>React学习路线分析</title>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://picture-search.tiangong.cn/tailwindcss.com"></script>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap");
+
+      body {
+        font-family: "Noto Sans SC", sans-serif;
+        margin: 0;
+        padding: 0;
+        width: 1280px;
+        height: 720px;
+        overflow: hidden;
+        background-color: #f1f5f9;
+      }
+
+      .slide {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        overflow: hidden;
+        background: linear-gradient(
+          135deg,
+          #fdf2f8 0%,
+          #f43f5e 40%,
+          #dc2563 70%,
+          #be185d 100%
+        );
+      }
+
+      .react-card {
+        background: rgba(255, 255, 255, 0.9);
+        border: 2px solid rgba(244, 63, 94, 0.3);
+        border-left: 6px solid #dc2563;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(10px);
+      }
+
+      .react-card:hover {
+        transform: translateY(-3px) scale(1.02);
+        background: rgba(255, 255, 255, 0.95);
+        border-color: #dc2563;
+        box-shadow: 0 15px 25px -5px rgba(220, 38, 99, 0.4);
+      }
+
+      .logo-area {
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 12px;
+        border: 2px solid #dc2563;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .subtitle-highlight {
+        color: white;
+        font-weight: 700;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        padding: 8px 16px;
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 8px;
+        display: inline-block;
+      }
+
+      .icon-circle {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #dc2563, #be185d);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 12px;
+      }
+
+      html {
+        overflow: hidden;
+        background-color: #f1f5f9;
+      }
+
+      .watermark {
+        position: absolute;
+        bottom: 6px;
+        right: 6px;
+        z-index: 99;
+        border-radius: 6px;
+        background: rgba(0, 0, 0, 0.56);
+        padding: 1px 6px;
+        color: #fff;
+        text-shadow: 0 7px 24px rgba(0, 8, 24, 0.28);
+        font-family: "PingFang SC";
+        font-size: 12px;
+        font-style: normal;
+        font-weight: 400;
+        line-height: 150%;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="slide">
+      <!-- Header Area -->
+      <div class="flex justify-between items-start p-6">
+        <!-- Title -->
+        <div class="flex-1">
+          <h1
+            class="text-4xl font-bold text-white text-center mb-2"
+            style="text-shadow: 2px 2px 4px rgba(190, 24, 93, 0.6)"
+          >
+            React学习路线分析
+          </h1>
+        </div>
+        <!-- Logo Area -->
+        <div class="logo-area w-20 h-14 ml-6">
+          <i class="fab fa-react text-2xl text-rose-600"></i>
+        </div>
+      </div>
+
+      <!-- Subtitle -->
+      <div class="text-center mb-4">
+        <h2 class="text-2xl subtitle-highlight">"六维进阶"学习体系</h2>
+      </div>
+
+      <!-- React Learning Cards Layout - 2+2+2 -->
+      <div class="px-6 pb-4">
+        <!-- Top Row - 2 Cards -->
+        <div class="grid grid-cols-2 gap-4 mb-3">
+          <!-- Fundamentals -->
+          <div class="react-card rounded-lg p-4 shadow-lg">
+            <div class="flex items-center mb-3">
+              <div class="icon-circle">
+                <i class="fas fa-cube text-white text-sm"></i>
+              </div>
+              <h3 class="text-lg font-bold text-rose-700">基础概念</h3>
+            </div>
+            <ul class="text-gray-700 space-y-2 text-sm">
+              <li class="flex items-start">
+                <span class="text-rose-500 mr-2">•</span>
+                <span>掌握JSX语法和React组件基础概念</span>
+              </li>
+              <li class="flex items-start">
+                <span class="text-rose-500 mr-2">•</span>
+                <span>理解Props传递和组件通信机制</span>
+              </li>
+              <li class="flex items-start">
+                <span class="text-rose-500 mr-2">•</span>
+                <span>学习函数组件与类组件的区别</span>
+              </li>
+            </ul>
+          </div>
+
+          <!-- State Management -->
+          <div class="react-card rounded-lg p-4 shadow-lg">
+            <div class="flex items-center mb-3">
+              <div class="icon-circle">
+                <i class="fas fa-database text-white text-sm"></i>
+              </div>
+              <h3 class="text-lg font-bold text-rose-700">状态管理</h3>
+            </div>
+            <ul class="text-gray-700 space-y-2 text-sm">
+              <li class="flex items-start">
+                <span class="text-rose-500 mr-2">•</span>
+                <span>熟练使用useState管理组件状态</span>
+              </li>
+              <li class="flex items-start">
+                <span class="text-rose-500 mr-2">•</span>
+                <span>掌握useEffect处理副作用操作</span>
+              </li>
+              <li class="flex items-start">
+                <span class="text-rose-500 mr-2">•</span>
+                <span>学习Context API实现跨组件通信</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Middle Row - 2 Cards -->
+        <div class="grid grid-cols-2 gap-4 mb-3">
+          <!-- Routing -->
+          <div class="react-card rounded-lg p-4 shadow-lg">
+            <div class="flex items-center mb-3">
+              <div class="icon-circle">
+                <i class="fas fa-route text-white text-sm"></i>
+              </div>
+              <h3 class="text-lg font-bold text-rose-700">路由导航</h3>
+            </div>
+            <ul class="text-gray-700 space-y-2 text-sm">
+              <li class="flex items-start">
+                <span class="text-rose-500 mr-2">•</span>
+                <span>掌握React Router实现单页应用导航</span>
+              </li>
+              <li class="flex items-start">
+                <span class="text-rose-500 mr-2">•</span>
+                <span>学习动态路由和参数传递技巧</span>
+              </li>
+              <li class="flex items-start">
+                <span class="text-rose-500 mr-2">•</span>
+                <span>实现路由守卫和权限控制功能</span>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Performance -->
+          <div class="react-card rounded-lg p-4 shadow-lg">
+            <div class="flex items-center mb-3">
+              <div class="icon-circle">
+                <i class="fas fa-tachometer-alt text-white text-sm"></i>
+              </div>
+              <h3 class="text-lg font-bold text-rose-700">性能优化</h3>
+            </div>
+            <ul class="text-gray-700 space-y-2 text-sm">
+              <li class="flex items-start">
+                <span class="text-rose-500 mr-2">•</span>
+                <span>使用useMemo和useCallback优化渲染</span>
+              </li>
+              <li class="flex items-start">
+                <span class="text-rose-500 mr-2">•</span>
+                <span>实现组件懒加载和代码分割</span>
+              </li>
+              <li class="flex items-start">
+                <span class="text-rose-500 mr-2">•</span>
+                <span>掌握Virtual DOM和Diff算法原理</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Bottom Row - 2 Cards -->
+        <div class="grid grid-cols-2 gap-4">
+          <!-- Ecosystem -->
+          <div class="react-card rounded-lg p-4 shadow-lg">
+            <div class="flex items-center mb-3">
+              <div class="icon-circle">
+                <i class="fas fa-tools text-white text-sm"></i>
+              </div>
+              <h3 class="text-lg font-bold text-rose-700">生态工具</h3>
+            </div>
+            <ul class="text-gray-700 space-y-2 text-sm">
+              <li class="flex items-start">
+                <span class="text-rose-500 mr-2">•</span>
+                <span>熟练使用Create React App和Vite脚手架</span>
+              </li>
+              <li class="flex items-start">
+                <span class="text-rose-500 mr-2">•</span>
+                <span>掌握Redux、Zustand等状态管理库</span>
+              </li>
+              <li class="flex items-start">
+                <span class="text-rose-500 mr-2">•</span>
+                <span>学习Jest、Testing Library进行单元测试</span>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Projects -->
+          <div class="react-card rounded-lg p-4 shadow-lg">
+            <div class="flex items-center mb-3">
+              <div class="icon-circle">
+                <i class="fas fa-project-diagram text-white text-sm"></i>
+              </div>
+              <h3 class="text-lg font-bold text-rose-700">实战项目</h3>
+            </div>
+            <ul class="text-gray-700 space-y-2 text-sm">
+              <li class="flex items-start">
+                <span class="text-rose-500 mr-2">•</span>
+                <span>完成Todo List、天气查询等基础项目</span>
+              </li>
+              <li class="flex items-start">
+                <span class="text-rose-500 mr-2">•</span>
+                <span>开发电商平台、博客系统等复杂应用</span>
+              </li>
+              <li class="flex items-start">
+                <span class="text-rose-500 mr-2">•</span>
+                <span>学习部署上线和持续集成流程</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="watermark">天工 AI 生成</div>
+  </body>
+</html>

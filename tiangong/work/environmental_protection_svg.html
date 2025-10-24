@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>环境保护 - 绿色地球行动 (SVG版)</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      html {
+        overflow: hidden;
+        background-color: #f0f9f0;
+      }
+
+      body {
+        font-family: "Noto Sans SC", sans-serif;
+        margin: 0;
+        padding: 0;
+        width: 1280px;
+        height: 720px;
+        overflow: hidden;
+        background-color: #f0f9f0;
+      }
+
+      .slide {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        overflow: hidden;
+      }
+
+      /* SVG样式 */
+      .svg-background {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 0;
+      }
+
+      .content-wrapper {
+        position: relative;
+        z-index: 1;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        padding: 20px;
+      }
+
+      /* Header */
+      .header {
+        text-align: center;
+        margin-bottom: 15px;
+      }
+
+      .main-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #1b5e20;
+        margin: 0;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 15px;
+      }
+
+      .subtitle {
+        font-size: 0.9rem;
+        color: #2e7d32;
+        margin: 5px 0 0 0;
+        font-weight: 500;
+      }
+
+      /* Main Content */
+      .main-content {
+        display: flex;
+        gap: 30px;
+        height: calc(100% - 100px);
+        align-items: stretch;
+      }
+
+      /* Left Section */
+      .left-section {
+        flex: 0 0 48%;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      /* SVG Chart Container */
+      .chart-container {
+        flex: 1;
+        position: relative;
+      }
+
+      .svg-chart {
+        width: 100%;
+        height: 100%;
+        filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.1));
+      }
+
+      /* Right Content Section */
+      .content-section {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .content-card {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 12px;
+        padding: 12px 15px;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .content-card::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 5px;
+        background: linear-gradient(180deg, #4caf50, #81c784);
+      }
+
+      .card-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #1b5e20;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding-left: 10px;
+      }
+
+      .card-content {
+        font-size: 0.72rem;
+        color: #2e7d32;
+        line-height: 1.4;
+        margin: 0;
+        padding-left: 10px;
+      }
+
+      .highlight {
+        background: linear-gradient(120deg, #c8e6c9 0%, #e8f5e8 100%);
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-weight: 600;
+        color: #1b5e20;
+      }
+
+      .action-list {
+        list-style: none;
+        padding: 0;
+        margin: 8px 0 0 10px;
+      }
+
+      .action-list li {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 4px;
+        font-size: 0.68rem;
+        color: #388e3c;
+      }
+
+      /* SVG Icon styles */
+      .svg-icon {
+        width: 24px;
+        height: 24px;
+        display: inline-block;
+      }
+
+      .svg-icon-small {
+        width: 12px;
+        height: 12px;
+        display: inline-block;
+      }
+
+      /* Watermark */
+      .watermark {
+        position: absolute;
+        bottom: 15px;
+        right: 25px;
+        font-size: 0.75rem;
+        color: rgba(27, 94, 32, 0.5);
+        font-weight: 300;
+        z-index: 2;
+      }
+
+      /* Animation */
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0px);
+        }
+        50% {
+          transform: translateY(-10px);
+        }
+      }
+
+      .float-animation {
+        animation: float 6s ease-in-out infinite;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="slide">
+      <!-- SVG Background -->
+      <svg
+        class="svg-background"
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 1280 720"
+        preserveAspectRatio="xMidYMid slice"
+      >
+        <defs>
+          <!-- Gradient Definitions -->
+          <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color: #e8f5e8; stop-opacity: 1" />
+            <stop offset="30%" style="stop-color: #c8e6c9; stop-opacity: 1" />
+            <stop offset="70%" style="stop-color: #81c784; stop-opacity: 1" />
+            <stop offset="100%" style="stop-color: #66bb6a; stop-opacity: 1" />
+          </linearGradient>
+
+          <radialGradient id="circleGradient" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" style="stop-color: #81c784; stop-opacity: 0.3" />
+            <stop
+              offset="100%"
+              style="stop-color: #4caf50; stop-opacity: 0.1"
+            />
+          </radialGradient>
+
+          <!-- Filter for depth effect -->
+          <filter id="shadow">
+            <feGaussianBlur in="SourceAlpha" stdDeviation="3" />
+            <feOffset dx="2" dy="2" result="offsetblur" />
+            <feComponentTransfer>
+              <feFuncA type="linear" slope="0.3" />
+            </feComponentTransfer>
+            <feMerge>
+              <feMergeNode />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+        </defs>
+
+        <!-- Background -->
+        <rect width="1280" height="720" fill="url(#bgGradient)" />
+
+        <!-- Decorative circles -->
+        <circle cx="100" cy="100" r="80" fill="url(#circleGradient)" />
+        <circle cx="1180" cy="120" r="100" fill="url(#circleGradient)" />
+        <circle cx="200" cy="650" r="60" fill="url(#circleGradient)" />
+        <circle cx="1100" cy="600" r="90" fill="url(#circleGradient)" />
+
+        <!-- Decorative leaves -->
+        <g class="float-animation" opacity="0.3">
+          <path d="M 50 50 Q 30 70, 50 90 Q 70 70, 50 50 Z" fill="#2e7d32" />
+          <path
+            d="M 1200 600 Q 1180 620, 1200 640 Q 1220 620, 1200 600 Z"
+            fill="#2e7d32"
+          />
+          <path
+            d="M 150 680 Q 130 700, 150 720 Q 170 700, 150 680 Z"
+            fill="#1b5e20"
+          />
+        </g>
+
+        <!-- Abstract tree shapes -->
+        <g opacity="0.15">
+          <ellipse cx="80" cy="650" rx="30" ry="15" fill="#1b5e20" />
+          <rect x="75" y="650" width="10" height="60" fill="#3e2723" />
+          <ellipse cx="80" cy="630" rx="40" ry="25" fill="#2e7d32" />
+          <ellipse cx="65" cy="645" rx="25" ry="18" fill="#2e7d32" />
+          <ellipse cx="95" cy="645" rx="25" ry="18" fill="#2e7d32" />
+        </g>
+      </svg>
+
+      <div class="content-wrapper">
+        <!-- Header -->
+        <div class="header">
+          <h1 class="main-title">
+            <!-- SVG Leaf Icon -->
+            <svg
+              class="svg-icon"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M17 8C8 10 5.9 16.17 3.82 21.34L5.71 22L6.66 19.7C7.14 19.87 7.64 20 8 20C19 20 22 3 22 3C21 5 14 5.25 9 6.25C4 7.25 2 11.5 2 13.5C2 15.5 3.75 17.25 3.75 17.25C7 8 17 8 17 8Z"
+                fill="#1b5e20"
+              />
+            </svg>
+            环境保护 - 绿色地球行动
+          </h1>
+          <p class="subtitle">共建美好家园，守护绿水青山</p>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+          <!-- Left Section with SVG Chart -->
+          <div class="left-section">
+            <div class="chart-container">
+              <svg
+                class="svg-chart"
+                viewBox="0 0 600 550"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <defs>
+                  <linearGradient
+                    id="cardGradient"
+                    x1="0%"
+                    y1="0%"
+                    x2="0%"
+                    y2="100%"
+                  >
+                    <stop
+                      offset="0%"
+                      style="stop-color: #ffffff; stop-opacity: 0.95"
+                    />
+                    <stop
+                      offset="100%"
+                      style="stop-color: #f1f8f1; stop-opacity: 0.95"
+                    />
+                  </linearGradient>
+
+                  <linearGradient
+                    id="barGradient1"
+                    x1="0%"
+                    y1="0%"
+                    x2="100%"
+                    y2="0%"
+                  >
+                    <stop
+                      offset="0%"
+                      style="stop-color: #43a047; stop-opacity: 1"
+                    />
+                    <stop
+                      offset="100%"
+                      style="stop-color: #66bb6a; stop-opacity: 1"
+                    />
+                  </linearGradient>
+
+                  <linearGradient
+                    id="barGradient2"
+                    x1="0%"
+                    y1="0%"
+                    x2="100%"
+                    y2="0%"
+                  >
+                    <stop
+                      offset="0%"
+                      style="stop-color: #66bb6a; stop-opacity: 1"
+                    />
+                    <stop
+                      offset="100%"
+                      style="stop-color: #81c784; stop-opacity: 1"
+                    />
+                  </linearGradient>
+
+                  <filter id="cardShadow">
+                    <feGaussianBlur in="SourceAlpha" stdDeviation="4" />
+                    <feOffset dx="0" dy="4" result="offsetblur" />
+                    <feComponentTransfer>
+                      <feFuncA type="linear" slope="0.2" />
+                    </feComponentTransfer>
+                    <feMerge>
+                      <feMergeNode />
+                      <feMergeNode in="SourceGraphic" />
+                    </feMerge>
+                  </filter>
+                </defs>
+
+                <!-- Card Background -->
+                <rect
+                  x="0"
+                  y="0"
+                  width="600"
+                  height="550"
+                  rx="12"
+                  fill="url(#cardGradient)"
+                  filter="url(#cardShadow)"
+                />
+
+                <!-- Title -->
+                <text
+                  x="300"
+                  y="35"
+                  font-size="20"
+                  font-weight="600"
+                  fill="#1b5e20"
+                  text-anchor="middle"
+                >
+                  全球环境数据监测
+                </text>
+
+                <!-- Chart Icon -->
+                <rect
+                  x="270"
+                  y="15"
+                  width="3"
+                  height="12"
+                  fill="#4caf50"
+                  rx="1.5"
+                />
+                <rect
+                  x="275"
+                  y="10"
+                  width="3"
+                  height="17"
+                  fill="#4caf50"
+                  rx="1.5"
+                />
+                <rect
+                  x="280"
+                  y="12"
+                  width="3"
+                  height="15"
+                  fill="#4caf50"
+                  rx="1.5"
+                />
+
+                <!-- Data Rows -->
+                <!-- Row 1: CO2 -->
+                <g transform="translate(40, 70)">
+                  <text
+                    x="0"
+                    y="0"
+                    font-size="13"
+                    font-weight="600"
+                    fill="#2e7d32"
+                  >
+                    CO₂浓度 (ppm)
+                  </text>
+                  <text x="0" y="18" font-size="11" fill="#555">
+                    2020: 414.2
+                  </text>
+                  <rect
+                    x="120"
+                    y="8"
+                    width="180"
+                    height="12"
+                    rx="6"
+                    fill="#e8f5e8"
+                  />
+                  <rect
+                    x="120"
+                    y="8"
+                    width="148"
+                    height="12"
+                    rx="6"
+                    fill="url(#barGradient1)"
+                  />
+                  <text
+                    x="310"
+                    y="18"
+                    font-size="11"
+                    font-weight="600"
+                    fill="#d32f2f"
+                  >
+                    421.8 ↑1.8%
+                  </text>
+                  <text x="410" y="18" font-size="10" fill="#666">
+                    目标: 350
+                  </text>
+                </g>
+
+                <!-- Row 2: Forest -->
+                <g transform="translate(40, 140)">
+                  <text
+                    x="0"
+                    y="0"
+                    font-size="13"
+                    font-weight="600"
+                    fill="#2e7d32"
+                  >
+                    森林覆盖率 (%)
+                  </text>
+                  <text x="0" y="18" font-size="11" fill="#555">
+                    2020: 30.7%
+                  </text>
+                  <rect
+                    x="120"
+                    y="8"
+                    width="180"
+                    height="12"
+                    rx="6"
+                    fill="#e8f5e8"
+                  />
+                  <rect
+                    x="120"
+                    y="8"
+                    width="159"
+                    height="12"
+                    rx="6"
+                    fill="url(#barGradient2)"
+                  />
+                  <text
+                    x="310"
+                    y="18"
+                    font-size="11"
+                    font-weight="600"
+                    fill="#388e3c"
+                  >
+                    30.9% ↑0.2%
+                  </text>
+                  <text x="410" y="18" font-size="10" fill="#666">
+                    目标: 35%
+                  </text>
+                </g>
+
+                <!-- Row 3: Renewable Energy -->
+                <g transform="translate(40, 210)">
+                  <text
+                    x="0"
+                    y="0"
+                    font-size="13"
+                    font-weight="600"
+                    fill="#2e7d32"
+                  >
+                    可再生能源 (%)
+                  </text>
+                  <text x="0" y="18" font-size="11" fill="#555">
+                    2020: 26.2%
+                  </text>
+                  <rect
+                    x="120"
+                    y="8"
+                    width="180"
+                    height="12"
+                    rx="6"
+                    fill="#e8f5e8"
+                  />
+                  <rect
+                    x="120"
+                    y="8"
+                    width="116"
+                    height="12"
+                    rx="6"
+                    fill="url(#barGradient1)"
+                  />
+                  <text
+                    x="310"
+                    y="18"
+                    font-size="11"
+                    font-weight="600"
+                    fill="#388e3c"
+                  >
+                    32.1% ↑5.9%
+                  </text>
+                  <text x="410" y="18" font-size="10" fill="#666">
+                    目标: 50%
+                  </text>
+                </g>
+
+                <!-- Row 4: Plastic Recycling -->
+                <g transform="translate(40, 280)">
+                  <text
+                    x="0"
+                    y="0"
+                    font-size="13"
+                    font-weight="600"
+                    fill="#2e7d32"
+                  >
+                    塑料回收率 (%)
+                  </text>
+                  <text x="0" y="18" font-size="11" fill="#555">
+                    2020: 14.5%
+                  </text>
+                  <rect
+                    x="120"
+                    y="8"
+                    width="180"
+                    height="12"
+                    rx="6"
+                    fill="#e8f5e8"
+                  />
+                  <rect
+                    x="120"
+                    y="8"
+                    width="109"
+                    height="12"
+                    rx="6"
+                    fill="url(#barGradient2)"
+                  />
+                  <text
+                    x="310"
+                    y="18"
+                    font-size="11"
+                    font-weight="600"
+                    fill="#388e3c"
+                  >
+                    18.2% ↑3.7%
+                  </text>
+                  <text x="410" y="18" font-size="10" fill="#666">
+                    目标: 30%
+                  </text>
+                </g>
+
+                <!-- Row 5: Water Usage -->
+                <g transform="translate(40, 350)">
+                  <text
+                    x="0"
+                    y="0"
+                    font-size="13"
+                    font-weight="600"
+                    fill="#2e7d32"
+                  >
+                    水资源利用率 (%)
+                  </text>
+                  <text x="0" y="18" font-size="11" fill="#555">
+                    2020: 87.3%
+                  </text>
+                  <rect
+                    x="120"
+                    y="8"
+                    width="180"
+                    height="12"
+                    rx="6"
+                    fill="#e8f5e8"
+                  />
+                  <rect
+                    x="120"
+                    y="8"
+                    width="169"
+                    height="12"
+                    rx="6"
+                    fill="url(#barGradient1)"
+                  />
+                  <text
+                    x="310"
+                    y="18"
+                    font-size="11"
+                    font-weight="600"
+                    fill="#388e3c"
+                  >
+                    89.6% ↑2.3%
+                  </text>
+                  <text x="410" y="18" font-size="10" fill="#666">
+                    目标: 95%
+                  </text>
+                </g>
+
+                <!-- Row 6: Species Protection -->
+                <g transform="translate(40, 420)">
+                  <text
+                    x="0"
+                    y="0"
+                    font-size="13"
+                    font-weight="600"
+                    fill="#2e7d32"
+                  >
+                    物种保护数量
+                  </text>
+                  <text x="0" y="18" font-size="11" fill="#555">
+                    2020: 28,400
+                  </text>
+                  <rect
+                    x="120"
+                    y="8"
+                    width="180"
+                    height="12"
+                    rx="6"
+                    fill="#e8f5e8"
+                  />
+                  <rect
+                    x="120"
+                    y="8"
+                    width="140"
+                    height="12"
+                    rx="6"
+                    fill="url(#barGradient2)"
+                  />
+                  <text
+                    x="310"
+                    y="18"
+                    font-size="11"
+                    font-weight="600"
+                    fill="#388e3c"
+                  >
+                    31,200 ↑9.9%
+                  </text>
+                  <text x="410" y="18" font-size="10" fill="#666">
+                    目标: 40,000
+                  </text>
+                </g>
+
+                <!-- Row 7: Investment -->
+                <g transform="translate(40, 490)">
+                  <text
+                    x="0"
+                    y="0"
+                    font-size="13"
+                    font-weight="600"
+                    fill="#2e7d32"
+                  >
+                    清洁能源投资 (万亿$)
+                  </text>
+                  <text x="0" y="18" font-size="11" fill="#555">2020: 3.1</text>
+                  <rect
+                    x="120"
+                    y="8"
+                    width="180"
+                    height="12"
+                    rx="6"
+                    fill="#e8f5e8"
+                  />
+                  <rect
+                    x="120"
+                    y="8"
+                    width="108"
+                    height="12"
+                    rx="6"
+                    fill="url(#barGradient1)"
+                  />
+                  <text
+                    x="310"
+                    y="18"
+                    font-size="11"
+                    font-weight="600"
+                    fill="#388e3c"
+                  >
+                    4.8 ↑54.8%
+                  </text>
+                  <text x="410" y="18" font-size="10" fill="#666">
+                    目标: 8.0
+                  </text>
+                </g>
+
+                <!-- Decorative elements -->
+                <circle cx="25" cy="75" r="4" fill="#4caf50" opacity="0.6" />
+                <circle cx="25" cy="145" r="4" fill="#66bb6a" opacity="0.6" />
+                <circle cx="25" cy="215" r="4" fill="#4caf50" opacity="0.6" />
+                <circle cx="25" cy="285" r="4" fill="#66bb6a" opacity="0.6" />
+                <circle cx="25" cy="355" r="4" fill="#4caf50" opacity="0.6" />
+                <circle cx="25" cy="425" r="4" fill="#66bb6a" opacity="0.6" />
+                <circle cx="25" cy="495" r="4" fill="#4caf50" opacity="0.6" />
+              </svg>
+            </div>
+          </div>
+
+          <!-- Right Content Section -->
+          <div class="content-section">
+            <!-- Card 1: Climate Action -->
+            <div class="content-card">
+              <h3 class="card-title">
+                <svg
+                  class="svg-icon"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M8 10C8 7.79 9.79 6 12 6C14.21 6 16 7.79 16 10C16 11.28 15.38 12.42 14.42 13.11L14 13.5V16H10V13.5L9.58 13.11C8.62 12.42 8 11.28 8 10ZM11 18V19H13V18H11ZM11 20V21H13V20H11Z"
+                    fill="#2e7d32"
+                  />
+                  <circle cx="12" cy="10" r="2" fill="#4caf50" />
+                </svg>
+                气候行动倡议
+              </h3>
+              <p class="card-content">
+                全球气候变化已成为人类面临的最严峻挑战之一。<span
+                  class="highlight"
+                  >碳中和目标</span
+                >的实现需要各国政府、企业和个人的共同努力。通过推广清洁能源、提高能源效率、发展碳捕集技术等多元化手段,我们正在朝着<span
+                  class="highlight"
+                  >2050年碳中和</span
+                >的目标稳步前进。
+              </p>
+              <ul class="action-list">
+                <li>
+                  <svg
+                    class="svg-icon-small"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <circle cx="12" cy="12" r="10" fill="#4caf50" />
+                    <path
+                      d="M9 12l2 2 4-4"
+                      stroke="white"
+                      stroke-width="2"
+                      fill="none"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                  推广太阳能和风能发电技术
+                </li>
+                <li>
+                  <svg
+                    class="svg-icon-small"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <circle cx="12" cy="12" r="10" fill="#4caf50" />
+                    <path
+                      d="M9 12l2 2 4-4"
+                      stroke="white"
+                      stroke-width="2"
+                      fill="none"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                  发展电动汽车和公共交通
+                </li>
+                <li>
+                  <svg
+                    class="svg-icon-small"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <circle cx="12" cy="12" r="10" fill="#4caf50" />
+                    <path
+                      d="M9 12l2 2 4-4"
+                      stroke="white"
+                      stroke-width="2"
+                      fill="none"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                  提升建筑能效标准
+                </li>
+              </ul>
+            </div>
+
+            <!-- Card 2: Biodiversity -->
+            <div class="content-card">
+              <h3 class="card-title">
+                <svg
+                  class="svg-icon"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M4.5 12C4.5 10.5 5.5 9.5 7 9.5C7.5 9.5 8 9.7 8.5 10C8.2 8.8 8.8 7.5 10 7C11.5 6.5 12.5 7 13 8C13.5 7 14.5 6.5 16 7C17.2 7.5 17.8 8.8 17.5 10C18 9.7 18.5 9.5 19 9.5C20.5 9.5 21.5 10.5 21.5 12C21.5 13.5 20.5 14.5 19 14.5C18.5 14.5 18 14.3 17.5 14C17.8 15.2 17.2 16.5 16 17C14.5 17.5 13.5 17 13 16C12.5 17 11.5 17.5 10 17C8.8 16.5 8.2 15.2 8.5 14C8 14.3 7.5 14.5 7 14.5C5.5 14.5 4.5 13.5 4.5 12Z"
+                    fill="#2e7d32"
+                  />
+                  <circle cx="12" cy="12" r="1.5" fill="#4caf50" />
+                </svg>
+                生物多样性保护
+              </h3>
+              <p class="card-content">
+                地球生物多样性正面临前所未有的威胁。<span class="highlight"
+                  >生态系统修复</span
+                >和<span class="highlight">物种保护</span
+                >是维护地球生命支持系统的关键。通过建立自然保护区、实施濒危物种繁育计划、恢复退化生态系统等措施,我们致力于保护地球上每一个珍贵的生命。
+              </p>
+              <ul class="action-list">
+                <li>
+                  <svg
+                    class="svg-icon-small"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <circle cx="12" cy="12" r="10" fill="#4caf50" />
+                    <path
+                      d="M9 12l2 2 4-4"
+                      stroke="white"
+                      stroke-width="2"
+                      fill="none"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                  建设国家公园和自然保护区
+                </li>
+                <li>
+                  <svg
+                    class="svg-icon-small"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <circle cx="12" cy="12" r="10" fill="#4caf50" />
+                    <path
+                      d="M9 12l2 2 4-4"
+                      stroke="white"
+                      stroke-width="2"
+                      fill="none"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                  实施濒危物种救护计划
+                </li>
+                <li>
+                  <svg
+                    class="svg-icon-small"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <circle cx="12" cy="12" r="10" fill="#4caf50" />
+                    <path
+                      d="M9 12l2 2 4-4"
+                      stroke="white"
+                      stroke-width="2"
+                      fill="none"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                  推进湿地和森林恢复工程
+                </li>
+              </ul>
+            </div>
+
+            <!-- Card 3: Circular Economy -->
+            <div class="content-card">
+              <h3 class="card-title">
+                <svg
+                  class="svg-icon"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M12 2L9 8L3 9L7.5 13.5L6 20L12 16.5L18 20L16.5 13.5L21 9L15 8L12 2Z"
+                    fill="none"
+                    stroke="#2e7d32"
+                    stroke-width="1.5"
+                  />
+                  <path
+                    d="M17 12C17 14.76 14.76 17 12 17C9.24 17 7 14.76 7 12C7 9.24 9.24 7 12 7"
+                    fill="none"
+                    stroke="#4caf50"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                  />
+                  <path d="M12 7L14 5L12 3" fill="#4caf50" />
+                </svg>
+                循环经济发展
+              </h3>
+              <p class="card-content">
+                从线性经济向<span class="highlight">循环经济</span
+                >转型是实现可持续发展的必由之路。通过<span class="highlight"
+                  >减量化、再利用、再循环</span
+                >的3R原则,我们可以最大限度地减少资源消耗和废物产生,构建资源节约型和环境友好型社会。
+              </p>
+              <ul class="action-list">
+                <li>
+                  <svg
+                    class="svg-icon-small"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <circle cx="12" cy="12" r="10" fill="#4caf50" />
+                    <path
+                      d="M9 12l2 2 4-4"
+                      stroke="white"
+                      stroke-width="2"
+                      fill="none"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                  推广零废物生产模式
+                </li>
+                <li>
+                  <svg
+                    class="svg-icon-small"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <circle cx="12" cy="12" r="10" fill="#4caf50" />
+                    <path
+                      d="M9 12l2 2 4-4"
+                      stroke="white"
+                      stroke-width="2"
+                      fill="none"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                  发展共享经济平台
+                </li>
+                <li>
+                  <svg
+                    class="svg-icon-small"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <circle cx="12" cy="12" r="10" fill="#4caf50" />
+                    <path
+                      d="M9 12l2 2 4-4"
+                      stroke="white"
+                      stroke-width="2"
+                      fill="none"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                  完善废物分类回收体系
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Watermark -->
+      <div class="watermark">绿色地球 · 共同行动</div>
+    </div>
+  </body>
+</html>

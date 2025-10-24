@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>金山小学各年级教学计划</title>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://picture-search.tiangong.cn/tailwindcss.com"></script>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap");
+      body {
+        font-family: "Noto Sans SC", sans-serif;
+        margin: 0;
+        padding: 0;
+        width: 1280px;
+        height: 720px;
+        overflow: hidden;
+        background-color: #f1f5f9;
+      }
+      .slide {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        overflow: hidden;
+        background: linear-gradient(
+          135deg,
+          #e0f2fe 0%,
+          #0891b2 50%,
+          #075985 100%
+        );
+      }
+      .table-row:nth-child(odd) {
+        background-color: rgba(224, 242, 254, 0.6);
+      }
+      .table-row:nth-child(even) {
+        background-color: rgba(186, 230, 253, 0.4);
+      }
+      .table-row:hover {
+        background-color: rgba(8, 145, 178, 0.2);
+      }
+      .icon-circle {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 12px;
+        background: linear-gradient(135deg, #0891b2 0%, #075985 100%);
+      }
+      .header-gradient {
+        background: linear-gradient(135deg, #075985 0%, #0284c7 100%);
+      }
+
+      html {
+        overflow: hidden;
+        background-color: #f1f5f9;
+      }
+      .watermark {
+        position: absolute;
+        bottom: 6px;
+        right: 6px;
+        z-index: 99;
+        border-radius: 6px;
+        background: rgba(0, 0, 0, 0.56);
+        padding: 1px 6px;
+        color: #fff;
+        text-shadow: 0 7px 24px rgba(0, 8, 24, 0.28);
+        font-family: "PingFang SC";
+        font-size: 12px;
+        font-style: normal;
+        font-weight: 400;
+        line-height: 150%;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="slide" style="overflow: hidden">
+      <!-- Header -->
+      <div class="bg-white shadow-md p-4">
+        <h1 class="text-3xl font-bold text-center text-gray-800">
+          金山小学各年级教学计划表
+        </h1>
+        <div class="flex justify-center mt-1">
+          <div class="h-1 w-16 bg-sky-700"></div>
+        </div>
+      </div>
+
+      <!-- Introduction -->
+      <div class="px-8 py-2">
+        <p class="text-base text-gray-700 text-center">
+          金山小学致力于提供优质教育，各年级教学计划科学合理，注重学生全面发展。多项教学改革创新举措，
+          为学生创造更好的学习环境，提升教育教学质量。
+        </p>
+      </div>
+
+      <!-- Comparison Table -->
+      <div class="px-8">
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+          <!-- Table Header -->
+          <div class="grid grid-cols-4 header-gradient text-white p-4">
+            <div class="font-bold text-lg">年级</div>
+            <div class="font-bold text-lg">核心任务</div>
+            <div class="font-bold text-lg">学习目标</div>
+            <div class="font-bold text-lg">参与人数</div>
+          </div>
+
+          <!-- Table Rows -->
+          <div class="table-row grid grid-cols-4 p-2 items-center">
+            <div class="flex items-center">
+              <div class="icon-circle text-white">
+                <i class="fas fa-seedling text-lg"></i>
+              </div>
+              <span class="font-medium">一年级</span>
+            </div>
+            <div>培养基础学习习惯，掌握拼音识字</div>
+            <div class="font-medium text-sky-700">
+              认识1000个常用汉字，养成良好行为习惯
+            </div>
+            <div>150名学生</div>
+          </div>
+
+          <div class="table-row grid grid-cols-4 p-2 items-center">
+            <div class="flex items-center">
+              <div class="icon-circle text-white">
+                <i class="fas fa-book text-lg"></i>
+              </div>
+              <span class="font-medium">二年级</span>
+            </div>
+            <div>强化阅读理解，基础数学运算</div>
+            <div class="font-medium text-sky-700">
+              流利朗读课文，掌握百位数加减法
+            </div>
+            <div>145名学生</div>
+          </div>
+
+          <div class="table-row grid grid-cols-4 p-2 items-center">
+            <div class="flex items-center">
+              <div class="icon-circle text-white">
+                <i class="fas fa-pencil-alt text-lg"></i>
+              </div>
+              <span class="font-medium">三年级</span>
+            </div>
+            <div>提升写作能力，学习英语启蒙</div>
+            <div class="font-medium text-sky-700">
+              独立完成300字作文，掌握基础英语对话
+            </div>
+            <div>140名学生</div>
+          </div>
+
+          <div class="table-row grid grid-cols-4 p-2 items-center">
+            <div class="flex items-center">
+              <div class="icon-circle text-white">
+                <i class="fas fa-calculator text-lg"></i>
+              </div>
+              <span class="font-medium">四年级</span>
+            </div>
+            <div>数学逻辑思维，科学实验启发</div>
+            <div class="font-medium text-sky-700">
+              掌握分数概念，完成简单科学实验
+            </div>
+            <div>138名学生</div>
+          </div>
+
+          <div class="table-row grid grid-cols-4 p-2 items-center">
+            <div class="flex items-center">
+              <div class="icon-circle text-white">
+                <i class="fas fa-globe text-lg"></i>
+              </div>
+              <span class="font-medium">五年级</span>
+            </div>
+            <div>拓展知识面，培养批判思维</div>
+            <div class="font-medium text-sky-700">
+              阅读经典名著，掌握基础几何知识
+            </div>
+            <div>135名学生</div>
+          </div>
+
+          <div class="table-row grid grid-cols-4 p-2 items-center">
+            <div class="flex items-center">
+              <div class="icon-circle text-white">
+                <i class="fas fa-graduation-cap text-lg"></i>
+              </div>
+              <span class="font-medium">六年级</span>
+            </div>
+            <div>小升初准备，综合能力提升</div>
+            <div class="font-medium text-sky-700">
+              系统复习小学知识，培养自主学习能力
+            </div>
+            <div>132名学生</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Conclusion -->
+      <div class="px-8 py-3">
+        <div
+          class="bg-sky-700 bg-opacity-10 border-l-4 border-sky-700 p-3 rounded"
+        >
+          <div class="flex items-center">
+            <i class="fas fa-lightbulb text-sky-700 text-xl mr-3"></i>
+            <p class="text-base text-gray-800">
+              金山小学通过科学的教学计划安排，不仅注重学生的知识学习，更关注品格培养和能力发展，
+              为每一位学生的成长奠定坚实基础，努力培养德智体美劳全面发展的优秀学生。
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="watermark">金山小学</div>
+  </body>
+</html>

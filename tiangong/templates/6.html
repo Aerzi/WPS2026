@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>轨道上的都市：地铁网络扩展四倍</title>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://picture-search.tiangong.cn/tailwindcss.com"></script>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap");
+      body {
+        position: relative;
+        width: 1280px;
+        min-height: 782px;
+        overflow: hidden;
+        font-family: "Noto Sans SC", sans-serif;
+        margin: 0;
+        padding: 0;
+      }
+      .slide {
+        width: 1280px;
+        min-height: 782px;
+        position: relative;
+      }
+      .stat-card {
+        background-color: rgba(245, 230, 211, 0.7);
+        transition: all 0.3s ease;
+      }
+      .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+          0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      }
+      .chart-container {
+        background-color: rgba(255, 255, 255, 0.8);
+        border-radius: 8px;
+      }
+      .metro-2015 {
+        fill: #f8d5a3;
+        stroke: #a93226;
+        stroke-width: 2;
+      }
+      .metro-2025 {
+        fill: #a93226;
+        stroke: #d4e6d1;
+        stroke-width: 2;
+      }
+
+      html {
+        overflow: hidden;
+      }
+      .skywork-water-mark {
+        position: absolute;
+        bottom: 6px;
+        right: 6px;
+        z-index: 99;
+        border-radius: 6px;
+        background: rgba(0, 0, 0, 0.56);
+        padding: 1px 6px;
+        color: #fff;
+        /* Level_5 */
+        text-shadow: 0 7px 24px rgba(0, 8, 24, 0.28);
+        /* CN Web/Regular/12 */
+        font-family: "PingFang SC";
+        font-size: 12px;
+        font-style: normal;
+        font-weight: 400;
+        line-height: 150%; /* 18px */
+      }
+    </style>
+  </head>
+  <body>
+    <div class="slide bg-gray-50" style="overflow: hidden">
+      <!-- Header -->
+      <div class="bg-white shadow-md p-6">
+        <h1 class="text-4xl font-bold text-center text-gray-800">
+          轨道上的都市：地铁网络扩展四倍
+        </h1>
+        <div class="flex justify-center mt-2">
+          <div class="h-1 w-16 bg-red-700"></div>
+        </div>
+      </div>
+      <!-- Main Content -->
+      <div class="p-6 grid grid-cols-12 gap-6">
+        <!-- Left Side - Key Statistics -->
+        <div class="col-span-4 space-y-6">
+          <!-- Mileage Stat -->
+          <div class="stat-card rounded-lg p-5 shadow-md">
+            <div class="flex items-center mb-3">
+              <div class="bg-red-700 rounded-full p-2 mr-3">
+                <i class="fas fa-route text-white text-xl"></i>
+              </div>
+              <h2 class="text-xl font-bold text-gray-800">运营里程</h2>
+            </div>
+            <div class="flex justify-between items-end">
+              <div class="text-center">
+                <p class="text-gray-600">2015年</p>
+                <p class="text-3xl font-bold text-gray-700">
+                  126<span class="text-xl">公里</span>
+                </p>
+              </div>
+              <div class="text-4xl text-red-700">
+                <i class="fas fa-arrow-right"></i>
+              </div>
+              <div class="text-center">
+                <p class="text-gray-600">2025年</p>
+                <p class="text-3xl font-bold text-red-700">
+                  500+<span class="text-xl">公里</span>
+                </p>
+              </div>
+            </div>
+            <div class="mt-3 bg-gray-200 rounded-full h-4">
+              <div class="bg-red-700 h-4 rounded-full" style="width: 75%"></div>
+            </div>
+            <div class="flex justify-between mt-1">
+              <span class="text-sm font-medium text-gray-700">+296.8%</span>
+              <span class="text-sm font-medium text-gray-700">四倍增长</span>
+            </div>
+          </div>
+          <!-- Lines Stat -->
+          <div class="stat-card rounded-lg p-5 shadow-md">
+            <div class="flex items-center mb-3">
+              <div class="bg-red-700 rounded-full p-2 mr-3">
+                <i class="fas fa-subway text-white text-xl"></i>
+              </div>
+              <h2 class="text-xl font-bold text-gray-800">线路数量</h2>
+            </div>
+            <div class="flex justify-between items-end">
+              <div class="text-center">
+                <p class="text-gray-600">2015年</p>
+                <p class="text-3xl font-bold text-gray-700">
+                  4<span class="text-xl">条</span>
+                </p>
+              </div>
+              <div class="text-4xl text-red-700">
+                <i class="fas fa-arrow-right"></i>
+              </div>
+              <div class="text-center">
+                <p class="text-gray-600">2025年</p>
+                <p class="text-3xl font-bold text-red-700">
+                  12<span class="text-xl">条</span>
+                </p>
+              </div>
+            </div>
+            <div class="mt-3 bg-gray-200 rounded-full h-4">
+              <div
+                class="bg-red-700 h-4 rounded-full"
+                style="width: 100%"
+              ></div>
+            </div>
+            <div class="flex justify-between mt-1">
+              <span class="text-sm font-medium text-gray-700">+200%</span>
+              <span class="text-sm font-medium text-gray-700">三倍增长</span>
+            </div>
+          </div>
+          <!-- Station Info -->
+          <div class="bg-white rounded-lg p-5 shadow-md">
+            <div class="flex items-center mb-3">
+              <div class="bg-red-700 rounded-full p-2 mr-3">
+                <i class="fas fa-map-marker-alt text-white text-xl"></i>
+              </div>
+              <h2 class="text-xl font-bold text-gray-800">车站覆盖</h2>
+            </div>
+            <p class="text-gray-700">
+              2025年，武汉地铁网络已覆盖全市，形成300座车站的全域覆盖网络，实现"上天入地"的立体交通体系。
+            </p>
+          </div>
+        </div>
+        <!-- Right Side - Visualization -->
+        <div class="col-span-8">
+          <div class="chart-container p-5 shadow-lg h-full">
+            <h3 class="text-xl font-bold text-center text-gray-700 mb-4">
+              武汉地铁网络发展对比 (2015-2025)
+            </h3>
+            <!-- Metro Network Visualization -->
+            <div class="grid grid-cols-2 gap-4">
+              <!-- 2015 Metro Network -->
+              <div class="bg-white rounded-lg p-4 shadow">
+                <h4
+                  class="text-lg font-semibold text-center text-gray-700 mb-2"
+                >
+                  2015年地铁网络
+                </h4>
+                <div class="flex justify-center mb-3">
+                  <div
+                    class="w-16 h-16 rounded-full bg-white border-4 border-dashed border-red-700 flex items-center justify-center"
+                  >
+                    <span class="text-2xl font-bold text-red-700">4条</span>
+                  </div>
+                </div>
+                <div
+                  class="h-48 w-full"
+                  id="metro-2015"
+                  data-sk-source-container="chart"
+                  data-sk-source-id="1980639629025169408"
+                  data-sk-source-type="web_search"
+                ></div>
+                <div class="text-center mt-2">
+                  <p class="text-sm text-gray-600">运营里程：126公里</p>
+                  <p class="text-sm text-gray-600">覆盖城市主要区域</p>
+                </div>
+              </div>
+              <!-- 2025 Metro Network -->
+              <div class="bg-white rounded-lg p-4 shadow">
+                <h4
+                  class="text-lg font-semibold text-center text-gray-700 mb-2"
+                >
+                  2025年地铁网络
+                </h4>
+                <div class="flex justify-center mb-3">
+                  <div
+                    class="w-16 h-16 rounded-full bg-red-700 flex items-center justify-center"
+                  >
+                    <span class="text-2xl font-bold text-white">12条</span>
+                  </div>
+                </div>
+                <div
+                  class="h-48 w-full"
+                  id="metro-2025"
+                  data-sk-source-container="chart"
+                  data-sk-source-id="1980639629025169408"
+                  data-sk-source-type="web_search"
+                ></div>
+                <div class="text-center mt-2">
+                  <p class="text-sm text-gray-600">运营里程：500+公里</p>
+                  <p class="text-sm text-gray-600">覆盖全市，连接周边城市</p>
+                </div>
+              </div>
+            </div>
+            <!-- Key Achievements -->
+            <div class="mt-4 bg-gray-100 rounded-lg p-3">
+              <h4 class="text-lg font-semibold text-gray-700 mb-2">
+                十年成就：
+              </h4>
+              <div class="flex flex-wrap">
+                <div class="flex items-center mr-6 mb-2">
+                  <i class="fas fa-check-circle text-red-700 mr-2"></i>
+                  <span class="text-sm">地铁网络规模扩大4倍</span>
+                </div>
+                <div class="flex items-center mr-6 mb-2">
+                  <i class="fas fa-check-circle text-red-700 mr-2"></i>
+                  <span class="text-sm">形成"十"字形骨干网络</span>
+                </div>
+                <div class="flex items-center mr-6 mb-2">
+                  <i class="fas fa-check-circle text-red-700 mr-2"></i>
+                  <span class="text-sm">覆盖全市主要城区</span>
+                </div>
+                <div class="flex items-center mb-2">
+                  <i class="fas fa-check-circle text-red-700 mr-2"></i>
+                  <span class="text-sm">成为中部地区最大地铁网络</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>
+      // Simple D3.js visualization for metro network 2015
+      const metro2015 = d3
+        .select("#metro-2015")
+        .append("svg")
+        .attr("width", "100%")
+        .attr("height", "100%")
+        .attr("viewBox", "0 0 300 150");
+
+      // Create simple metro lines for 2015 (just 4 lines)
+      metro2015
+        .append("line")
+        .attr("x1", 50)
+        .attr("y1", 30)
+        .attr("x2", 250)
+        .attr("y2", 30)
+        .attr("stroke", "#A93226")
+        .attr("stroke-width", 6);
+
+      metro2015
+        .append("line")
+        .attr("x1", 30)
+        .attr("y1", 50)
+        .attr("x2", 270)
+        .attr("y2", 100)
+        .attr("stroke", "#A93226")
+        .attr("stroke-width", 6);
+
+      metro2015
+        .append("line")
+        .attr("x1", 50)
+        .attr("y1", 120)
+        .attr("x2", 250)
+        .attr("y2", 120)
+        .attr("stroke", "#A93226")
+        .attr("stroke-width", 6);
+
+      metro2015
+        .append("line")
+        .attr("x1", 150)
+        .attr("y1", 30)
+        .attr("x2", 150)
+        .attr("y2", 120)
+        .attr("stroke", "#A93226")
+        .attr("stroke-width", 6);
+
+      // Add stations
+      const stations2015 = [
+        { x: 50, y: 30 },
+        { x: 150, y: 30 },
+        { x: 250, y: 30 },
+        { x: 30, y: 50 },
+        { x: 150, y: 50 },
+        { x: 270, y: 100 },
+        { x: 50, y: 120 },
+        { x: 150, y: 120 },
+        { x: 250, y: 120 },
+      ];
+
+      metro2015
+        .selectAll("circle")
+        .data(stations2015)
+        .enter()
+        .append("circle")
+        .attr("cx", (d) => d.x)
+        .attr("cy", (d) => d.y)
+        .attr("r", 6)
+        .attr("fill", "#F8D5A3")
+        .attr("stroke", "#A93226")
+        .attr("stroke-width", 2);
+
+      // Simple D3.js visualization for metro network 2025
+      const metro2025 = d3
+        .select("#metro-2025")
+        .append("svg")
+        .attr("width", "100%")
+        .attr("height", "100%")
+        .attr("viewBox", "0 0 300 150");
+
+      // Create metro lines for 2025 (12 lines)
+      // Horizontal lines
+      metro2025
+        .append("line")
+        .attr("x1", 20)
+        .attr("y1", 30)
+        .attr("x2", 280)
+        .attr("y2", 30)
+        .attr("stroke", "#A93226")
+        .attr("stroke-width", 5);
+
+      metro2025
+        .append("line")
+        .attr("x1", 20)
+        .attr("y1", 60)
+        .attr("x2", 280)
+        .attr("y2", 60)
+        .attr("stroke", "#A93226")
+        .attr("stroke-width", 5);
+
+      metro2025
+        .append("line")
+        .attr("x1", 20)
+        .attr("y1", 90)
+        .attr("x2", 280)
+        .attr("y2", 90)
+        .attr("stroke", "#A93226")
+        .attr("stroke-width", 5);
+
+      metro2025
+        .append("line")
+        .attr("x1", 20)
+        .attr("y1", 120)
+        .attr("x2", 280)
+        .attr("y2", 120)
+        .attr("stroke", "#A93226")
+        .attr("stroke-width", 5);
+
+      // Vertical lines
+      metro2025
+        .append("line")
+        .attr("x1", 30)
+        .attr("y1", 20)
+        .attr("x2", 30)
+        .attr("y2", 130)
+        .attr("stroke", "#A93226")
+        .attr("stroke-width", 5);
+
+      metro2025
+        .append("line")
+        .attr("x1", 60)
+        .attr("y1", 20)
+        .attr("x2", 60)
+        .attr("y2", 130)
+        .attr("stroke", "#A93226")
+        .attr("stroke-width", 5);
+
+      metro2025
+        .append("line")
+        .attr("x1", 90)
+        .attr("y1", 20)
+        .attr("x2", 90)
+        .attr("y2", 130)
+        .attr("stroke", "#A93226")
+        .attr("stroke-width", 5);
+
+      metro2025
+        .append("line")
+        .attr("x1", 120)
+        .attr("y1", 20)
+        .attr("x2", 120)
+        .attr("y2", 130)
+        .attr("stroke", "#A93226")
+        .attr("stroke-width", 5);
+
+      metro2025
+        .append("line")
+        .attr("x1", 150)
+        .attr("y1", 20)
+        .attr("x2", 150)
+        .attr("y2", 130)
+        .attr("stroke", "#A93226")
+        .attr("stroke-width", 5);
+
+      metro2025
+        .append("line")
+        .attr("x1", 180)
+        .attr("y1", 20)
+        .attr("x2", 180)
+        .attr("y2", 130)
+        .attr("stroke", "#A93226")
+        .attr("stroke-width", 5);
+
+      metro2025
+        .append("line")
+        .attr("x1", 210)
+        .attr("y1", 20)
+        .attr("x2", 210)
+        .attr("y2", 130)
+        .attr("stroke", "#A93226")
+        .attr("stroke-width", 5);
+
+      metro2025
+        .append("line")
+        .attr("x1", 240)
+        .attr("y1", 20)
+        .attr("x2", 240)
+        .attr("y2", 130)
+        .attr("stroke", "#A93226")
+        .attr("stroke-width", 5);
+
+      metro2025
+        .append("line")
+        .attr("x1", 270)
+        .attr("y1", 20)
+        .attr("x2", 270)
+        .attr("y2", 130)
+        .attr("stroke", "#A93226")
+        .attr("stroke-width", 5);
+
+      // Add stations
+      const stations2025 = [];
+      for (let i = 0; i < 9; i++) {
+        for (let j = 0; j < 9; j++) {
+          stations2025.push({ x: 30 + i * 30, y: 30 + j * 30 });
+        }
+      }
+
+      metro2025
+        .selectAll("circle")
+        .data(stations2025)
+        .enter()
+        .append("circle")
+        .attr("cx", (d) => d.x)
+        .attr("cy", (d) => d.y)
+        .attr("r", 4)
+        .attr("fill", "#A93226");
+    </script>
+    <div class="skywork-water-mark">天工 AI 生成</div>
+  </body>
+</html>

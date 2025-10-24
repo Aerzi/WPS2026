@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>智慧韧性城市：市政设施全面升级</title>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://picture-search.tiangong.cn/tailwindcss.com"></script>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap");
+      body {
+        position: relative;
+        width: 1280px;
+        min-height: 766px;
+        overflow: hidden;
+        font-family: "Noto Sans SC", sans-serif;
+        margin: 0;
+        padding: 0;
+      }
+      .slide {
+        width: 1280px;
+        min-height: 766px;
+        position: relative;
+      }
+      .table-row:nth-child(odd) {
+        background-color: rgba(245, 230, 211, 0.5);
+      }
+      .table-row:nth-child(even) {
+        background-color: rgba(248, 213, 163, 0.3);
+      }
+      .table-row:hover {
+        background-color: rgba(169, 50, 38, 0.1);
+      }
+      .icon-circle {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 15px;
+      }
+
+      html {
+        overflow: hidden;
+      }
+      .skywork-water-mark {
+        position: absolute;
+        bottom: 6px;
+        right: 6px;
+        z-index: 99;
+        border-radius: 6px;
+        background: rgba(0, 0, 0, 0.56);
+        padding: 1px 6px;
+        color: #fff;
+        /* Level_5 */
+        text-shadow: 0 7px 24px rgba(0, 8, 24, 0.28);
+        /* CN Web/Regular/12 */
+        font-family: "PingFang SC";
+        font-size: 12px;
+        font-style: normal;
+        font-weight: 400;
+        line-height: 150%; /* 18px */
+      }
+    </style>
+  </head>
+  <body>
+    <div class="slide bg-gray-50" style="overflow: hidden">
+      <!-- Header -->
+      <div class="bg-white shadow-md p-6">
+        <h1 class="text-4xl font-bold text-center text-gray-800">
+          智慧韧性城市：市政设施全面升级
+        </h1>
+        <div class="flex justify-center mt-2">
+          <div class="h-1 w-16 bg-red-700"></div>
+        </div>
+      </div>
+      <!-- Introduction -->
+      <div class="px-10 py-4">
+        <p class="text-lg text-gray-700 text-center">
+          武汉市在市政设施建设方面，着力提升城市的安全韧性和智慧化管理水平，多项重大工程建成投用，
+          为城市可持续发展奠定坚实基础。
+        </p>
+      </div>
+      <!-- Comparison Table -->
+      <div class="px-10">
+        <div
+          class="bg-white rounded-lg shadow-lg overflow-hidden"
+          data-sk-source-container="chart"
+          data-sk-source-id="1980638192575840280"
+          data-sk-source-type="web_search"
+        >
+          <!-- Table Header -->
+          <div class="grid grid-cols-4 bg-red-700 text-white p-4">
+            <div class="font-bold text-lg">设施类别</div>
+            <div class="font-bold text-lg">2015年状况</div>
+            <div class="font-bold text-lg">2025年成就</div>
+            <div class="font-bold text-lg">十年变化</div>
+          </div>
+          <!-- Table Rows -->
+          <div class="table-row grid grid-cols-4 p-4 items-center">
+            <div class="flex items-center">
+              <div class="icon-circle bg-red-700 text-white">
+                <i class="fas fa-tint text-2xl"></i>
+              </div>
+              <span class="font-medium">供水能力</span>
+            </div>
+            <div>传统水厂供水系统</div>
+            <div class="font-medium text-red-700">
+              "一湖五库"应急备用水源建成，梁子湖应急水厂投产
+            </div>
+            <div>供水保障能力显著提升</div>
+          </div>
+          <div class="table-row grid grid-cols-4 p-4 items-center">
+            <div class="flex items-center">
+              <div class="icon-circle bg-red-700 text-white">
+                <i class="fas fa-fire-flame-simple text-2xl"></i>
+              </div>
+              <span class="font-medium">燃气管道</span>
+            </div>
+            <div>基础燃气管网</div>
+            <div class="font-medium text-red-700">
+              新改扩建燃气管网300公里，新增14座燃气场站
+            </div>
+            <div>管网和设施大幅完善</div>
+          </div>
+          <div class="table-row grid grid-cols-4 p-4 items-center">
+            <div class="flex items-center">
+              <div class="icon-circle bg-red-700 text-white">
+                <i class="fas fa-bolt text-2xl"></i>
+              </div>
+              <span class="font-medium">电力设施</span>
+            </div>
+            <div>常规电力供应系统</div>
+            <div class="font-medium text-red-700">
+              新增变电容量400万千伏安，新改建配电线路280公里
+            </div>
+            <div>电力供应能力增强</div>
+          </div>
+          <div class="table-row grid grid-cols-4 p-4 items-center">
+            <div class="flex items-center">
+              <div class="icon-circle bg-red-700 text-white">
+                <i class="fas fa-charging-station text-2xl"></i>
+              </div>
+              <span class="font-medium">新能源汽车充电桩</span>
+            </div>
+            <div>较少充电桩覆盖</div>
+            <div class="font-medium text-red-700">
+              8万个充电桩建成，重点区域实现全覆盖
+            </div>
+            <div>支持新能源汽车发展</div>
+          </div>
+          <div class="table-row grid grid-cols-4 p-4 items-center">
+            <div class="flex items-center">
+              <div class="icon-circle bg-red-700 text-white">
+                <i class="fas fa-city text-2xl"></i>
+              </div>
+              <span class="font-medium">城市数字信息模型</span>
+            </div>
+            <div>传统城市规划模型</div>
+            <div class="font-medium text-red-700">
+              实现全域覆盖，全国率先完成
+            </div>
+            <div>推动智慧城市建设</div>
+          </div>
+        </div>
+      </div>
+      <!-- Conclusion -->
+      <div class="px-10 py-6">
+        <div
+          class="bg-red-700 bg-opacity-10 border-l-4 border-red-700 p-4 rounded"
+        >
+          <div class="flex items-center">
+            <i class="fas fa-lightbulb text-red-700 text-2xl mr-3"></i>
+            <p class="text-lg text-gray-800">
+              武汉市通过市政设施的全面升级，不仅提升了城市的安全韧性，也为智慧城市建设奠定了坚实基础，
+              为市民提供了更加优质、便捷、安全的城市生活环境。
+            </p>
+          </div>
+        </div>
+      </div>
+      <!-- Page Number -->
+      <div class="absolute bottom-4 right-6" style="visibility: hidden">
+        <span class="text-red-700 font-bold">8 / 15</span>
+      </div>
+    </div>
+    <div class="skywork-water-mark">天工 AI 生成</div>
+  </body>
+</html>

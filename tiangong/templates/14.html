@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>江城蝶变：从"大武汉"到"强武汉"</title>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://picture-search.tiangong.cn/tailwindcss.com"></script>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap");
+      body {
+        position: relative;
+        width: 1280px;
+        min-height: 730px;
+        overflow: hidden;
+        font-family: "Noto Sans SC", sans-serif;
+        margin: 0;
+        padding: 0;
+      }
+      .slide {
+        width: 1280px;
+        min-height: 730px;
+        position: relative;
+      }
+      .achievement-card {
+        background-color: rgba(245, 230, 211, 0.7);
+        transition: all 0.3s ease;
+      }
+      .achievement-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+          0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      }
+      .icon-circle {
+        background-color: #a93226;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .transformation-arrow {
+        position: relative;
+        height: 3px;
+        background-color: #a93226;
+      }
+      .transformation-arrow:after {
+        content: "";
+        position: absolute;
+        right: -10px;
+        top: -8px;
+        width: 0;
+        height: 0;
+        border-left: 15px solid #a93226;
+        border-top: 10px solid transparent;
+        border-bottom: 10px solid transparent;
+      }
+
+      html {
+        overflow: hidden;
+      }
+      .skywork-water-mark {
+        position: absolute;
+        bottom: 6px;
+        right: 6px;
+        z-index: 99;
+        border-radius: 6px;
+        background: rgba(0, 0, 0, 0.56);
+        padding: 1px 6px;
+        color: #fff;
+        /* Level_5 */
+        text-shadow: 0 7px 24px rgba(0, 8, 24, 0.28);
+        /* CN Web/Regular/12 */
+        font-family: "PingFang SC";
+        font-size: 12px;
+        font-style: normal;
+        font-weight: 400;
+        line-height: 150%; /* 18px */
+      }
+    </style>
+  </head>
+  <body>
+    <div class="slide bg-gray-50" style="overflow: hidden">
+      <!-- Header -->
+      <div class="bg-white shadow-md p-6">
+        <h1 class="text-4xl font-bold text-center text-gray-800">
+          江城蝶变：从"大武汉"到"强武汉"
+        </h1>
+        <div class="flex justify-center mt-2">
+          <div class="h-1 w-24 bg-red-700"></div>
+        </div>
+      </div>
+      <!-- Main Content Container -->
+      <div class="p-6 grid grid-cols-12 gap-4">
+        <!-- Left Column - Image and Summary -->
+        <div class="col-span-5">
+          <div class="relative rounded-lg overflow-hidden shadow-lg mb-4">
+            <img
+              alt="武汉城市全景"
+              class="w-full h-64 object-cover"
+              src="https://picture-search.tiangong.cn/aippt/image/sheet/e10eafccae0c769294c76a648685788a_crop.jpg"
+              data-sk-source-container="img"
+              data-sk-source-url="http://m.cnhubei.com/content/2025-07/03/content_19306268.html"
+              data-sk-source-id="1980642697677619202"
+            />
+            <div
+              class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-4"
+            >
+              <p class="text-white text-sm font-medium">
+                武汉城市全景 - 过去十年变迁的见证
+              </p>
+            </div>
+          </div>
+          <div class="bg-white rounded-lg shadow-md p-4">
+            <h2 class="text-xl font-bold text-gray-800 mb-2 flex items-center">
+              <i class="fas fa-quote-left text-red-700 mr-2"></i>
+              历史性跨越
+            </h2>
+            <p class="text-gray-700">
+              过去十年，武汉实现了从传统工业重镇到现代化创新型城市的历史性跨越。经济规模接近翻番，产业结构持续优化，城市功能不断完善，民生福祉显著提升，城市综合实力和影响力大幅增强。
+            </p>
+          </div>
+        </div>
+        <!-- Right Column - Transformation Timeline -->
+        <div class="col-span-7">
+          <!-- Transformation Visualization -->
+          <div class="flex items-center justify-between mb-6">
+            <div class="text-center">
+              <div class="icon-circle mx-auto mb-2">
+                <i class="fas fa-industry text-white text-xl"></i>
+              </div>
+              <h3 class="font-bold">传统工业城市</h3>
+              <p class="text-sm text-gray-600">2015年</p>
+            </div>
+            <div class="flex-grow mx-4">
+              <div class="transformation-arrow w-full"></div>
+            </div>
+            <div class="text-center">
+              <div class="icon-circle mx-auto mb-2">
+                <i class="fas fa-rocket text-white text-xl"></i>
+              </div>
+              <h3 class="font-bold">现代化创新型城市</h3>
+              <p class="text-sm text-gray-600">2025年</p>
+            </div>
+          </div>
+          <!-- Key Achievements -->
+          <div class="grid grid-cols-2 gap-4">
+            <!-- Economic Development -->
+            <div class="achievement-card rounded-lg p-4 shadow-md">
+              <div class="flex items-center mb-3">
+                <div class="bg-red-700 rounded-full p-2 mr-3">
+                  <i class="fas fa-chart-line text-white"></i>
+                </div>
+                <h3 class="text-lg font-bold text-gray-800">经济腾飞</h3>
+              </div>
+              <ul class="text-gray-700 space-y-2 ml-2">
+                <li class="flex items-start">
+                  <i class="fas fa-check-circle text-red-700 mt-1 mr-2"></i>
+                  <span>GDP从1.09万亿元增至2.11万亿元，接近翻番</span>
+                </li>
+                <li class="flex items-start">
+                  <i class="fas fa-check-circle text-red-700 mt-1 mr-2"></i>
+                  <span>第三产业占比提升15.4个百分点，产业结构优化</span>
+                </li>
+                <li class="flex items-start">
+                  <i class="fas fa-check-circle text-red-700 mt-1 mr-2"></i>
+                  <span>高新技术企业突破1.6万家，创新活力迸发</span>
+                </li>
+              </ul>
+            </div>
+            <!-- Infrastructure -->
+            <div class="achievement-card rounded-lg p-4 shadow-md">
+              <div class="flex items-center mb-3">
+                <div class="bg-red-700 rounded-full p-2 mr-3">
+                  <i class="fas fa-subway text-white"></i>
+                </div>
+                <h3 class="text-lg font-bold text-gray-800">基建革新</h3>
+              </div>
+              <ul class="text-gray-700 space-y-2 ml-2">
+                <li class="flex items-start">
+                  <i class="fas fa-check-circle text-red-700 mt-1 mr-2"></i>
+                  <span>地铁运营里程从126公里增至突破500公里</span>
+                </li>
+                <li class="flex items-start">
+                  <i class="fas fa-check-circle text-red-700 mt-1 mr-2"></i>
+                  <span>天河机场旅客吞吐量增长65.8%，过江通道增多</span>
+                </li>
+                <li class="flex items-start">
+                  <i class="fas fa-check-circle text-red-700 mt-1 mr-2"></i>
+                  <span>中欧班列开行量连年突破1000列，国际影响力提升</span>
+                </li>
+              </ul>
+            </div>
+            <!-- Urban Quality -->
+            <div class="achievement-card rounded-lg p-4 shadow-md">
+              <div class="flex items-center mb-3">
+                <div class="bg-red-700 rounded-full p-2 mr-3">
+                  <i class="fas fa-home text-white"></i>
+                </div>
+                <h3 class="text-lg font-bold text-gray-800">城市品质</h3>
+              </div>
+              <ul class="text-gray-700 space-y-2 ml-2">
+                <li class="flex items-start">
+                  <i class="fas fa-check-circle text-red-700 mt-1 mr-2"></i>
+                  <span>284个老旧小区完成改造，惠及超百万人</span>
+                </li>
+                <li class="flex items-start">
+                  <i class="fas fa-check-circle text-red-700 mt-1 mr-2"></i>
+                  <span>医院床位数增长57.5%，医疗资源大幅扩容</span>
+                </li>
+                <li class="flex items-start">
+                  <i class="fas fa-check-circle text-red-700 mt-1 mr-2"></i>
+                  <span>东湖绿道建成，城市生态环境显著改善</span>
+                </li>
+              </ul>
+            </div>
+            <!-- People's Livelihood -->
+            <div class="achievement-card rounded-lg p-4 shadow-md">
+              <div class="flex items-center mb-3">
+                <div class="bg-red-700 rounded-full p-2 mr-3">
+                  <i class="fas fa-users text-white"></i>
+                </div>
+                <h3 class="text-lg font-bold text-gray-800">民生福祉</h3>
+              </div>
+              <ul class="text-gray-700 space-y-2 ml-2">
+                <li class="flex items-start">
+                  <i class="fas fa-check-circle text-red-700 mt-1 mr-2"></i>
+                  <span>城镇居民收入增长76.6%，农村居民增长89.2%</span>
+                </li>
+                <li class="flex items-start">
+                  <i class="fas fa-check-circle text-red-700 mt-1 mr-2"></i>
+                  <span>城乡收入差距缩小，从2.05:1降至1.92:1</span>
+                </li>
+                <li class="flex items-start">
+                  <i class="fas fa-check-circle text-red-700 mt-1 mr-2"></i>
+                  <span>新增学位6.6万个，城市宜居品质提升</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="skywork-water-mark">天工 AI 生成</div>
+  </body>
+</html>

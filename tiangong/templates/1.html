@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>江城蝶变：武汉十年变迁对比</title>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://picture-search.tiangong.cn/tailwindcss.com"></script>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap");
+      body {
+        position: relative;
+        width: 1280px;
+        height: 720px;
+        overflow: hidden;
+        font-family: "Noto Sans SC", sans-serif;
+        margin: 0;
+        padding: 0;
+      }
+      .slide {
+        width: 1280px;
+        height: 720px;
+        position: relative;
+      }
+      .overlay {
+        background: linear-gradient(
+          135deg,
+          rgba(245, 230, 211, 0.85) 0%,
+          rgba(248, 213, 163, 0.75) 100%
+        );
+      }
+      .title-text {
+        text-shadow: 2px 2px 4px rgba(169, 50, 38, 0.3);
+      }
+      .subtitle-box {
+        background-color: rgba(169, 50, 38, 0.85);
+      }
+
+      html {
+        overflow: hidden;
+      }
+      .skywork-water-mark {
+        position: absolute;
+        bottom: 6px;
+        right: 6px;
+        z-index: 99;
+        border-radius: 6px;
+        background: rgba(0, 0, 0, 0.56);
+        padding: 1px 6px;
+        color: #fff;
+        /* Level_5 */
+        text-shadow: 0 7px 24px rgba(0, 8, 24, 0.28);
+        /* CN Web/Regular/12 */
+        font-family: "PingFang SC";
+        font-size: 12px;
+        font-style: normal;
+        font-weight: 400;
+        line-height: 150%; /* 18px */
+      }
+    </style>
+  </head>
+  <body>
+    <div class="slide bg-gray-100" style="overflow: hidden">
+      <!-- Background Video -->
+      <video
+        autoplay=""
+        class="absolute inset-0 w-full h-full object-cover"
+        id="bg-video"
+        loop=""
+        muted=""
+        poster="https://picture-search.tiangong.cn/aippt/image/sheet/195cbe7a-de0c-42eb-b273-29ad822a488b.jpg"
+      >
+        <source
+          src="https://picture-search.tiangong.cn/aippt/image/sheet/195cbe7a-de0c-42eb-b273-29ad822a488b.mp4"
+          type="video/mp4"
+        />
+      </video>
+      <!-- Overlay for better text readability -->
+      <div class="absolute inset-0 bg-black bg-opacity-20"></div>
+      <!-- Content Container -->
+      <div
+        class="absolute inset-0 flex flex-col items-center justify-center p-16"
+      >
+        <!-- Title Area -->
+        <div class="overlay px-12 py-8 rounded-lg shadow-xl mb-6 max-w-4xl">
+          <h1
+            class="title-text text-5xl font-bold text-gray-800 mb-4 text-center"
+          >
+            江城蝶变：武汉十年变迁对比 (2015-2025)
+          </h1>
+          <div class="flex items-center justify-center">
+            <div class="h-1 w-16 bg-red-700 mr-4"></div>
+            <h2 class="text-2xl font-medium text-gray-700">
+              从经济腾飞到民生福祉的全面飞跃
+            </h2>
+            <div class="h-1 w-16 bg-red-700 ml-4"></div>
+          </div>
+        </div>
+        <!-- Comparison Visual Element -->
+        <div class="flex items-center justify-center space-x-16 mt-8">
+          <div class="text-center">
+            <div
+              class="text-5xl font-bold text-white bg-opacity-70 rounded-full h-24 w-24 flex items-center justify-center mb-2 mx-auto"
+            >
+              2015
+            </div>
+            <p
+              class="text-white text-xl font-medium bg-black bg-opacity-30 px-4 py-1 rounded"
+            >
+              过去
+            </p>
+          </div>
+          <!-- Transformation Arrow -->
+          <div class="flex items-center">
+            <div class="h-1 w-16 bg-white"></div>
+            <div class="transform rotate-45">
+              <i class="fas fa-arrow-right text-white text-3xl"></i>
+            </div>
+            <div class="h-1 w-16 bg-white"></div>
+          </div>
+          <div class="text-center">
+            <div
+              class="text-5xl font-bold text-white bg-opacity-70 rounded-full h-24 w-24 flex items-center justify-center mb-2 mx-auto"
+            >
+              2025
+            </div>
+            <p
+              class="text-white text-xl font-medium bg-black bg-opacity-30 px-4 py-1 rounded"
+            >
+              现在
+            </p>
+          </div>
+        </div>
+        <!-- Date -->
+        <div class="subtitle-box px-8 py-3 rounded-full mt-12 shadow-lg">
+          <p class="text-white text-xl font-medium">2025年10月</p>
+        </div>
+      </div>
+    </div>
+    <div class="skywork-water-mark">天工 AI 生成</div>
+  </body>
+</html>

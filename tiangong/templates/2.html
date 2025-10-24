@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>目录</title>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://picture-search.tiangong.cn/tailwindcss.com"></script>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap");
+      body {
+        position: relative;
+        width: 1280px;
+        min-height: 720px;
+        overflow: hidden;
+        font-family: "Noto Sans SC", sans-serif;
+        margin: 0;
+        padding: 0;
+      }
+      .slide {
+        width: 1280px;
+        min-height: 720px;
+        position: relative;
+      }
+      .theme-card {
+        background-color: rgba(245, 230, 211, 0.7);
+        transition: all 0.3s ease;
+      }
+      .theme-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+          0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      }
+      .slide-number {
+        font-size: 14px;
+        color: #a93226;
+      }
+      .slide-item {
+        border-left: 2px solid #f8d5a3;
+      }
+      .slide-item:hover {
+        background-color: rgba(248, 213, 163, 0.3);
+      }
+
+      html {
+        overflow: hidden;
+      }
+      .skywork-water-mark {
+        position: absolute;
+        bottom: 6px;
+        right: 6px;
+        z-index: 99;
+        border-radius: 6px;
+        background: rgba(0, 0, 0, 0.56);
+        padding: 1px 6px;
+        color: #fff;
+        /* Level_5 */
+        text-shadow: 0 7px 24px rgba(0, 8, 24, 0.28);
+        /* CN Web/Regular/12 */
+        font-family: "PingFang SC";
+        font-size: 12px;
+        font-style: normal;
+        font-weight: 400;
+        line-height: 150%; /* 18px */
+      }
+    </style>
+  </head>
+  <body>
+    <div class="slide bg-gray-50" style="overflow: hidden">
+      <!-- Header -->
+      <div class="bg-white shadow-md p-6">
+        <h1 class="text-4xl font-bold text-center text-gray-800">目录</h1>
+        <div class="flex justify-center mt-2">
+          <div class="h-1 w-16 bg-red-700"></div>
+        </div>
+      </div>
+      <!-- Content Container -->
+      <div class="p-8">
+        <!-- Introduction Text -->
+        <p class="text-center text-lg text-gray-700 mb-8">
+          本报告通过今昔对比和数据图表，从经济发展、基础设施建设和民生福祉三个核心维度，
+          全景展示武汉在过去十年间所实现的巨大飞跃
+        </p>
+        <!-- Three Themes -->
+        <div class="grid grid-cols-3 gap-8">
+          <!-- Economic Development -->
+          <div class="theme-card rounded-lg p-5 shadow-md">
+            <div class="flex items-center mb-4">
+              <div class="bg-red-700 rounded-full p-3 mr-3">
+                <i class="fas fa-chart-line text-white text-xl"></i>
+              </div>
+              <h2 class="text-2xl font-bold text-gray-800">经济发展</h2>
+            </div>
+            <div class="space-y-3 mt-4">
+              <div class="slide-item pl-4 py-2">
+                <div class="flex items-center">
+                  <span class="slide-number font-bold mr-2">03</span>
+                  <p class="font-medium">经济腾飞：GDP翻番的十年</p>
+                </div>
+                <p class="text-sm text-gray-600 ml-8">
+                  对比2015年与2024年GDP数据，地区生产总值从1.09万亿元增至2.11万亿元
+                </p>
+              </div>
+              <div class="slide-item pl-4 py-2">
+                <div class="flex items-center">
+                  <span class="slide-number font-bold mr-2">04</span>
+                  <p class="font-medium">产业结构优化</p>
+                </div>
+                <p class="text-sm text-gray-600 ml-8">
+                  从工业重镇到服务业主导，第三产业占比提升15.4个百分点
+                </p>
+              </div>
+              <div class="slide-item pl-4 py-2">
+                <div class="flex items-center">
+                  <span class="slide-number font-bold mr-2">05</span>
+                  <p class="font-medium">创新崛起</p>
+                </div>
+                <p class="text-sm text-gray-600 ml-8">
+                  高新技术企业突破1.6万家，高技术制造业增加值占比达20.8%
+                </p>
+              </div>
+            </div>
+          </div>
+          <!-- Infrastructure Construction -->
+          <div class="theme-card rounded-lg p-5 shadow-md">
+            <div class="flex items-center mb-4">
+              <div class="bg-red-700 rounded-full p-3 mr-3">
+                <i class="fas fa-city text-white text-xl"></i>
+              </div>
+              <h2 class="text-2xl font-bold text-gray-800">基础设施建设</h2>
+            </div>
+            <div class="space-y-3 mt-4">
+              <div class="slide-item pl-4 py-2">
+                <div class="flex items-center">
+                  <span class="slide-number font-bold mr-2">06</span>
+                  <p class="font-medium">轨道上的都市</p>
+                </div>
+                <p class="text-sm text-gray-600 ml-8">
+                  地铁运营里程从126公里增至突破500公里，线路数量从4条增至12条
+                </p>
+              </div>
+              <div class="slide-item pl-4 py-2">
+                <div class="flex items-center">
+                  <span class="slide-number font-bold mr-2">07</span>
+                  <p class="font-medium">"上天入地"的枢纽</p>
+                </div>
+                <p class="text-sm text-gray-600 ml-8">
+                  天河机场旅客吞吐量增长65.8%，过江通道建设取得突破性进展
+                </p>
+              </div>
+              <div class="slide-item pl-4 py-2">
+                <div class="flex items-center">
+                  <span class="slide-number font-bold mr-2">08</span>
+                  <p class="font-medium">智慧韧性城市</p>
+                </div>
+                <p class="text-sm text-gray-600 ml-8">
+                  供水、燃气、电力等市政设施全面提升，城市数字信息模型全域覆盖
+                </p>
+              </div>
+            </div>
+          </div>
+          <!-- Livelihood Improvements -->
+          <div class="theme-card rounded-lg p-5 shadow-md">
+            <div class="flex items-center mb-4">
+              <div class="bg-red-700 rounded-full p-3 mr-3">
+                <i class="fas fa-home text-white text-xl"></i>
+              </div>
+              <h2 class="text-2xl font-bold text-gray-800">民生福祉</h2>
+            </div>
+            <div class="space-y-3 mt-4">
+              <div class="slide-item pl-4 py-2">
+                <div class="flex items-center">
+                  <span class="slide-number font-bold mr-2">09</span>
+                  <p class="font-medium">居民收入增长</p>
+                </div>
+                <p class="text-sm text-gray-600 ml-8">
+                  城镇居民收入增长76.6%，农村居民收入增长89.2%，城乡收入差距缩小
+                </p>
+              </div>
+              <div class="slide-item pl-4 py-2">
+                <div class="flex items-center">
+                  <span class="slide-number font-bold mr-2">10</span>
+                  <p class="font-medium">优质生活保障</p>
+                </div>
+                <p class="text-sm text-gray-600 ml-8">
+                  医院数量从303个增至373个，床位数增长57.5%，新增学位6.6万个
+                </p>
+              </div>
+              <div class="slide-item pl-4 py-2">
+                <div class="flex items-center">
+                  <span class="slide-number font-bold mr-2">11</span>
+                  <p class="font-medium">城市更新与活力</p>
+                </div>
+                <p class="text-sm text-gray-600 ml-8">
+                  284个老旧小区完成改造，历史文化街区焕发新生，东湖绿道建成开放
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Summary Slides -->
+        <div class="mt-8 flex justify-center space-x-12">
+          <div class="bg-white rounded-lg shadow-md p-4 flex items-center w-80">
+            <div class="bg-red-700 rounded-full p-2 mr-3">
+              <i class="fas fa-table text-white"></i>
+            </div>
+            <div>
+              <div class="flex items-center">
+                <span class="slide-number font-bold mr-2">13</span>
+                <h3 class="font-bold">十年数据对比总览</h3>
+              </div>
+              <p class="text-sm text-gray-600">三大领域的关键数据对比</p>
+            </div>
+          </div>
+          <div class="bg-white rounded-lg shadow-md p-4 flex items-center w-80">
+            <div class="bg-red-700 rounded-full p-2 mr-3">
+              <i class="fas fa-flag text-white"></i>
+            </div>
+            <div>
+              <div class="flex items-center">
+                <span class="slide-number font-bold mr-2">14</span>
+                <h3 class="font-bold">江城蝶变</h3>
+              </div>
+              <p class="text-sm text-gray-600">从"大武汉"到"强武汉"</p>
+            </div>
+          </div>
+          <div class="bg-white rounded-lg shadow-md p-4 flex items-center w-80">
+            <div class="bg-red-700 rounded-full p-2 mr-3">
+              <i class="fas fa-road text-white"></i>
+            </div>
+            <div>
+              <div class="flex items-center">
+                <span class="slide-number font-bold mr-2">15</span>
+                <h3 class="font-bold">展望未来</h3>
+              </div>
+              <p class="text-sm text-gray-600">向新而行的武汉</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="skywork-water-mark">天工 AI 生成</div>
+  </body>
+</html>

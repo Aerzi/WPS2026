@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>经济腾飞：GDP翻番的十年</title>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://picture-search.tiangong.cn/tailwindcss.com"></script>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap");
+      body {
+        position: relative;
+        width: 1280px;
+        min-height: 720px;
+        overflow: hidden;
+        font-family: "Noto Sans SC", sans-serif;
+        margin: 0;
+        padding: 0;
+      }
+      .slide {
+        width: 1280px;
+        min-height: 720px;
+        position: relative;
+      }
+      .bar {
+        transition: all 0.5s ease;
+      }
+      .bar:hover {
+        opacity: 0.8;
+      }
+      .growth-badge {
+        background: linear-gradient(135deg, #f8d5a3 0%, #f5e6d3 100%);
+      }
+      .highlight-box {
+        background-color: rgba(245, 230, 211, 0.7);
+        border-left: 4px solid #a93226;
+      }
+
+      html {
+        overflow: hidden;
+      }
+      .skywork-water-mark {
+        position: absolute;
+        bottom: 6px;
+        right: 6px;
+        z-index: 99;
+        border-radius: 6px;
+        background: rgba(0, 0, 0, 0.56);
+        padding: 1px 6px;
+        color: #fff;
+        /* Level_5 */
+        text-shadow: 0 7px 24px rgba(0, 8, 24, 0.28);
+        /* CN Web/Regular/12 */
+        font-family: "PingFang SC";
+        font-size: 12px;
+        font-style: normal;
+        font-weight: 400;
+        line-height: 150%; /* 18px */
+      }
+    </style>
+  </head>
+  <body>
+    <div class="slide bg-gray-50" style="overflow: hidden">
+      <!-- Header -->
+      <div class="bg-white shadow-md p-6">
+        <h1 class="text-4xl font-bold text-gray-800">
+          经济腾飞：GDP翻番的十年
+        </h1>
+        <div class="flex items-center mt-2">
+          <div class="h-1 w-16 bg-red-700"></div>
+          <p class="text-gray-600 ml-3">
+            武汉地区生产总值与人均GDP对比 (2015-2024)
+          </p>
+        </div>
+      </div>
+      <!-- Content Container -->
+      <div class="p-8 grid grid-cols-12 gap-6">
+        <!-- Left Column - GDP Chart -->
+        <div class="col-span-7">
+          <div class="bg-white rounded-lg shadow-md p-6 h-full">
+            <h2 class="text-2xl font-bold text-gray-700 mb-4">
+              <i class="fas fa-chart-bar text-red-700 mr-2"></i>
+              武汉GDP总量对比 (单位：亿元)
+            </h2>
+            <div class="h-80" id="gdp-chart"></div>
+            <div class="flex justify-between items-center mt-4">
+              <div class="flex items-center">
+                <div class="w-4 h-4 bg-orange-300 rounded mr-2"></div>
+                <span class="text-gray-700">2015年: 10,905.60亿元</span>
+              </div>
+              <div class="flex items-center">
+                <div class="w-4 h-4 bg-red-700 rounded mr-2"></div>
+                <span class="text-gray-700">2024年: 21,106.23亿元</span>
+              </div>
+              <div
+                class="growth-badge px-4 py-2 rounded-full font-bold text-red-700"
+              >
+                增长93.5%
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Right Column - Analysis -->
+        <div class="col-span-5">
+          <div class="space-y-6">
+            <!-- Per Capita GDP -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+              <h2 class="text-2xl font-bold text-gray-700 mb-4">
+                <i class="fas fa-user-chart text-red-700 mr-2"></i>
+                人均GDP增长
+              </h2>
+              <div class="flex justify-between items-center mb-2">
+                <div class="flex flex-col">
+                  <span class="text-sm text-gray-500">2015年</span>
+                  <span class="text-xl font-bold">104,132元</span>
+                </div>
+                <div class="text-2xl text-gray-400">
+                  <i class="fas fa-arrow-right"></i>
+                </div>
+                <div class="flex flex-col">
+                  <span class="text-sm text-gray-500">2024年</span>
+                  <span class="text-xl font-bold">153,037元</span>
+                </div>
+                <div
+                  class="growth-badge px-3 py-1 rounded-full font-bold text-red-700 text-sm"
+                >
+                  +46.9%
+                </div>
+              </div>
+              <div
+                class="h-16 mt-2"
+                id="per-capita-chart"
+                data-sk-source-container="chart"
+                data-sk-source-id="1980639301927305219"
+                data-sk-source-type="web_search"
+              ></div>
+            </div>
+            <!-- Key Analysis -->
+            <div class="highlight-box rounded-lg p-6">
+              <h2 class="text-xl font-bold text-gray-700 mb-3">
+                <i class="fas fa-lightbulb text-red-700 mr-2"></i>
+                经济发展分析
+              </h2>
+              <ul class="space-y-3 text-gray-700">
+                <li class="flex items-start">
+                  <i class="fas fa-check-circle text-green-600 mt-1 mr-2"></i>
+                  <span
+                    >武汉市GDP从2015年的1.09万亿元增长至2024年的2.11万亿元，增幅高达93.5%，接近翻番</span
+                  >
+                </li>
+                <li class="flex items-start">
+                  <i class="fas fa-check-circle text-green-600 mt-1 mr-2"></i>
+                  <span
+                    >人均GDP从10.41万元增长到15.30万元，增长了46.9%，表明市民财富水平同步提高</span
+                  >
+                </li>
+                <li class="flex items-start">
+                  <i class="fas fa-check-circle text-green-600 mt-1 mr-2"></i>
+                  <span
+                    >经济规模持续扩大，经济增长动能充足，区域经济影响力显著提升</span
+                  >
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>
+      // GDP Bar Chart
+      const gdpData = [
+        { year: "2015年", value: 10905.6, color: "#F8D5A3" },
+        { year: "2024年", value: 21106.23, color: "#A93226" },
+      ];
+
+      const gdpSvg = d3
+        .select("#gdp-chart")
+        .append("svg")
+        .attr("width", "100%")
+        .attr("height", "100%")
+        .attr("viewBox", "0 0 600 300");
+
+      const gdpWidth = 600;
+      const gdpHeight = 300;
+      const gdpMargin = { top: 20, right: 30, bottom: 40, left: 80 };
+      const gdpInnerWidth = gdpWidth - gdpMargin.left - gdpMargin.right;
+      const gdpInnerHeight = gdpHeight - gdpMargin.top - gdpMargin.bottom;
+
+      const gdpX = d3
+        .scaleBand()
+        .domain(gdpData.map((d) => d.year))
+        .range([0, gdpInnerWidth])
+        .padding(0.3);
+
+      const gdpY = d3
+        .scaleLinear()
+        .domain([0, d3.max(gdpData, (d) => d.value) * 1.1])
+        .range([gdpInnerHeight, 0]);
+
+      const gdpG = gdpSvg
+        .append("g")
+        .attr("transform", `translate(${gdpMargin.left}, ${gdpMargin.top})`);
+
+      // Add Y axis
+      gdpG
+        .append("g")
+        .call(
+          d3
+            .axisLeft(gdpY)
+            .ticks(5)
+            .tickFormat((d) => (d === 0 ? "0" : d / 10000 + "万亿"))
+        )
+        .call((gdpY) => gdpY.select(".domain").remove())
+        .call((gdpY) =>
+          gdpY
+            .selectAll(".tick line")
+            .attr("x2", gdpInnerWidth)
+            .attr("stroke-opacity", 0.1)
+        )
+        .call((gdpY) =>
+          gdpY.selectAll(".tick text").attr("x", -10).attr("dy", 4)
+        );
+
+      // Add X axis
+      gdpG
+        .append("g")
+        .attr("transform", `translate(0, ${gdpInnerHeight})`)
+        .call(d3.axisBottom(gdpX))
+        .call((gdpX) => gdpX.select(".domain").remove());
+
+      // Add bars
+      gdpG
+        .selectAll(".bar")
+        .data(gdpData)
+        .join("rect")
+        .attr("class", "bar")
+        .attr("x", (d) => gdpX(d.year))
+        .attr("y", gdpInnerHeight)
+        .attr("width", gdpX.bandwidth())
+        .attr("height", 0)
+        .attr("fill", (d) => d.color)
+        .attr("rx", 4)
+        .transition()
+        .duration(800)
+        .attr("y", (d) => gdpY(d.value))
+        .attr("height", (d) => gdpInnerHeight - gdpY(d.value));
+
+      // Add value labels on top of bars
+      gdpG
+        .selectAll(".label")
+        .data(gdpData)
+        .join("text")
+        .attr("class", "label")
+        .attr("x", (d) => gdpX(d.year) + gdpX.bandwidth() / 2)
+        .attr("y", (d) => gdpY(d.value) - 10)
+        .attr("text-anchor", "middle")
+        .attr("font-size", "14px")
+        .attr("font-weight", "bold")
+        .attr("fill", "#333")
+        .text((d) => d.value)
+        .attr("opacity", 0)
+        .transition()
+        .delay(800)
+        .duration(400)
+        .attr("opacity", 1);
+
+      // Per Capita GDP Chart
+      const perCapitaData = [
+        { year: "2015年", value: 104132, color: "#F8D5A3" },
+        { year: "2024年", value: 153037, color: "#A93226" },
+      ];
+
+      const perCapitaSvg = d3
+        .select("#per-capita-chart")
+        .append("svg")
+        .attr("width", "100%")
+        .attr("height", "100%")
+        .attr("viewBox", "0 0 600 60");
+
+      const perCapitaWidth = 600;
+      const perCapitaHeight = 60;
+      const perCapitaMargin = { top: 5, right: 30, bottom: 5, left: 80 };
+      const perCapitaInnerWidth =
+        perCapitaWidth - perCapitaMargin.left - perCapitaMargin.right;
+      const perCapitaInnerHeight =
+        perCapitaHeight - perCapitaMargin.top - perCapitaMargin.bottom;
+
+      const perCapitaX = d3
+        .scaleBand()
+        .domain(perCapitaData.map((d) => d.year))
+        .range([0, perCapitaInnerWidth])
+        .padding(0.3);
+
+      const perCapitaY = d3
+        .scaleLinear()
+        .domain([0, d3.max(perCapitaData, (d) => d.value) * 1.1])
+        .range([perCapitaInnerHeight, 0]);
+
+      const perCapitaG = perCapitaSvg
+        .append("g")
+        .attr(
+          "transform",
+          `translate(${perCapitaMargin.left}, ${perCapitaMargin.top})`
+        );
+
+      // Add bars
+      perCapitaG
+        .selectAll(".bar")
+        .data(perCapitaData)
+        .join("rect")
+        .attr("class", "bar")
+        .attr("x", (d) => perCapitaX(d.year))
+        .attr("y", perCapitaInnerHeight)
+        .attr("width", perCapitaX.bandwidth())
+        .attr("height", 0)
+        .attr("fill", (d) => d.color)
+        .attr("rx", 4)
+        .transition()
+        .duration(800)
+        .attr("y", (d) => perCapitaY(d.value))
+        .attr("height", (d) => perCapitaInnerHeight - perCapitaY(d.value));
+    </script>
+    <div class="skywork-water-mark">天工 AI 生成</div>
+  </body>
+</html>

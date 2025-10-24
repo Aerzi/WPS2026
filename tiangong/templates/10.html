@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>优质生活保障：医疗教育资源大幅扩容</title>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://picture-search.tiangong.cn/tailwindcss.com"></script>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap");
+      body {
+        position: relative;
+        width: 1280px;
+        min-height: 720px;
+        overflow: hidden;
+        font-family: "Noto Sans SC", sans-serif;
+        margin: 0;
+        padding: 0;
+      }
+      .slide {
+        width: 1280px;
+        min-height: 720px;
+        position: relative;
+      }
+      .section-card {
+        background-color: rgba(245, 230, 211, 0.7);
+        transition: all 0.3s ease;
+      }
+      .section-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+          0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      }
+      .stat-card {
+        background-color: white;
+        transition: all 0.3s ease;
+      }
+      .stat-card:hover {
+        transform: scale(1.03);
+      }
+      .progress-bar {
+        height: 12px;
+        border-radius: 6px;
+      }
+      .bar-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #f8d5a3, #a93226);
+      }
+      .slide-number {
+        font-size: 14px;
+        color: #a93226;
+      }
+
+      html {
+        overflow: hidden;
+      }
+      .skywork-water-mark {
+        position: absolute;
+        bottom: 6px;
+        right: 6px;
+        z-index: 99;
+        border-radius: 6px;
+        background: rgba(0, 0, 0, 0.56);
+        padding: 1px 6px;
+        color: #fff;
+        /* Level_5 */
+        text-shadow: 0 7px 24px rgba(0, 8, 24, 0.28);
+        /* CN Web/Regular/12 */
+        font-family: "PingFang SC";
+        font-size: 12px;
+        font-style: normal;
+        font-weight: 400;
+        line-height: 150%; /* 18px */
+      }
+    </style>
+  </head>
+  <body>
+    <div class="slide bg-gray-50" style="overflow: hidden">
+      <!-- Header -->
+      <div class="bg-white shadow-md p-6">
+        <h1 class="text-4xl font-bold text-center text-gray-800">
+          优质生活保障：医疗教育资源大幅扩容
+        </h1>
+        <div class="flex justify-center mt-2">
+          <div class="h-1 w-16 bg-red-700"></div>
+        </div>
+      </div>
+      <!-- Content Container -->
+      <div class="p-8 grid grid-cols-2 gap-8">
+        <!-- Healthcare Section -->
+        <div class="section-card rounded-lg p-6 shadow-md">
+          <div class="flex items-center mb-4">
+            <div class="bg-red-700 rounded-full p-3 mr-3">
+              <i class="fas fa-hospital text-white text-xl"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-gray-800">医疗资源提升</h2>
+          </div>
+          <p class="text-gray-700 mb-4">
+            武汉市医疗资源在过去十年间实现了显著扩容，医疗服务能力大幅提升。
+          </p>
+          <!-- Hospital Count -->
+          <div class="stat-card rounded-lg p-4 shadow-sm mb-4">
+            <div class="flex justify-between items-center mb-2">
+              <div class="flex items-center">
+                <i class="fas fa-hospital-alt text-red-700 mr-2"></i>
+                <span class="font-medium">医院数量</span>
+              </div>
+              <div class="flex items-center">
+                <span class="text-gray-600 mr-2">2015: 303个</span>
+                <i class="fas fa-arrow-right text-gray-500 mx-2"></i>
+                <span class="font-bold">2024: 373个</span>
+                <span class="ml-2 text-red-700 font-bold">+23.1%</span>
+              </div>
+            </div>
+            <div class="progress-bar bg-gray-200">
+              <div class="bar-fill" style="width: 23.1%"></div>
+            </div>
+          </div>
+          <!-- Hospital Beds -->
+          <div class="stat-card rounded-lg p-4 shadow-sm mb-4">
+            <div class="flex justify-between items-center mb-2">
+              <div class="flex items-center">
+                <i class="fas fa-bed text-red-700 mr-2"></i>
+                <span class="font-medium">医院床位数</span>
+              </div>
+              <div class="flex items-center">
+                <span class="text-gray-600 mr-2">2015: 67,550张</span>
+                <i class="fas fa-arrow-right text-gray-500 mx-2"></i>
+                <span class="font-bold">2024: 106,400张</span>
+                <span class="ml-2 text-red-700 font-bold">+57.5%</span>
+              </div>
+            </div>
+            <div class="progress-bar bg-gray-200">
+              <div class="bar-fill" style="width: 57.5%"></div>
+            </div>
+          </div>
+          <!-- Healthcare Workers -->
+          <div class="grid grid-cols-2 gap-4">
+            <div class="stat-card rounded-lg p-3 shadow-sm">
+              <div class="flex justify-between items-center">
+                <div class="flex items-center">
+                  <i class="fas fa-user-md text-red-700 mr-2"></i>
+                  <span class="font-medium text-sm">卫生技术人员</span>
+                </div>
+              </div>
+              <div class="flex justify-between items-end mt-1">
+                <span class="text-xs text-gray-500">2015: 91,763人</span>
+                <span class="text-xs text-red-700 font-bold">+55.2%</span>
+              </div>
+              <div class="flex justify-between items-end mt-1">
+                <span class="text-xs text-gray-500">2024: 142,400人</span>
+              </div>
+            </div>
+            <div class="stat-card rounded-lg p-3 shadow-sm">
+              <div class="flex justify-between items-center">
+                <div class="flex items-center">
+                  <i class="fas fa-stethoscope text-red-700 mr-2"></i>
+                  <span class="font-medium text-sm">医生数量</span>
+                </div>
+              </div>
+              <div class="flex justify-between items-end mt-1">
+                <span class="text-xs text-gray-500">2015: 32,888人</span>
+                <span class="text-xs text-red-700 font-bold">+60.6%</span>
+              </div>
+              <div class="flex justify-between items-end mt-1">
+                <span class="text-xs text-gray-500">2024: 52,800人</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Education Section -->
+        <div class="section-card rounded-lg p-6 shadow-md">
+          <div class="flex items-center mb-4">
+            <div class="bg-red-700 rounded-full p-3 mr-3">
+              <i class="fas fa-school text-white text-xl"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-gray-800">教育资源扩容</h2>
+          </div>
+          <p class="text-gray-700 mb-4">
+            武汉市教育投入持续加大，2024年新改扩建中小学、幼儿园79所，新增学位6.6万个。
+          </p>
+          <!-- School Buildings -->
+          <div class="stat-card rounded-lg p-4 shadow-sm mb-4">
+            <div class="flex items-center justify-between mb-3">
+              <div class="flex items-center">
+                <i class="fas fa-building text-red-700 mr-2"></i>
+                <span class="font-medium">新改扩建学校</span>
+              </div>
+              <div class="flex items-center">
+                <span class="text-red-700 font-bold text-2xl">79所</span>
+              </div>
+            </div>
+            <div
+              class="h-20"
+              id="school-chart"
+              data-sk-source-container="chart"
+              data-sk-source-id="1980638641500585985"
+              data-sk-source-type="web_search"
+            ></div>
+          </div>
+          <!-- New Seats -->
+          <div class="stat-card rounded-lg p-4 shadow-sm">
+            <div class="flex items-center justify-between mb-2">
+              <div class="flex items-center">
+                <i class="fas fa-child text-red-700 mr-2"></i>
+                <span class="font-medium">新增学位</span>
+              </div>
+              <div class="flex items-center">
+                <span class="text-red-700 font-bold text-2xl">6.6万个</span>
+              </div>
+            </div>
+            <div class="progress-bar bg-gray-200 mb-2">
+              <div class="bar-fill" style="width: 66%"></div>
+            </div>
+            <p class="text-sm text-gray-600">
+              有效缓解了教育资源紧张问题，为广大学子提供了更好的学习环境
+            </p>
+          </div>
+          <!-- Education Impact -->
+          <div class="mt-4 bg-white bg-opacity-70 p-3 rounded-lg">
+            <div class="flex items-center">
+              <i class="fas fa-lightbulb text-yellow-500 mr-2"></i>
+              <p class="text-sm text-gray-700">
+                医疗和教育是民生福祉的重要保障，武汉的投入力度体现了城市对人民生活质量的高度重视
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>
+      // D3.js chart for schools built
+      document.addEventListener("DOMContentLoaded", function () {
+        const data = [
+          { year: "2015", value: 30 },
+          { year: "2024", value: 79 },
+        ];
+
+        const width = document.getElementById("school-chart").clientWidth;
+        const height = document.getElementById("school-chart").clientHeight;
+        const margin = { top: 10, right: 10, bottom: 20, left: 40 };
+        const chartWidth = width - margin.left - margin.right;
+        const chartHeight = height - margin.top - margin.bottom;
+
+        const svg = d3
+          .select("#school-chart")
+          .append("svg")
+          .attr("width", width)
+          .attr("height", height);
+
+        const chart = svg
+          .append("g")
+          .attr("transform", `translate(${margin.left}, ${margin.top})`);
+
+        const x = d3
+          .scaleBand()
+          .domain(data.map((d) => d.year))
+          .range([0, chartWidth])
+          .padding(0.3);
+
+        const y = d3
+          .scaleLinear()
+          .domain([0, d3.max(data, (d) => d.value) * 1.2])
+          .range([chartHeight, 0]);
+
+        // Add X axis
+        chart
+          .append("g")
+          .attr("transform", `translate(0, ${chartHeight})`)
+          .call(d3.axisBottom(x));
+
+        // Add Y axis
+        chart.append("g").call(d3.axisLeft(y).ticks(5));
+
+        // Add bars
+        chart
+          .selectAll(".bar")
+          .data(data)
+          .enter()
+          .append("rect")
+          .attr("class", "bar")
+          .attr("x", (d) => x(d.year))
+          .attr("y", (d) => y(d.value))
+          .attr("width", x.bandwidth())
+          .attr("height", (d) => chartHeight - y(d.value))
+          .attr("fill", (d, i) => (i === 0 ? "#F8D5A3" : "#A93226"));
+
+        // Add value labels
+        chart
+          .selectAll(".label")
+          .data(data)
+          .enter()
+          .append("text")
+          .attr("class", "label")
+          .attr("x", (d) => x(d.year) + x.bandwidth() / 2)
+          .attr("y", (d) => y(d.value) - 5)
+          .attr("text-anchor", "middle")
+          .text((d) => d.value)
+          .attr("fill", "#333")
+          .attr("font-size", "12px");
+      });
+    </script>
+    <div class="skywork-water-mark">天工 AI 生成</div>
+  </body>
+</html>

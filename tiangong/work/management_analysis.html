@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>重要管理体系分析</title>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://picture-search.tiangong.cn/tailwindcss.com"></script>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap");
+
+      body {
+        font-family: "Noto Sans SC", sans-serif;
+        margin: 0;
+        padding: 0;
+        width: 1280px;
+        height: 720px;
+        overflow: hidden;
+        background-color: #f1f5f9;
+      }
+
+      .slide {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        overflow: hidden;
+        background: linear-gradient(
+          135deg,
+          #dc2626 0%,
+          #b91c1c 50%,
+          #991b1b 100%
+        );
+      }
+
+      .management-card {
+        background: rgba(0, 0, 0, 0.3);
+        border-left: 4px solid #fbbf24;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(5px);
+      }
+
+      .management-card:hover {
+        transform: translateY(-5px);
+        background: rgba(0, 0, 0, 0.4);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+      }
+
+      .logo-area {
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 8px;
+      }
+
+      .subtitle-highlight {
+        background: linear-gradient(
+          90deg,
+          rgba(251, 191, 36, 0.8),
+          rgba(245, 158, 11, 0.8)
+        );
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        font-weight: 700;
+      }
+
+      html {
+        overflow: hidden;
+        background-color: #f1f5f9;
+      }
+
+      .watermark {
+        position: absolute;
+        bottom: 6px;
+        right: 6px;
+        z-index: 99;
+        border-radius: 6px;
+        background: rgba(0, 0, 0, 0.56);
+        padding: 1px 6px;
+        color: #fff;
+        text-shadow: 0 7px 24px rgba(0, 8, 24, 0.28);
+        font-family: "PingFang SC";
+        font-size: 12px;
+        font-style: normal;
+        font-weight: 400;
+        line-height: 150%;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="slide">
+      <!-- Header Area -->
+      <div class="flex justify-between items-start p-8">
+        <!-- Title -->
+        <div class="flex-1">
+          <h1 class="text-5xl font-bold text-white text-center mb-4">
+            重要管理体系分析
+          </h1>
+        </div>
+        <!-- Logo Area -->
+        <div class="logo-area w-24 h-16 ml-8"></div>
+      </div>
+
+      <!-- Subtitle -->
+      <div class="text-center mb-8">
+        <h2 class="text-3xl subtitle-highlight">"三位一体"管理布局</h2>
+      </div>
+
+      <!-- Management Cards Layout -->
+      <div class="px-8 pb-8">
+        <!-- Top Row - 2 Cards -->
+        <div class="grid grid-cols-2 gap-8 mb-8">
+          <!-- Project Management -->
+          <div class="management-card rounded-lg p-6 shadow-lg">
+            <h3
+              class="text-2xl font-bold text-yellow-400 mb-4 flex items-center"
+            >
+              <i class="fas fa-project-diagram mr-3"></i>
+              项目管理
+            </h3>
+            <ul class="text-white space-y-3">
+              <li class="flex items-start">
+                <span class="text-yellow-400 mr-2">•</span>
+                <span
+                  >建立完善的项目生命周期管理体系，确保项目按时按质完成</span
+                >
+              </li>
+              <li class="flex items-start">
+                <span class="text-yellow-400 mr-2">•</span>
+                <span>实施敏捷开发模式，提高项目响应速度和交付效率</span>
+              </li>
+              <li class="flex items-start">
+                <span class="text-yellow-400 mr-2">•</span>
+                <span>构建风险预警机制，主动识别和应对项目风险挑战</span>
+              </li>
+              <li class="flex items-start">
+                <span class="text-yellow-400 mr-2">•</span>
+                <span>建立项目质量评估标准，持续优化项目管理流程</span>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Personnel Management -->
+          <div class="management-card rounded-lg p-6 shadow-lg">
+            <h3
+              class="text-2xl font-bold text-yellow-400 mb-4 flex items-center"
+            >
+              <i class="fas fa-users mr-3"></i>
+              人员管理
+            </h3>
+            <ul class="text-white space-y-3">
+              <li class="flex items-start">
+                <span class="text-yellow-400 mr-2">•</span>
+                <span>完善人才招聘与培养体系，打造高素质专业团队</span>
+              </li>
+              <li class="flex items-start">
+                <span class="text-yellow-400 mr-2">•</span>
+                <span>建立科学的绩效考核机制，激发员工工作积极性</span>
+              </li>
+              <li class="flex items-start">
+                <span class="text-yellow-400 mr-2">•</span>
+                <span>实施职业发展规划，为员工提供成长通道和发展平台</span>
+              </li>
+              <li class="flex items-start">
+                <span class="text-yellow-400 mr-2">•</span>
+                <span>营造良好工作氛围，增强团队凝聚力和协作效能</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Bottom Row - 1 Card Centered -->
+        <div class="flex justify-center">
+          <div class="management-card rounded-lg p-6 shadow-lg w-2/3">
+            <h3
+              class="text-2xl font-bold text-yellow-400 mb-4 flex items-center justify-center"
+            >
+              <i class="fas fa-exclamation-triangle mr-3"></i>
+              错误管理
+            </h3>
+            <div class="grid grid-cols-2 gap-6">
+              <ul class="text-white space-y-3">
+                <li class="flex items-start">
+                  <span class="text-yellow-400 mr-2">•</span>
+                  <span>建立错误预防机制，从源头减少错误发生概率</span>
+                </li>
+                <li class="flex items-start">
+                  <span class="text-yellow-400 mr-2">•</span>
+                  <span>完善错误监测体系，及时发现和定位问题根源</span>
+                </li>
+              </ul>
+              <ul class="text-white space-y-3">
+                <li class="flex items-start">
+                  <span class="text-yellow-400 mr-2">•</span>
+                  <span>制定错误处理流程，快速响应并有效解决问题</span>
+                </li>
+                <li class="flex items-start">
+                  <span class="text-yellow-400 mr-2">•</span>
+                  <span>推进错误学习文化，将错误转化为持续改进动力</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="watermark">天工 AI 生成</div>
+  </body>
+</html>
