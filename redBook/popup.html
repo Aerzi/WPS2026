@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>小红书数据采集器</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <div class="container">
+      <header class="header">
+        <h2>🔴 小红书数据采集器</h2>
+        <p class="subtitle">快速采集帖子数据并导出Excel</p>
+      </header>
+
+      <main class="main">
+        <div class="status-section">
+          <div class="status-card">
+            <div class="status-icon">📊</div>
+            <div class="status-info">
+              <span class="status-label">已采集帖子</span>
+              <span class="status-value" id="postCount">0</span>
+            </div>
+          </div>
+
+          <div class="status-card">
+            <div class="status-icon">⏰</div>
+            <div class="status-info">
+              <span class="status-label">最后更新</span>
+              <span class="status-value" id="lastUpdate">暂无</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="mode-section">
+          <div class="mode-card">
+            <div class="mode-info">
+              <span class="mode-label">🎯 跟随模式</span>
+              <span class="mode-desc">开启后，只在检测到notes请求时才自动获取下一页</span>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="followModeSwitch">
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <div class="actions-section">
+          <button class="btn btn-primary" id="manualTriggerBtn">
+            <span class="btn-icon">🚀</span>
+            <span class="btn-text">手动获取数据</span>
+          </button>
+
+          <button class="btn btn-info" id="getMoreBtn" disabled>
+            <span class="btn-icon">📄</span>
+            <span class="btn-text">获取更多数据</span>
+          </button>
+
+          <button class="btn btn-success" id="exportBtn" disabled>
+            <span class="btn-icon">📥</span>
+            <span class="btn-text">导出Ksheet文件</span>
+          </button>
+
+          <button class="btn btn-warning" id="clearBtn">
+            <span class="btn-icon">🗑️</span>
+            <span class="btn-text">清空所有数据</span>
+          </button>
+        </div>
+
+        <div class="data-preview" id="dataPreview" style="display: none">
+          <h3>数据预览</h3>
+          <div class="preview-list" id="previewList">
+            <!-- 动态生成的数据预览 -->
+          </div>
+        </div>
+
+        <div class="tips-section">
+          <h3>💡 使用说明</h3>
+          <ul class="tips-list">
+            <li>打开小红书网页 (xiaohongshu.com)</li>
+            <li>进行搜索后，插件会自动检测API请求</li>
+            <li>或者直接点击"手动获取数据"按钮</li>
+            <li>确认有数据后点击"导出Ksheet文件"保存</li>
+            <li>打开F12控制台可查看详细日志</li>
+          </ul>
+        </div>
+      </main>
+
+      <footer class="footer">
+        <div class="loading" id="loading" style="display: none">
+          <div class="spinner"></div>
+          <span>正在处理中...</span>
+        </div>
+        <div class="message" id="message"></div>
+      </footer>
+    </div>
+
+    <script src="popup.js"></script>
+  </body>
+</html>
