@@ -1,0 +1,17 @@
+user_id,username,age,city,register_date,email,vip_level
+U00001,张三,28,北京,2024-01-15,zhangsan@example.com,Gold
+U00002,李四,35,上海,2024-02-20,lisi@example.com,Silver
+U00003,王五,42,广州,2024-03-10,wangwu@example.com,Platinum
+U00004,赵六,25,深圳,2024-04-05,zhaoliu@example.com,Bronze
+U00005,钱七,31,杭州,2024-05-12,qianqi@example.com,Gold
+U00006,孙八,29,成都,2024-06-18,sunba@example.com,Silver
+U00007,周九,38,武汉,2024-07-22,zhoujiu@example.com,Gold
+U00008,吴十,45,西安,2024-08-08,wushi@example.com,Platinum
+U00009,郑一,27,南京,2024-09-15,zhengyi@example.com,Bronze
+U00010,王二,33,重庆,2024-10-01,wanger@example.com,Silver
+U00011,李三,39,天津,2024-10-10,lisan@example.com,Gold
+U00012,张四,26,苏州,2024-10-15,zhangsi@example.com,Bronze
+U00013,赵五,41,厦门,2024-10-20,zhaoWu@example.com,Platinum
+U00014,钱六,30,青岛,2024-10-22,qianliu@example.com,Silver
+U00015,孙七,36,大连,2024-10-24,sunqi@example.com,Gold
+

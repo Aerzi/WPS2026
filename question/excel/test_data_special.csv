@@ -1,0 +1,14 @@
+id,name,email,score,comment,status
+1,张三,test@example.com,95.5,正常数据,active
+2,John Doe,john@test.com,88.0,"包含特殊字符：@#$%^&*",active
+3,李四&王五,,75.5,包含逗号和分号;测试,inactive
+4,,,0,,pending
+5,赵六,zhao@company.com,100.0,"多行
+文本
+测试",active
+6,Test User,invalid-email,,"空分数",active
+7,"包含""引号""的名字",quote@test.com,92.0,引号测试,active
+8,特殊字符测试!@#,special@test.com,85.5,"Tab	Space",active
+9,,empty@test.com,78.0,空名字测试,active
+10,完整数据,complete@test.com,90.0,所有字段都有值,active
+

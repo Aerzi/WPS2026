@@ -1,0 +1,9 @@
+dt,device_id,uv,pv,ai_type
+2025-10-20,device_1234,1543,8234,generate_ppt
+2025-10-21,device_2567,2134,9876,generate_ppt
+2025-10-22,device_3891,1876,7654,generate_ppt
+2025-10-23,device_4523,2456,11234,generate_ppt
+2025-10-24,device_5678,2789,12456,generate_ppt
+2025-10-25,device_6234,2345,10234,generate_ppt
+2025-10-26,device_7890,2567,11567,generate_ppt
+
