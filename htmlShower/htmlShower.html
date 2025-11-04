@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HTML 实时预览工具</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        height: 100vh;
+        overflow: hidden;
+        background: linear-gradient(-45deg, #1f2437, #2c3548, #394359, #1f2437, #2c3548, #d4bfa8, #fbe1c3, #2c3548, #394359, #1f2437, #2c3548);
+        background-size: 400% 400%;
+        animation: luxuryFlow 25s ease-in-out infinite;
+      }
+
+      @keyframes luxuryFlow {
+        0% {
+          background-position: 0% 50%;
+        }
+        25% {
+          background-position: 100% 25%;
+        }
+        50% {
+          background-position: 50% 100%;
+        }
+        75% {
+          background-position: 0% 75%;
+        }
+        100% {
+          background-position: 0% 50%;
+        }
+      }
+
+      .header {
+        background: transparent;
+        color: white;
+        padding: 20px 30px;
+        box-shadow: 
+          0 2px 20px rgba(31, 36, 55, 0.4),
+          0 0 40px rgba(251, 225, 195, 0.3),
+          inset 0 1px 0 rgba(232, 209, 181, 0.2);
+        backdrop-filter: blur(15px);
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+        user-select: none;
+      }
+
+      .header h1 {
+        font-size: 24px;
+        font-weight: 600;
+      }
+
+      .header p {
+        font-size: 14px;
+        opacity: 0.9;
+        margin-top: 5px;
+      }
+
+      .container {
+        display: flex;
+        height: calc(100vh - 148px);
+        margin: 10px;
+        gap: 0;
+        position: relative;
+        border-radius: 10px;
+        overflow: hidden;
+      }
+
+      .left-panel {
+        width: 20%;
+        display: flex;
+        flex-direction: column;
+        background: rgba(255, 255, 255, 0.93);
+        border-right: 2px solid transparent;
+        border-image: linear-gradient(180deg, #fbe1c3, #e8d1b5, #d4bfa8) 1;
+        backdrop-filter: blur(12px);
+        box-shadow: 2px 0 15px rgba(251, 225, 195, 0.2);
+      }
+
+      .splitter {
+        width: 8px;
+        background: linear-gradient(180deg, #1f2437 0%, #2c3548 30%, #394359 40%, #d4bfa8 60%, #fbe1c3 70%, #2c3548 90%, #1f2437 100%);
+        cursor: col-resize;
+        position: relative;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 
+          0 0 15px rgba(251, 225, 195, 0.4),
+          inset 0 0 5px rgba(212, 191, 168, 0.3);
+      }
+
+      .splitter::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 2px;
+        height: 40px;
+        background: rgba(255, 255, 255, 0.6);
+        border-radius: 1px;
+        box-shadow: 
+          -2px 0 0 rgba(255, 255, 255, 0.3),
+          2px 0 0 rgba(255, 255, 255, 0.3);
+      }
+
+      .panel-header {
+        padding: 15px 20px;
+        background: linear-gradient(135deg, rgba(31, 36, 55, 0.2) 0%, rgba(44, 53, 72, 0.15) 70%, rgba(251, 225, 195, 0.1) 100%);
+        border-bottom: 2px solid transparent;
+        border-image: linear-gradient(90deg, #fbe1c3, #e8d1b5, #d4bfa8) 1;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        backdrop-filter: blur(8px);
+        box-shadow: 0 2px 10px rgba(251, 225, 195, 0.2);
+      }
+
+      .panel-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: #1f2437;
+        text-shadow: 0 1px 2px rgba(44, 53, 72, 0.4), 0 0 8px rgba(251, 225, 195, 0.2);
+      }
+
+      .btn-clear {
+        padding: 10px 18px;
+        background: linear-gradient(135deg, #c7a889 0%, #d4bfa8 50%, #fbe1c3 100%);
+        color: #1f2437;
+        border: 1px solid rgba(251, 225, 195, 0.3);
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 600;
+        transition: all 0.4s ease;
+        text-shadow: 0 1px 2px rgba(255, 255, 255, 0.3);
+        box-shadow: 
+          0 2px 8px rgba(251, 225, 195, 0.3),
+          inset 0 1px 2px rgba(232, 209, 181, 0.5);
+      }
+
+      .btn-clear:hover {
+        background: linear-gradient(135deg, #d4bfa8 0%, #fbe1c3 50%, #e8d1b5 100%);
+        transform: translateY(-2px) scale(1.02);
+        box-shadow: 
+          0 4px 15px rgba(251, 225, 195, 0.5),
+          0 0 25px rgba(212, 191, 168, 0.4),
+          inset 0 1px 3px rgba(255, 255, 255, 0.6);
+        border-color: rgba(199, 168, 137, 0.5);
+      }
+
+      .btn-clear:active {
+        transform: translateY(-1px) scale(0.98);
+        box-shadow: 
+          0 2px 10px rgba(251, 225, 195, 0.4),
+          inset 0 2px 4px rgba(199, 168, 137, 0.3);
+      }
+
+      .input-area {
+        flex: 1;
+        padding: 0;
+      }
+
+      #htmlInput {
+        width: 100%;
+        height: 100%;
+        padding: 20px;
+        border: none;
+        resize: none;
+        font-family: "Consolas", "Monaco", "Courier New", monospace;
+        font-size: 14px;
+        line-height: 1.6;
+        outline: none;
+        background: #fafafa;
+        color: #333;
+      }
+
+      #htmlInput::placeholder {
+        color: #999;
+      }
+
+      .right-panel {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        background: rgba(255, 255, 255, 0.93);
+        backdrop-filter: blur(12px);
+        box-shadow: -2px 0 15px rgba(251, 225, 195, 0.15);
+      }
+
+      .preview-container {
+        flex: 1;
+        padding: 0;
+        overflow: hidden;
+      }
+
+      #preview {
+        width: 100%;
+        height: 100%;
+        border: none;
+        background: white;
+      }
+
+      .status-bar {
+        padding: 8px 20px;
+        background: linear-gradient(135deg, rgba(31, 36, 55, 0.15) 0%, rgba(44, 53, 72, 0.1) 70%, rgba(251, 225, 195, 0.08) 100%);
+        border-top: 2px solid transparent;
+        border-image: linear-gradient(90deg, #d4bfa8, #fbe1c3, #e8d1b5) 1;
+        font-size: 12px;
+        color: #666;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        backdrop-filter: blur(8px);
+        box-shadow: 0 -2px 10px rgba(251, 225, 195, 0.15);
+      }
+
+      .status-indicator {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .status-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #1f2437 0%, #d4bfa8 50%, #fbe1c3 100%);
+        animation: luxuryPulse 2.5s ease-in-out infinite;
+        box-shadow: 
+          0 0 10px rgba(251, 225, 195, 0.6),
+          0 0 20px rgba(212, 191, 168, 0.4),
+          inset 0 1px 2px rgba(255, 255, 255, 0.3);
+      }
+
+      @keyframes luxuryPulse {
+        0%, 100% {
+          opacity: 1;
+          transform: scale(1);
+          box-shadow: 
+            0 0 10px rgba(251, 225, 195, 0.6),
+            0 0 20px rgba(212, 191, 168, 0.4);
+        }
+        50% {
+          opacity: 0.7;
+          transform: scale(1.1);
+          box-shadow: 
+            0 0 15px rgba(251, 225, 195, 0.8),
+            0 0 30px rgba(212, 191, 168, 0.6);
+        }
+      }
+
+
+      .char-count {
+        color: #999;
+      }
+
+      /* 响应式设计 */
+      @media (max-width: 768px) {
+        .container {
+          flex-direction: column;
+        }
+
+        .left-panel {
+          width: 100% !important;
+          border-right: none;
+          border-bottom: 2px solid #e0e0e0;
+        }
+
+        .right-panel {
+          width: 100% !important;
+        }
+
+        .splitter {
+          display: none;
+        }
+      }
+
+      /* 滚动条样式 */
+      #htmlInput::-webkit-scrollbar {
+        width: 10px;
+      }
+
+      #htmlInput::-webkit-scrollbar-track {
+        background: #f1f1f1;
+      }
+
+      #htmlInput::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 5px;
+      }
+
+      #htmlInput::-webkit-scrollbar-thumb:hover {
+        background: #555;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <h1>HTML 实时预览工具</h1>
+      <p>在左侧输入或粘贴 HTML 代码，右侧将实时显示渲染效果</p>
+    </div>
+
+    <div class="container">
+      <div class="left-panel">
+        <div class="panel-header">
+          <span class="panel-title">HTML 代码编辑器</span>
+          <button class="btn-clear" onclick="clearInput()">清空</button>
+        </div>
+        <div class="input-area">
+          <textarea
+            id="htmlInput"
+            placeholder="在此粘贴或输入 HTML 代码...&#10;&#10;示例：&#10;<h1>Hello World</h1>&#10;<p>这是一个段落</p>&#10;<button onclick=&quot;alert('Hello!')&quot;>点击我</button>"
+          ></textarea>
+        </div>
+      </div>
+
+      <div class="splitter" id="splitter"></div>
+
+      <div class="right-panel">
+        <div class="panel-header">
+          <span class="panel-title">实时预览</span>
+        </div>
+        <div class="preview-container">
+          <iframe id="preview"></iframe>
+        </div>
+        <div class="status-bar">
+          <div class="status-indicator">
+            <span class="status-dot"></span>
+            <span>实时预览已启用</span>
+          </div>
+          <span class="char-count" id="charCount">0 字符</span>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const htmlInput = document.getElementById("htmlInput");
+      const preview = document.getElementById("preview");
+      const charCount = document.getElementById("charCount");
+      const splitter = document.getElementById("splitter");
+      const leftPanel = document.querySelector(".left-panel");
+      const rightPanel = document.querySelector(".right-panel");
+      const container = document.querySelector(".container");
+
+      // 拖拽状态
+      let isDragging = false;
+      let startX = 0;
+      let startLeftWidth = 0;
+
+      // 更新预览
+      function updatePreview() {
+        const htmlContent = htmlInput.value;
+        const previewDocument =
+          preview.contentDocument || preview.contentWindow.document;
+
+        previewDocument.open();
+        previewDocument.write(htmlContent);
+        previewDocument.close();
+
+        // 更新字符计数
+        charCount.textContent = `${htmlContent.length} 字符`;
+      }
+
+      // 拖拽开始
+      function startDrag(e) {
+        isDragging = true;
+        startX = e.clientX;
+        startLeftWidth = leftPanel.offsetWidth;
+        splitter.classList.add('dragging');
+        
+        // 防止文本选择
+        document.body.style.userSelect = 'none';
+        document.body.style.cursor = 'col-resize';
+        
+        // 添加全局事件监听
+        document.addEventListener('mousemove', drag);
+        document.addEventListener('mouseup', stopDrag);
+        
+        e.preventDefault();
+      }
+
+      // 拖拽中
+      function drag(e) {
+        if (!isDragging) return;
+        
+        const deltaX = e.clientX - startX;
+        const containerWidth = container.offsetWidth;
+        const splitterWidth = 8; // splitter的宽度
+        const newLeftWidth = startLeftWidth + deltaX;
+        
+        // 设置最小和最大宽度（20%到80%）
+        const minWidth = containerWidth * 0.2;
+        const maxWidth = containerWidth * 0.8;
+        
+        if (newLeftWidth >= minWidth && newLeftWidth <= maxWidth) {
+          const leftPercentage = (newLeftWidth / containerWidth) * 100;
+          const rightPercentage = 100 - leftPercentage - (splitterWidth / containerWidth) * 100;
+          
+          leftPanel.style.width = `${leftPercentage}%`;
+          rightPanel.style.width = `${rightPercentage}%`;
+        }
+      }
+
+      // 拖拽结束
+      function stopDrag() {
+        isDragging = false;
+        splitter.classList.remove('dragging');
+        
+        // 恢复默认样式
+        document.body.style.userSelect = '';
+        document.body.style.cursor = '';
+        
+        // 移除全局事件监听
+        document.removeEventListener('mousemove', drag);
+        document.removeEventListener('mouseup', stopDrag);
+      }
+
+      // 初始化拖拽事件
+      splitter.addEventListener('mousedown', startDrag);
+
+      // 监听输入事件
+      htmlInput.addEventListener("input", updatePreview);
+      htmlInput.addEventListener("paste", function () {
+        setTimeout(updatePreview, 10);
+      });
+
+      // 清空输入
+      function clearInput() {
+        htmlInput.value = "";
+        updatePreview();
+        htmlInput.focus();
+      }
+
+      // 快捷键支持
+      htmlInput.addEventListener("keydown", function (e) {
+        // Ctrl/Cmd + Enter 刷新预览
+        if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+          e.preventDefault();
+          updatePreview();
+        }
+
+        // Tab 键插入缩进
+        if (e.key === "Tab") {
+          e.preventDefault();
+          const start = this.selectionStart;
+          const end = this.selectionEnd;
+          const value = this.value;
+
+          this.value =
+            value.substring(0, start) + "    " + value.substring(end);
+          this.selectionStart = this.selectionEnd = start + 4;
+        }
+      });
+
+      // 窗口大小改变时重新计算面板大小
+      window.addEventListener('resize', function() {
+        // 如果是移动端，重置面板宽度
+        if (window.innerWidth <= 768) {
+          leftPanel.style.width = '';
+          rightPanel.style.width = '';
+        } else if (leftPanel.style.width && rightPanel.style.width) {
+          // 桌面端保持当前比例
+          const containerWidth = container.offsetWidth;
+          const currentLeftWidth = leftPanel.offsetWidth;
+          const leftPercentage = (currentLeftWidth / containerWidth) * 100;
+          const rightPercentage = 100 - leftPercentage - (8 / containerWidth) * 100;
+          
+          leftPanel.style.width = `${leftPercentage}%`;
+          rightPanel.style.width = `${rightPercentage}%`;
+        }
+      });
+
+      // 页面加载时初始化
+      window.addEventListener("load", function () {
+        updatePreview();
+      });
+    </script>
+  </body>
+</html>

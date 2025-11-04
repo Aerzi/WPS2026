@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import PreferenceModal from './components/PreferenceModal.vue'
+import IconOptimize from './components/icons/IconOptimize.vue'
 
 interface UploadedFile {
   name: string
@@ -14,6 +15,12 @@ const maxLength = 5000
 const isDragging = ref(false)
 const uploadedFiles = ref<UploadedFile[]>([])
 const showPreferenceModal = ref(false)
+const isOptimizing = ref(false)
+const optimizedText = ref('')
+const originalText = ref('')
+const displayedText = ref('')
+const isStreaming = ref(false)
+let streamIntervalId: number | null = null
 
 const tabs = [
   { id: 'topic', label: '输入主题', icon: 'topic' },
@@ -46,6 +53,77 @@ const handlePreferenceConfirm = (preference: string) => {
 
 const handlePreferenceClose = () => {
   showPreferenceModal.value = false
+}
+
+// 流式输出文本的函数
+const streamText = (text: string) => {
+  displayedText.value = ''
+  isStreaming.value = true
+  let index = 0
+
+  streamIntervalId = setInterval(() => {
+    if (index < text.length) {
+      displayedText.value += text[index]
+      index++
+    } else {
+      if (streamIntervalId) clearInterval(streamIntervalId)
+      streamIntervalId = null
+      isStreaming.value = false
+    }
+  }, 30) as unknown as number // 每30毫秒显示一个字符
+}
+
+// 终止流式生成
+const handleStop = () => {
+  // 停止流式输出
+  if (streamIntervalId) {
+    clearInterval(streamIntervalId)
+    streamIntervalId = null
+  }
+
+  // 清除所有状态
+  isOptimizing.value = false
+  isStreaming.value = false
+  optimizedText.value = ''
+  originalText.value = ''
+  displayedText.value = ''
+}
+
+const handleOptimize = () => {
+  console.log('一键优化文本:', inputText.value)
+  originalText.value = inputText.value
+  isOptimizing.value = true
+  optimizedText.value = ''
+  displayedText.value = ''
+
+  // 模拟优化过程
+  setTimeout(() => {
+    optimizedText.value = `凯旋哥，我整理了一下，我还是觉得灵感提示词和首页的推荐提示词应该分成两个需求，进行\n\n灵感提示词只关注对提示词的优化与整理，重点放在各个场景下的提示词优化与选择\n- 目前文档可以参考：[文档]【演示AI】AIPPT独立站首页转化-灵感_提示词优化\n- 我现在正在写交互代码和流程图\n\n推荐提示词的流程优化，这个功能目前主要的痛点有：\n- 推荐不全，推荐的内容固定20条且不一定适合用户，需要用户手动刷新\n  → 现在的推荐提示词其实带有非常强烈的广告色彩，就是告诉用户，我们这几个生成效果会很好，你可以试试，但实际上效果一般\n- 执行难受，用户在点击了提示词之后，系统就自动生成了，不给用户反应的时间\n  → 但是在内网下这个好像已经解决了\n\n我觉得针对推荐提示词，需要和你对齐一下思路，就是这个功能的目的到底是什么：\n1. 如果只是做广告的话，重点是提升现在提示词的生成效果\n   - 目前百度文库和我们很类似，但是别人的预设中还包含了模板，也是点击之后自动执行\n   - 通义PPT是点击种类主题后，提供模板与预设提示词\n2. 如果目的是为了推荐用户生成内容，重点是更加宽泛，增加让用户参与的场景\n   - 目前的提示词文本需要更换，需要修改为更加笼统、更加场景化的提示词\n   - 结合固定格式的预设，让用户自己添加主题`
+    inputText.value = optimizedText.value
+    isOptimizing.value = false
+
+    // 开始流式输出
+    streamText(optimizedText.value)
+
+    console.log('优化完成:', optimizedText.value)
+  }, 3000)
+}
+
+const handleRetry = () => {
+  // 重新使用原始文本进行优化
+  inputText.value = originalText.value
+  displayedText.value = ''
+  handleOptimize()
+}
+
+const handleCancel = () => {
+  // 恢复原始文本并清除优化状态
+  inputText.value = originalText.value
+  isOptimizing.value = false
+  isStreaming.value = false
+  optimizedText.value = ''
+  originalText.value = ''
+  displayedText.value = ''
 }
 
 const refreshExamples = () => {
@@ -360,7 +438,44 @@ const getPlaceholder = () => {
 
         <!-- 文本输入界面（输入主题/粘贴大纲） -->
         <div v-else class="editor-panel">
+          <!-- 优化状态显示 -->
+          <div v-if="isOptimizing || optimizedText" class="optimize-view">
+            <div class="optimize-section optimize-section--before">
+              <div class="optimize-content optimize-content--single-line">
+                <span class="optimize-label optimize-label--before">优化前</span>
+                <span class="optimize-text-wrapper">
+                  <span class="optimize-text">{{ originalText }}</span>
+                  <span class="optimize-tooltip">{{ originalText }}</span>
+                </span>
+              </div>
+            </div>
+            <div class="optimize-section">
+              <div v-if="isOptimizing || isStreaming" class="optimize-wrapper">
+                <div class="optimize-content optimize-content--loading optimize-scrollable">
+                  <span class="optimize-label optimize-label--after"> 优化后 </span>
+                  <span v-if="isStreaming" class="streaming-cursor streaming-text">{{
+                    displayedText
+                  }}</span>
+                </div>
+                <div class="loading-footer">
+                  <div class="loading-text">提示词优化中</div>
+                  <button class="stop-btn" @click="handleStop">
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                      <circle cx="6" cy="6" r="5" stroke="currentColor" stroke-width="1.5" />
+                    </svg>
+                    <span>终止</span>
+                  </button>
+                </div>
+              </div>
+              <div v-else-if="optimizedText" class="optimize-content optimize-content-completed">
+                <span class="optimize-label optimize-label--after">优化后</span>
+                {{ optimizedText }}
+              </div>
+            </div>
+          </div>
+          <!-- 正常输入框 -->
           <textarea
+            v-else
             v-model="inputText"
             class="editor"
             :placeholder="getPlaceholder()"
@@ -369,7 +484,7 @@ const getPlaceholder = () => {
         </div>
 
         <!-- 工具栏 -->
-        <div class="inputbox__action">
+        <div v-show="!isOptimizing && !isStreaming" class="inputbox__action">
           <!-- 输入主题时显示的工具栏 -->
           <template v-if="activeTab === 'topic'">
             <button class="action-btn">
@@ -520,26 +635,95 @@ const getPlaceholder = () => {
 
             <div class="action__spacer"></div>
 
-            <div class="count">
-              <span class="count__text">{{ inputText.length }}/{{ maxLength }}</span>
-            </div>
+            <!-- 优化完成后显示重试、取消和立即生成按钮（流式生成时隐藏） -->
+            <template v-if="optimizedText && !isOptimizing && !isStreaming">
+              <button class="retry-btn" @click="handleRetry">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path
+                    d="M14.25 8C14.25 11.7279 11.7279 14.75 8 14.75C5.27924 14.75 2.93784 13.1641 1.95703 10.875M1.75 8C1.75 4.27208 4.27208 1.25 8 1.25C10.721 1.25 13.0624 2.83598 14.043 5.125M14.25 2.75V5.75H11.25M1.75 13.25V10.25H4.75"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  ></path>
+                </svg>
+                <span>重试</span>
+              </button>
 
-            <div class="inputbox__action-divider"></div>
+              <button class="cancel-btn" @click="handleCancel">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path
+                    d="M12.5 3.5L3.5 12.5M3.5 3.5L12.5 12.5"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                  ></path>
+                </svg>
+                <span>取消</span>
+              </button>
 
-            <button class="submit-btn" :disabled="!inputText.trim()" @click="handleSubmit">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 16 16"
-                fill="none"
+              <div class="inputbox__action-divider"></div>
+
+              <button class="submit-btn submit-btn--text" @click="handleSubmit">
+                <span>立即生成</span>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                >
+                  <path
+                    d="M5.5 3L10.5 8L5.5 13"
+                    stroke="#fff"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    fill="none"
+                  ></path>
+                </svg>
+              </button>
+            </template>
+
+            <!-- 正常状态显示一键优化和立即生成按钮 -->
+            <template v-else>
+              <!-- 一键优化按钮 - 仅在有文本时显示 -->
+              <button
+                v-if="inputText.trim() && !isOptimizing"
+                class="optimize-btn"
+                @click="handleOptimize"
               >
-                <path
-                  d="M4.13268 1.68855C3.66286 1.41273 3.09188 1.8348 3.21662 2.36571L4.34287 7.15944C4.34886 7.18494 4.37302 7.20156 4.39922 7.20156V7.20156H7.59922C7.82013 7.20156 7.99922 7.38065 7.99922 7.60156C7.99922 7.82248 7.82013 8.00156 7.59922 8.00156H4.39922V8.00156C4.37302 8.00156 4.34886 8.01818 4.34287 8.04369L3.21661 12.8374C3.09188 13.3683 3.66286 13.7904 4.13268 13.5146L13.2931 8.13665C13.7013 7.89703 13.7013 7.3061 13.2931 7.06647L4.13268 1.68855Z"
-                  fill="#fff"
-                ></path>
-              </svg>
-            </button>
+                <IconOptimize />
+                <span>一键优化</span>
+              </button>
+
+              <div v-if="inputText.trim()" class="inputbox__action-divider"></div>
+
+              <button
+                v-if="!isOptimizing && !isStreaming"
+                class="submit-btn submit-btn--text"
+                :disabled="!inputText.trim()"
+                @click="handleSubmit"
+              >
+                <span>立即生成</span>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                >
+                  <path
+                    d="M5.5 3L10.5 8L5.5 13"
+                    stroke="#fff"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    fill="none"
+                  ></path>
+                </svg>
+              </button>
+            </template>
           </template>
 
           <!-- 上传文档时显示的工具栏 -->
@@ -581,17 +765,26 @@ const getPlaceholder = () => {
 
             <div class="action__spacer"></div>
 
-            <button class="submit-btn" :disabled="uploadedFiles.length === 0" @click="handleSubmit">
+            <button
+              class="submit-btn submit-btn--text"
+              :disabled="uploadedFiles.length === 0"
+              @click="handleSubmit"
+            >
+              <span>立即生成</span>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
+                width="16"
+                height="16"
                 viewBox="0 0 16 16"
                 fill="none"
               >
                 <path
-                  d="M4.13268 1.68855C3.66286 1.41273 3.09188 1.8348 3.21662 2.36571L4.34287 7.15944C4.34886 7.18494 4.37302 7.20156 4.39922 7.20156V7.20156H7.59922C7.82013 7.20156 7.99922 7.38065 7.99922 7.60156C7.99922 7.82248 7.82013 8.00156 7.59922 8.00156H4.39922V8.00156C4.37302 8.00156 4.34886 8.01818 4.34287 8.04369L3.21661 12.8374C3.09188 13.3683 3.66286 13.7904 4.13268 13.5146L13.2931 8.13665C13.7013 7.89703 13.7013 7.3061 13.2931 7.06647L4.13268 1.68855Z"
-                  fill="#fff"
+                  d="M5.5 3L10.5 8L5.5 13"
+                  stroke="#fff"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  fill="none"
                 ></path>
               </svg>
             </button>
@@ -747,26 +940,95 @@ const getPlaceholder = () => {
 
             <div class="action__spacer"></div>
 
-            <div class="count">
-              <span class="count__text">{{ inputText.length }}/{{ maxLength }}</span>
-            </div>
+            <!-- 优化完成后显示重试、取消和立即生成按钮（流式生成时隐藏） -->
+            <template v-if="optimizedText && !isOptimizing && !isStreaming">
+              <button class="retry-btn" @click="handleRetry">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path
+                    d="M14.25 8C14.25 11.7279 11.7279 14.75 8 14.75C5.27924 14.75 2.93784 13.1641 1.95703 10.875M1.75 8C1.75 4.27208 4.27208 1.25 8 1.25C10.721 1.25 13.0624 2.83598 14.043 5.125M14.25 2.75V5.75H11.25M1.75 13.25V10.25H4.75"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  ></path>
+                </svg>
+                <span>重试</span>
+              </button>
 
-            <div class="inputbox__action-divider"></div>
+              <button class="cancel-btn" @click="handleCancel">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path
+                    d="M12.5 3.5L3.5 12.5M3.5 3.5L12.5 12.5"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                  ></path>
+                </svg>
+                <span>取消</span>
+              </button>
 
-            <button class="submit-btn" :disabled="!inputText.trim()" @click="handleSubmit">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 16 16"
-                fill="none"
+              <div class="inputbox__action-divider"></div>
+
+              <button class="submit-btn submit-btn--text" @click="handleSubmit">
+                <span>立即生成</span>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                >
+                  <path
+                    d="M5.5 3L10.5 8L5.5 13"
+                    stroke="#fff"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    fill="none"
+                  ></path>
+                </svg>
+              </button>
+            </template>
+
+            <!-- 正常状态显示一键优化和立即生成按钮 -->
+            <template v-else>
+              <!-- 一键优化按钮 - 仅在有文本时显示 -->
+              <button
+                v-if="inputText.trim() && !isOptimizing"
+                class="optimize-btn"
+                @click="handleOptimize"
               >
-                <path
-                  d="M4.13268 1.68855C3.66286 1.41273 3.09188 1.8348 3.21662 2.36571L4.34287 7.15944C4.34886 7.18494 4.37302 7.20156 4.39922 7.20156V7.20156H7.59922C7.82013 7.20156 7.99922 7.38065 7.99922 7.60156C7.99922 7.82248 7.82013 8.00156 7.59922 8.00156H4.39922V8.00156C4.37302 8.00156 4.34886 8.01818 4.34287 8.04369L3.21661 12.8374C3.09188 13.3683 3.66286 13.7904 4.13268 13.5146L13.2931 8.13665C13.7013 7.89703 13.7013 7.3061 13.2931 7.06647L4.13268 1.68855Z"
-                  fill="#fff"
-                ></path>
-              </svg>
-            </button>
+                <IconOptimize />
+                <span>一键优化</span>
+              </button>
+
+              <div v-if="inputText.trim()" class="inputbox__action-divider"></div>
+
+              <button
+                v-if="!isOptimizing && !isStreaming"
+                class="submit-btn submit-btn--text"
+                :disabled="!inputText.trim()"
+                @click="handleSubmit"
+              >
+                <span>立即生成</span>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                >
+                  <path
+                    d="M5.5 3L10.5 8L5.5 13"
+                    stroke="#fff"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    fill="none"
+                  ></path>
+                </svg>
+              </button>
+            </template>
           </template>
         </div>
       </div>
@@ -847,7 +1109,7 @@ const getPlaceholder = () => {
   padding: 10px 24px;
   background: #ffffff;
   border: 1px solid #e1e4e8;
-  border-radius: 8px;
+  border-radius: 24px;
   font-size: 14px;
   color: #646a73;
   cursor: pointer;
@@ -874,7 +1136,7 @@ const getPlaceholder = () => {
 .ppt-input-container {
   background: #ffffff;
   border: 1px solid #e1e4e8;
-  border-radius: 12px;
+  border-radius: 16px;
   padding: 16px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
@@ -900,11 +1162,323 @@ const getPlaceholder = () => {
   color: #bbbfc4;
 }
 
+/* 优化视图 */
+.optimize-view {
+  margin-bottom: 12px;
+}
+
+.optimize-section {
+  padding: 4px 0;
+  border-bottom: 1px solid #e1e4e8;
+}
+
+.optimize-section:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+/* 优化前区域 - 单行显示 */
+.optimize-section--before {
+  position: relative;
+  padding-bottom: 8px;
+}
+
+.optimize-text-wrapper {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  display: inline-block;
+  cursor: help;
+}
+
+.optimize-text {
+  display: inline-block;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 14px;
+  color: #1f2329;
+  vertical-align: middle;
+  line-height: 1.8;
+}
+
+/* 悬浮提示框 */
+.optimize-tooltip {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: calc(100% + 12px);
+  padding: 16px 20px;
+  background: rgba(45, 50, 56, 0.95);
+  color: #ffffff;
+  font-size: 14px;
+  line-height: 1.8;
+  border-radius: 8px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.25);
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-width: 600px;
+  min-width: 300px;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 0.2s ease,
+    visibility 0.2s ease;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+/* 悬浮提示框的小三角 */
+.optimize-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 8px solid transparent;
+  border-top-color: rgba(45, 50, 56, 0.95);
+}
+
+.optimize-text-wrapper:hover .optimize-tooltip {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* 优化内容包装器 */
+.optimize-wrapper {
+  display: flex;
+  flex-direction: column;
+  max-height: 250px;
+}
+
+/* 可滚动的优化内容区域 */
+.optimize-scrollable {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  min-height: 0;
+  padding: 4px 0;
+}
+
+/* 优化后区域的滚动条样式 */
+.optimize-scrollable::-webkit-scrollbar {
+  width: 6px;
+}
+
+.optimize-scrollable::-webkit-scrollbar-track {
+  background: #f7f8fa;
+  border-radius: 3px;
+}
+
+.optimize-scrollable::-webkit-scrollbar-thumb {
+  background: #c9cdd4;
+  border-radius: 3px;
+  transition: background 0.2s;
+}
+
+.optimize-scrollable::-webkit-scrollbar-thumb:hover {
+  background: #a8adb5;
+}
+
+.optimize-label {
+  display: inline-block;
+  font-size: 13px;
+  font-style: italic;
+  font-weight: 500;
+  color: #646a73;
+  width: 60px;
+  margin-right: 8px;
+  padding: 2px 8px;
+  border-radius: 8px;
+  vertical-align: middle;
+}
+
+.optimize-label--before {
+  color: #5b6066;
+  background-color: rgba(185, 191, 202, 0.2);
+}
+
+.optimize-label--after {
+  color: #52c41a;
+  background-color: rgba(120, 193, 61, 0.2);
+}
+
+.optimizing-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  background: #f0f9ff;
+  border: 1px solid #91d5ff;
+  border-radius: 12px;
+  font-size: 12px;
+  color: #1890ff;
+  font-weight: normal;
+  margin-left: 6px;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+.optimize-content {
+  display: block;
+  padding: 0;
+  background: transparent;
+  font-size: 14px;
+  line-height: 1.8;
+  color: #1f2329;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* 覆盖基础样式，确保单行显示 */
+.optimize-content.optimize-content--single-line {
+  display: flex !important;
+  align-items: center;
+  white-space: nowrap !important;
+  word-break: normal !important;
+  overflow: hidden;
+  line-height: 1.8;
+}
+
+.optimize-content.optimize-content--single-line .optimize-label {
+  flex-shrink: 0;
+  display: inline-block;
+}
+
+.optimize-scrollable .optimize-label {
+  display: block;
+  margin-bottom: 8px;
+}
+
+/* 优化完成后的内容区域 */
+.optimize-content-completed {
+  max-height: 250px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 4px 0;
+}
+
+.optimize-content-completed .optimize-label {
+  display: block;
+  margin-bottom: 8px;
+}
+
+.optimize-content-completed::-webkit-scrollbar {
+  width: 6px;
+}
+
+.optimize-content-completed::-webkit-scrollbar-track {
+  background: #f7f8fa;
+  border-radius: 3px;
+}
+
+.optimize-content-completed::-webkit-scrollbar-thumb {
+  background: #c9cdd4;
+  border-radius: 3px;
+  transition: background 0.2s;
+}
+
+.optimize-content-completed::-webkit-scrollbar-thumb:hover {
+  background: #a8adb5;
+}
+
+.optimize-content--loading {
+  color: #1f2329;
+}
+
+.loading-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 12px;
+  flex-shrink: 0;
+  background: #ffffff;
+}
+
+.loading-text {
+  display: inline-block;
+  position: relative;
+  padding-left: 22px;
+  font-size: 13px;
+  color: #8f959e;
+}
+
+.loading-text::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 14px;
+  height: 14px;
+  border: 2px solid #e1e4e8;
+  border-top-color: #667eea;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: translateY(-50%) rotate(360deg);
+  }
+}
+
+/* 终止按钮 */
+.stop-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  background: #ffffff;
+  border: 1px solid #e1e4e8;
+  border-radius: 16px;
+  font-size: 12px;
+  color: #646a73;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.stop-btn:hover {
+  background: #fff1f0;
+  border-color: #ff4d4f;
+  color: #ff4d4f;
+}
+
+.stop-btn svg {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+}
+
+/* 流式输出文本样式 */
+.streaming-text {
+  display: block;
+  color: #1f2329;
+  margin-top: 0;
+}
+
+.streaming-cursor::after {
+  content: '|';
+  animation: blink 1s infinite;
+  margin-left: 2px;
+  color: #667eea;
+}
+
+@keyframes blink {
+  0%,
+  50% {
+    opacity: 1;
+  }
+  51%,
+  100% {
+    opacity: 0;
+  }
+}
+
 /* 文件上传区域 */
 .file-upload-area {
   min-height: 300px;
   background: #f7f8fa;
-  border-radius: 8px;
+  border-radius: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -962,7 +1536,7 @@ const getPlaceholder = () => {
   padding: 10px 20px;
   background: #ffffff;
   border: 1px solid #e1e4e8;
-  border-radius: 6px;
+  border-radius: 24px;
   font-size: 14px;
   color: #646a73;
   cursor: pointer;
@@ -1014,7 +1588,7 @@ const getPlaceholder = () => {
 /* 已上传文件列表 */
 .uploaded-files {
   background: #f7f8fa;
-  border-radius: 8px;
+  border-radius: 16px;
   padding: 20px;
   margin-bottom: 16px;
 }
@@ -1025,7 +1599,7 @@ const getPlaceholder = () => {
   justify-content: space-between;
   background: white;
   border: 1px solid #e1e4e8;
-  border-radius: 8px;
+  border-radius: 12px;
   padding: 16px;
   margin-bottom: 12px;
   transition: all 0.2s;
@@ -1084,7 +1658,7 @@ const getPlaceholder = () => {
   padding: 8px 16px;
   background: #f7f8fa;
   border: 1px solid #e1e4e8;
-  border-radius: 6px;
+  border-radius: 20px;
   font-size: 13px;
   color: #646a73;
   cursor: pointer;
@@ -1121,7 +1695,7 @@ const getPlaceholder = () => {
   padding: 6px 12px;
   background: #f7f8fa;
   border: 1px solid #e1e4e8;
-  border-radius: 6px;
+  border-radius: 18px;
   font-size: 13px;
   color: #646a73;
   cursor: pointer;
@@ -1165,17 +1739,103 @@ const getPlaceholder = () => {
   margin: 0 4px;
 }
 
+/* 一键优化按钮 */
+.optimize-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: #ffffff;
+  border: 1.5px solid #667eea;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #667eea;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.optimize-btn:hover {
+  background: #f2f5ff;
+  border-color: #7c8ef5;
+  color: #7c8ef5;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+}
+
+.optimize-btn:active {
+  transform: translateY(0);
+}
+
+.optimize-btn svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+/* 重试和取消按钮 */
+.retry-btn,
+.cancel-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: #ffffff;
+  border: 1.5px solid #e1e4e8;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #646a73;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+  margin-left: 8px;
+}
+
+.retry-btn:hover {
+  background: #f2f5ff;
+  border-color: #667eea;
+  color: #667eea;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15);
+}
+
+.cancel-btn:hover {
+  background: #fff1f0;
+  border-color: #ff4d4f;
+  color: #ff4d4f;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(255, 77, 79, 0.15);
+}
+
+.retry-btn:active,
+.cancel-btn:active {
+  transform: translateY(0);
+}
+
+.retry-btn svg,
+.cancel-btn svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
 .submit-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  gap: 6px;
+  padding: 8px 20px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border: none;
-  border-radius: 8px;
+  border-radius: 24px;
   cursor: pointer;
   transition: all 0.2s;
+  font-size: 14px;
+  font-weight: 500;
+  color: #ffffff;
+  white-space: nowrap;
 }
 
 .submit-btn:hover:not(:disabled) {
@@ -1189,8 +1849,13 @@ const getPlaceholder = () => {
 }
 
 .submit-btn svg {
-  width: 20px;
-  height: 20px;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.submit-btn span {
+  font-weight: 500;
 }
 
 /* 示例标签 */
@@ -1206,7 +1871,7 @@ const getPlaceholder = () => {
   padding: 8px 16px;
   background: #ffffff;
   border: 1px solid #e1e4e8;
-  border-radius: 20px;
+  border-radius: 24px;
   font-size: 13px;
   color: #646a73;
   cursor: pointer;
@@ -1269,6 +1934,16 @@ const getPlaceholder = () => {
 
   .action__icon {
     margin: 0;
+  }
+
+  /* 在移动端保持优化按钮可见性 */
+  .optimize-btn {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+
+  .optimize-btn span {
+    display: inline;
   }
 }
 </style>
