@@ -7,6 +7,7 @@ const isOptimizing = ref(false)
 const showComparison = ref(false)
 const originalText = ref('')
 const optimizedText = ref('')
+const shouldStop = ref(false) // 用于控制是否终止优化
 
 const updateContentState = () => {
   if (textareaRef.value) {
@@ -16,31 +17,73 @@ const updateContentState = () => {
   }
 }
 
-const handleOptimize = () => {
-  if (textareaRef.value) {
-    originalText.value = textareaRef.value.innerText.trim()
-    isOptimizing.value = true
+// 流式生成文本函数
+const streamText = async (fullText: string) => {
+  optimizedText.value = ''
+  const chars = fullText.split('')
 
-    // 模拟 AI 优化过程
-    setTimeout(() => {
-      optimizedText.value = originalText.value + '（已优化）'
-      isOptimizing.value = false
-      showComparison.value = true
-    }, 800)
+  for (let i = 0; i < chars.length; i++) {
+    // 检查是否需要终止
+    if (shouldStop.value) {
+      break
+    }
+    optimizedText.value += chars[i]
+    // 随机延迟，模拟真实的流式生成效果
+    const delay = Math.random() * 30 + 20 // 20-50ms之间
+    await new Promise((resolve) => setTimeout(resolve, delay))
   }
 }
 
-const handleRetry = () => {
-  isOptimizing.value = true
-  setTimeout(() => {
-    optimizedText.value = originalText.value + '（重新优化）'
+const handleOptimize = async () => {
+  if (textareaRef.value) {
+    originalText.value = textareaRef.value.innerText.trim()
+    isOptimizing.value = true
+    showComparison.value = true
+    optimizedText.value = ''
+    shouldStop.value = false
+
+    // 模拟 AI 优化过程 - 流式生成
+    const mockOptimizedText = originalText.value + '（已优化）'
+
+    // 先延迟一小段时间模拟AI思考
+    await new Promise((resolve) => setTimeout(resolve, 500))
+
+    // 检查是否被终止
+    if (!shouldStop.value) {
+      // 开始流式生成
+      await streamText(mockOptimizedText)
+    }
+
     isOptimizing.value = false
-  }, 800)
+  }
+}
+
+const handleRetry = async () => {
+  isOptimizing.value = true
+  optimizedText.value = ''
+  shouldStop.value = false
+
+  // 模拟重新生成
+  const mockOptimizedText = originalText.value + '（重新优化）'
+
+  await new Promise((resolve) => setTimeout(resolve, 500))
+
+  if (!shouldStop.value) {
+    await streamText(mockOptimizedText)
+  }
+
+  isOptimizing.value = false
+}
+
+const handleStop = () => {
+  shouldStop.value = true
+  isOptimizing.value = false
 }
 
 const handleCancel = () => {
   showComparison.value = false
   optimizedText.value = ''
+  shouldStop.value = false
 }
 
 const handleConfirm = () => {
@@ -167,12 +210,14 @@ onMounted(() => {
 
             <!-- 一键优化按钮 -->
             <button
-              v-show="hasContent && !isOptimizing"
+              v-show="hasContent && !showComparison"
               class="btn-optimize"
+              :class="{ 'btn-optimize-loading': isOptimizing }"
               type="button"
               @click="handleOptimize"
+              :disabled="isOptimizing"
             >
-              <svg viewBox="0 0 16 16" aria-hidden="true">
+              <svg viewBox="0 0 16 16" aria-hidden="true" v-if="!isOptimizing">
                 <path
                   d="M7.5 7.15 9.49 3.02a.1.1 0 0 1 .18 0L11.5 7.15l3.48 1.84a.1.1 0 0 1 0 .18L11.5 10.85l-1.99 4.13a.1.1 0 0 1-.18 0L7.5 10.85l-3.48-1.84a.1.1 0 0 1 0-.18Z"
                   fill="none"
@@ -184,7 +229,18 @@ onMounted(() => {
                   stroke-width=".9"
                 />
               </svg>
-              一键优化
+              <!-- Loading 动画 -->
+              <svg viewBox="0 0 16 16" aria-hidden="true" v-else class="loading-spinner">
+                <circle
+                  cx="8"
+                  cy="8"
+                  r="6"
+                  fill="none"
+                  stroke-width="2"
+                  stroke-dasharray="31.4 31.4"
+                />
+              </svg>
+              {{ isOptimizing ? '优化中...' : '一键优化' }}
             </button>
 
             <div class="divider" aria-hidden="true"></div>
@@ -213,14 +269,18 @@ onMounted(() => {
             <div class="comparison-row">
               <div class="comparison-label-inline">
                 <span class="label-badge optimized">优化后</span>
-                <span class="label-content label-content-optimized" v-if="!isOptimizing">{{
-                  optimizedText
-                }}</span>
-                <div class="loading-indicator" v-else>
+                <!-- 思考阶段：显示loading点 -->
+                <div class="loading-indicator" v-if="isOptimizing && !optimizedText">
                   <div class="loading-dot"></div>
                   <div class="loading-dot"></div>
                   <div class="loading-dot"></div>
                 </div>
+                <!-- 生成阶段或完成阶段：显示文本 -->
+                <span class="label-content label-content-optimized" v-if="optimizedText">
+                  {{ optimizedText }}
+                  <!-- 流式生成中显示闪烁光标 -->
+                  <span class="typing-cursor" v-if="isOptimizing">|</span>
+                </span>
               </div>
             </div>
           </div>
@@ -233,7 +293,28 @@ onMounted(() => {
             <span>您的指令已经非常清晰明确，无需优化，可直接使用</span>
           </div>
 
-          <div class="editor-card__footer">
+          <!-- 优化中状态的Footer -->
+          <div class="editor-card__footer-optimizing" v-if="isOptimizing">
+            <div class="optimizing-status">
+              <div class="optimizing-text">
+                <div class="loading-dots">
+                  <div class="loading-dot-small"></div>
+                  <div class="loading-dot-small"></div>
+                  <div class="loading-dot-small"></div>
+                </div>
+                <span>提示词优化中...</span>
+              </div>
+              <button class="btn-stop" @click="handleStop">
+                <svg viewBox="0 0 16 16" aria-hidden="true">
+                  <circle cx="8" cy="8" r="6.5" stroke-width="1.5" />
+                </svg>
+                <span>终止</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 正常状态的Footer -->
+          <div class="editor-card__footer" v-else>
             <button class="btn btn-light">
               <span class="btn__icon">
                 <svg viewBox="0 0 16 16" aria-hidden="true">
@@ -354,7 +435,8 @@ onMounted(() => {
   width: min(1340px, 100%);
   background: #fff;
   border-radius: 16px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  border: 2px solid #e5e6eb;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   padding: 24px 28px 28px;
   display: flex;
   flex-direction: column;
@@ -424,10 +506,11 @@ onMounted(() => {
 
 .editor-card__input {
   background: #fff;
-  border: 1px solid #e5e6eb;
+  border: 2px solid #d9dce0;
   border-radius: 12px;
   overflow: hidden;
   position: relative;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
 .editor-card__input::after {
@@ -508,6 +591,38 @@ onMounted(() => {
   fill: none;
   flex-shrink: 0;
   transition: all 0.2s ease;
+}
+
+.btn-optimize-loading {
+  cursor: not-allowed;
+  opacity: 0.8;
+}
+
+.loading-spinner {
+  animation: rotate 1s linear infinite;
+}
+
+.loading-spinner circle {
+  stroke: #8b5cf6;
+  animation: dash 1.5s ease-in-out infinite;
+}
+
+@keyframes rotate {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes dash {
+  0% {
+    stroke-dashoffset: 0;
+  }
+  50% {
+    stroke-dashoffset: 15.7;
+  }
+  100% {
+    stroke-dashoffset: 31.4;
+  }
 }
 
 .editor-card__footer {
@@ -637,7 +752,7 @@ onMounted(() => {
   flex: 0 0 140px;
   height: 110px;
   border-radius: 12px;
-  border: 2px solid #e5e6eb;
+  border: 2px solid #d9dce0;
   background: #ffffff;
   display: flex;
   flex-direction: column;
@@ -648,6 +763,7 @@ onMounted(() => {
   color: #646a73;
   cursor: pointer;
   transition: all 0.2s;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
 }
 
 .format-card__item:hover {
@@ -668,6 +784,7 @@ onMounted(() => {
   background: #f3f0ff;
   border-color: #8b5cf6;
   color: #6d28d9;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.2);
 }
 
 .format-card__item .layout {
@@ -803,13 +920,18 @@ onMounted(() => {
 /* 优化对比视图 */
 .comparison-view {
   padding: 0;
+  border: 2px solid #d9dce0;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
 }
 
 .comparison-content {
   display: flex;
   flex-direction: column;
   gap: 0;
-  margin-bottom: 20px;
+  padding: 0 20px;
 }
 
 .comparison-row {
@@ -867,6 +989,26 @@ onMounted(() => {
   white-space: pre-wrap;
 }
 
+/* 流式生成闪烁光标 */
+.typing-cursor {
+  display: inline-block;
+  margin-left: 2px;
+  color: #22c55e;
+  font-weight: bold;
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0%,
+  50% {
+    opacity: 1;
+  }
+  51%,
+  100% {
+    opacity: 0;
+  }
+}
+
 .loading-indicator {
   display: flex;
   gap: 8px;
@@ -905,10 +1047,11 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 12px 0;
+  padding: 12px 20px;
   font-size: 13px;
   color: #8f959e;
-  margin-top: 8px;
+  background: #fafbfc;
+  border-top: 1px solid #e5e6eb;
 }
 
 .comparison-tip svg {
@@ -946,6 +1089,101 @@ onMounted(() => {
   stroke: currentColor;
   fill: none;
   stroke-width: 1.5;
+}
+
+.action-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.loading-spinner-small {
+  animation: rotate 1s linear infinite;
+}
+
+.loading-spinner-small circle {
+  stroke: currentColor;
+  animation: dash 1.5s ease-in-out infinite;
+}
+
+/* 优化中状态的Footer */
+.editor-card__footer-optimizing {
+  display: flex;
+  align-items: center;
+  padding: 16px 20px;
+  border-top: 1px solid #e5e6eb;
+  background: #fafbfc;
+}
+
+.optimizing-status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.optimizing-text {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #646a73;
+  font-size: 14px;
+}
+
+.loading-dots {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.loading-dot-small {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #8b5cf6;
+  animation: loadingDot 1.4s infinite;
+}
+
+.loading-dot-small:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.loading-dot-small:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+/* 终止按钮 */
+.btn-stop {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 16px;
+  height: 36px;
+  border-radius: 8px;
+  border: 1px solid #e5e6eb;
+  background: #ffffff;
+  color: #646a73;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.btn-stop:hover {
+  background: #f7f8fa;
+  border-color: #d9dce0;
+  color: #1f2329;
+}
+
+.btn-stop:active {
+  transform: translateY(1px);
+}
+
+.btn-stop svg {
+  width: 16px;
+  height: 16px;
+  stroke: currentColor;
+  fill: none;
+  flex-shrink: 0;
 }
 
 @media (max-width: 768px) {
