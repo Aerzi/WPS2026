@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, nextTick } from 'vue'
 import PreferenceModal from './components/PreferenceModal.vue'
 import IconOptimize from './components/icons/IconOptimize.vue'
 import IconInspiration from './components/icons/IconInspiration.vue'
@@ -24,6 +24,7 @@ const optimizedText = ref('')
 const originalText = ref('')
 const displayedText = ref('')
 const isStreaming = ref(false)
+const isInspirationEdited = ref(false) // 跟踪灵感文本是否被编辑
 let streamIntervalId: number | null = null
 
 const tabs = [
@@ -170,12 +171,13 @@ const handleCancel = () => {
 }
 
 const handleInspiration = () => {
-  console.log('给我灵感')
+  console.log('一键启发')
   isGeneratingInspiration.value = true
   inspirationCompleted.value = false
   displayedText.value = ''
   inputText.value = ''
   inspirationText.value = ''
+  isInspirationEdited.value = false // 重置编辑状态
   // 清除优化状态
   isOptimizing.value = false
   optimizedText.value = ''
@@ -206,27 +208,27 @@ const handleInspiration = () => {
 
 // 再来一份灵感
 const handleInspirationAgain = () => {
+  isInspirationEdited.value = false // 重置编辑状态
   handleInspiration()
 }
 
-// 采纳灵感
-const handleAdopt = () => {
-  if (inspirationText.value) {
-    inputText.value = inspirationText.value
-  }
-  inspirationCompleted.value = false
-  isGeneratingInspiration.value = false
-  inspirationText.value = ''
-  displayedText.value = ''
+// 处理灵感文本编辑
+const handleInspirationTextChange = (event: Event) => {
+  isInspirationEdited.value = true
+  // 同步到 inputText
+  inputText.value = inspirationText.value
+
+  // 自动调整 textarea 高度
+  const target = event.target as HTMLTextAreaElement
+  nextTick(() => {
+    target.style.height = 'auto'
+    target.style.height = target.scrollHeight + 'px'
+  })
 }
 
-// 取消灵感
-const handleCancelInspiration = () => {
-  inspirationCompleted.value = false
-  isGeneratingInspiration.value = false
-  inspirationText.value = ''
-  inputText.value = ''
-  displayedText.value = ''
+// 处理灵感文本优化（用户编辑后）
+const handleInspirationOptimize = () => {
+  handleOptimize()
 }
 
 const refreshExamples = () => {
@@ -557,14 +559,14 @@ const getPlaceholder = () => {
                   <div
                     class="inspiration-content inspiration-content--loading inspiration-scrollable"
                   >
-                    <span class="inspiration-label">为你生成灵感中</span>
+                    <span class="inspiration-label">正在为你搜集灵感</span>
                     <span v-if="isStreaming" class="streaming-cursor streaming-text">{{
                       displayedText
                     }}</span>
                   </div>
                   <div class="loading-footer">
                     <div class="loading-text">
-                      {{ isGeneratingInspiration ? '正在准备...' : '灵感生成中' }}
+                      {{ isGeneratingInspiration ? '正在准备...' : '优化生成中' }}
                     </div>
                     <button class="stop-btn" @click="handleStop">
                       <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
@@ -581,44 +583,13 @@ const getPlaceholder = () => {
                   <div
                     class="inspiration-content inspiration-content-completed inspiration-scrollable"
                   >
-                    <span class="inspiration-label">
-                      灵感来咯
-                      <!-- 行内操作按钮 -->
-                      <span class="inspiration-actions-compact">
-                        <button
-                          class="compact-action-btn compact-action-btn--adopt"
-                          @click="handleAdopt"
-                          title="采纳"
-                        >
-                          <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
-                            <path
-                              d="M3.5 8.5L6.5 11.5L12.5 4.5"
-                              stroke="currentColor"
-                              stroke-width="1.5"
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
-                            ></path>
-                          </svg>
-                          <span class="compact-action-text">采纳</span>
-                        </button>
-                        <button
-                          class="compact-action-btn compact-action-btn--cancel"
-                          @click="handleCancelInspiration"
-                          title="取消"
-                        >
-                          <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
-                            <path
-                              d="M12.5 3.5L3.5 12.5M3.5 3.5L12.5 12.5"
-                              stroke="currentColor"
-                              stroke-width="1.5"
-                              stroke-linecap="round"
-                            ></path>
-                          </svg>
-                          <span class="compact-action-text">取消</span>
-                        </button>
-                      </span>
-                    </span>
-                    <span class="inspiration-text">{{ inspirationText }}</span>
+                    <span class="inspiration-label"> 已生成 </span>
+                    <textarea
+                      v-model="inspirationText"
+                      @input="handleInspirationTextChange"
+                      class="inspiration-text-input"
+                      rows="1"
+                    ></textarea>
                   </div>
                 </div>
               </div>
@@ -876,11 +847,21 @@ const getPlaceholder = () => {
                 </button>
               </template>
 
-              <!-- 灵感完成后显示再来一份和立即生成按钮 -->
+              <!-- 灵感完成后根据编辑状态显示不同按钮 -->
               <template v-else-if="inspirationCompleted">
-                <button class="inspiration-btn" @click="handleInspirationAgain">
+                <!-- 用户未编辑时显示"再来一份" -->
+                <button
+                  v-if="!isInspirationEdited"
+                  class="inspiration-btn"
+                  @click="handleInspirationAgain"
+                >
                   <IconInspiration />
                   <span>再来一份！</span>
+                </button>
+                <!-- 用户编辑后显示"一键优化" -->
+                <button v-else class="optimize-btn" @click="handleInspirationOptimize">
+                  <IconOptimize />
+                  <span>一键优化</span>
                 </button>
 
                 <div class="inputbox__action-divider"></div>
@@ -915,7 +896,7 @@ const getPlaceholder = () => {
                   @click="handleInspiration"
                 >
                   <IconInspiration />
-                  <span>给我灵感</span>
+                  <span>一键启发</span>
                 </button>
 
                 <!-- 一键优化按钮 - 仅在有文本时显示（隐藏在灵感状态下） -->
@@ -925,7 +906,7 @@ const getPlaceholder = () => {
                   @click="handleOptimize"
                 >
                   <IconOptimize />
-                  <span>灵感修改</span>
+                  <span>一键优化</span>
                 </button>
 
                 <div v-if="!isOptimizing && !isStreaming" class="inputbox__action-divider"></div>
@@ -1220,11 +1201,21 @@ const getPlaceholder = () => {
                 </button>
               </template>
 
-              <!-- 灵感完成后显示再来一份和立即生成按钮 -->
+              <!-- 灵感完成后根据编辑状态显示不同按钮 -->
               <template v-else-if="inspirationCompleted">
-                <button class="inspiration-btn" @click="handleInspirationAgain">
+                <!-- 用户未编辑时显示"再来一份" -->
+                <button
+                  v-if="!isInspirationEdited"
+                  class="inspiration-btn"
+                  @click="handleInspirationAgain"
+                >
                   <IconInspiration />
                   <span>再来一份！</span>
+                </button>
+                <!-- 用户编辑后显示"一键优化" -->
+                <button v-else class="optimize-btn" @click="handleInspirationOptimize">
+                  <IconOptimize />
+                  <span>一键优化</span>
                 </button>
 
                 <div class="inputbox__action-divider"></div>
@@ -1259,7 +1250,7 @@ const getPlaceholder = () => {
                   @click="handleInspiration"
                 >
                   <IconInspiration />
-                  <span>给我灵感</span>
+                  <span>一键启发</span>
                 </button>
 
                 <!-- 一键优化按钮 - 仅在有文本时显示（隐藏在灵感状态下） -->
@@ -1269,7 +1260,7 @@ const getPlaceholder = () => {
                   @click="handleOptimize"
                 >
                   <IconOptimize />
-                  <span>灵感修改</span>
+                  <span>一键优化</span>
                 </button>
 
                 <div v-if="!isOptimizing && !isStreaming" class="inputbox__action-divider"></div>
@@ -1659,6 +1650,42 @@ const getPlaceholder = () => {
   word-break: break-word;
 }
 
+/* 可编辑的灵感文本输入框 */
+.inspiration-text-input {
+  display: inline-block;
+  width: calc(100% - 80px);
+  min-height: 28px;
+  padding: 2px 8px;
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.8;
+  color: #1f2329;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  resize: none;
+  font-family: inherit;
+  transition: all 0.2s;
+  overflow: hidden;
+  vertical-align: middle;
+}
+
+.inspiration-text-input:hover {
+  background: rgba(102, 126, 234, 0.05);
+  border-color: rgba(102, 126, 234, 0.15);
+}
+
+.inspiration-text-input:focus {
+  outline: none;
+  background: rgba(102, 126, 234, 0.08);
+  border-color: #667eea;
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+}
+
+.inspiration-text-input::placeholder {
+  color: #8f959e;
+}
+
 .inspiration-content-completed::-webkit-scrollbar {
   width: 6px;
 }
@@ -1989,12 +2016,13 @@ const getPlaceholder = () => {
 
 /* 流式输出文本样式 */
 .streaming-text {
-  display: block;
+  display: inline;
   color: #1f2329;
   margin-top: 0;
 }
 
 .optimize-streaming-text {
+  display: block;
   margin-top: 8px;
 }
 
