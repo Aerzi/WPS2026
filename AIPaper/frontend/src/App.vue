@@ -6,7 +6,8 @@ const md = new MarkdownIt({
   html: true,
   linkify: true,
   typographer: true,
-  breaks: true
+  breaks: false,
+  xhtmlOut: true  // 确保输出正确闭合的 XHTML 标签
 })
 
 interface SearchResult {
@@ -36,6 +37,14 @@ const mainContentRef = ref<HTMLElement | null>(null)
 const loadingTexts = ['正在生成开题报告', '请耐心等候', '分析文献中', '撰写报告中']
 const currentLoadingTextIndex = ref(0)
 
+// 报告相关状态
+const activeReport = ref<{
+  topic: string
+  content: string
+  isGenerating: boolean
+  messageIndex: number
+} | null>(null)
+
 // 参数设置
 const startYear = ref('2020')
 const endYear = ref(new Date().getFullYear().toString())
@@ -63,7 +72,7 @@ const handleSend = async () => {
 
   const userMessage = inputText.value.trim()
   inputText.value = ''
-  
+
   // 添加用户消息
   messages.value.push({
     role: 'user',
@@ -104,7 +113,7 @@ const handleSend = async () => {
     }
 
     const data = await response.json()
-    
+
     // 替换loading消息为实际结果
     messages.value[loadingMessageIndex] = {
       role: 'assistant',
@@ -114,11 +123,11 @@ const handleSend = async () => {
       showGenerateButton: true,
       topic: userMessage
     }
-    
+
     // 数据更新后立即滚动
     await nextTick()
     scrollToBottom()
-    
+
     // 再次确保滚动到底部（等待内容完全渲染）
     setTimeout(() => scrollToBottom(), 300)
   } catch {
@@ -128,7 +137,7 @@ const handleSend = async () => {
       content: '抱歉，搜索过程中出现错误，请稍后重试。',
       isLoading: false
     }
-    
+
     await nextTick()
     scrollToBottom()
   } finally {
@@ -146,9 +155,52 @@ const handleKeyDown = (e: KeyboardEvent) => {
 // Markdown格式化
 const formatMarkdown = (text: string) => {
   try {
-    return md.render(text)
+    // 预处理：修复可能的格式问题
+    let processedText = text
+
+    // 0. 首先清理所有可能残留的 <BR> 标签（不区分大小写）
+    processedText = processedText.replace(/<BR>/gi, '\n')
+    processedText = processedText.replace(/&lt;BR&gt;/gi, '\n')
+    processedText = processedText.replace(/<br>/gi, '\n')
+
+    // 1. 替换全角破折号为标准连字符（表格分隔符）
+    processedText = processedText.replace(/\|(\s*)—+(\s*)\|/g, '| --- |')
+
+    // 2. 确保标题格式正确（# 后面有空格）
+    processedText = processedText.replace(/^(#{1,6})([^\s#])/gm, '$1 $2')
+
+    // 3. 修复表格格式
+    // 3.1 确保表格分隔行格式正确（支持多个连字符）
+    processedText = processedText.replace(/\|\s*[-—]+\s*\|/g, '| --- |')
+    // 3.2 确保表格每行都以 | 开头和结尾
+    processedText = processedText.replace(/^\|(.+)\|$/gm, '|$1|')
+    // 3.3 确保表格前后有空行
+    processedText = processedText.replace(/([^\n])\n(\|.+\|)/gm, '$1\n\n$2')
+    processedText = processedText.replace(/(\|.+\|)\n([^\n|])/gm, '$1\n\n$2')
+
+    // 4. 确保标题行独立（标题前后都有换行）
+    // 4.1 标题前添加换行（如果前面不是换行符）
+    processedText = processedText.replace(/([^\n])(#{1,6}\s+)/gm, '$1\n\n$2')
+    // 4.2 标题后添加换行（使用正向预查，不消耗字符）
+    processedText = processedText.replace(/(#{1,6}\s+.+?)$/gm, '$1\n\n')
+
+    // 5. 清理多余的连续换行（最多保留两个换行）
+    processedText = processedText.replace(/\n{3,}/g, '\n\n')
+
+    console.log('📝 Markdown内容预览（前500字符）:')
+    console.log(processedText.substring(0, 500))
+    console.log('---')
+
+    // 使用 MarkdownIt 渲染
+    const html = md.render(processedText)
+
+    console.log('🎨 渲染后的HTML预览（前500字符）:')
+    console.log(html.substring(0, 500))
+    console.log('---')
+
+    return html
   } catch (error) {
-    console.error('Markdown渲染错误:', error)
+    console.error('❌ Markdown渲染错误:', error)
     return text.replace(/\n/g, '<br>')
   }
 }
@@ -163,25 +215,83 @@ const yearOptions = computed(() => {
   return years
 })
 
+// 下载DOCX
+const handleDownloadDocx = async (messageIndex: number) => {
+  const message = messages.value[messageIndex]
+  if (!message || !message.report || !message.topic) return
+
+  try {
+    console.log('📥 开始下载DOCX...')
+    const response = await fetch('/api/export-docx', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        topic: message.topic,
+        content: message.report,
+      }),
+    })
+
+    if (!response.ok) {
+      throw new Error('导出失败')
+    }
+
+    // 获取文件名
+    const contentDisposition = response.headers.get('Content-Disposition')
+    let filename = '开题报告.docx'
+    if (contentDisposition) {
+      const matches = /filename="(.+)"/.exec(contentDisposition)
+      if (matches && matches[1]) {
+        filename = decodeURIComponent(matches[1])
+      }
+    }
+
+    // 创建blob并下载
+    const blob = await response.blob()
+    const url = window.URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = filename
+    document.body.appendChild(a)
+    a.click()
+    window.URL.revokeObjectURL(url)
+    document.body.removeChild(a)
+
+    console.log('✅ DOCX下载完成')
+  } catch (error) {
+    console.error('❌ 下载DOCX失败:', error)
+    alert('下载失败，请稍后重试')
+  }
+}
+
 // 生成开题报告
 const handleGenerateReport = async (messageIndex: number) => {
   const message = messages.value[messageIndex]
   if (!message || !message.searchResults || !message.topic) return
 
   console.log('🚀 开始生成报告，消息索引:', messageIndex)
-  
-  // 隐藏生成按钮，显示生成中状态，折叠文献窗口
+
+  // 隐藏生成按钮，显示生成中状态
   message.showGenerateButton = false
   message.isGenerating = true
   message.report = ''
-  message.collapseResults = true
-  
+  message.collapseResults = true  // 默认收起文献列表
+
+  // 初始化右侧报告面板
+  activeReport.value = {
+    topic: message.topic,
+    content: '',
+    isGenerating: true,
+    messageIndex: messageIndex
+  }
+
   // 启动loading文字切换动画
   currentLoadingTextIndex.value = 0
   const loadingInterval = setInterval(() => {
     currentLoadingTextIndex.value = (currentLoadingTextIndex.value + 1) % loadingTexts.length
   }, 2000)
-  
+
   scrollToBottom()
 
   try {
@@ -220,7 +330,7 @@ const handleGenerateReport = async (messageIndex: number) => {
     let chunkCount = 0
     while (true) {
       const { done, value } = await reader.read()
-      
+
       if (done) {
         console.log('✅ 流读取完成，共接收', chunkCount, '个数据块')
         currentMessage.isGenerating = false
@@ -230,15 +340,15 @@ const handleGenerateReport = async (messageIndex: number) => {
 
       const text = decoder.decode(value, { stream: true })
       console.log('📦 收到数据块 #' + (++chunkCount) + ':', text.substring(0, 100) + (text.length > 100 ? '...' : ''))
-      
+
       const lines = text.split('\n')
-      
+
       for (let i = 0; i < lines.length; i++) {
         const line = lines[i]
         if (!line || line.trim() === '') continue
-        
+
         console.log('📝 处理行 [' + i + ']:', line.substring(0, 100))
-        
+
         // 格式：event: data 后面跟着 data: 内容
         if (line.startsWith('event: data')) {
           console.log('🎯 发现 event: data，查找下一行的 data:')
@@ -246,18 +356,27 @@ const handleGenerateReport = async (messageIndex: number) => {
           for (let j = i + 1; j < lines.length; j++) {
             const nextLine = lines[j]
             if (!nextLine || nextLine.trim() === '') continue
-            
+
             if (nextLine.startsWith('data: ')) {
               const content = nextLine.substring(6) // 保留原始内容（包括空格）
               console.log('💬 提取到内容，长度:', content.length, '预览:', content.substring(0, 50))
-              
-              if (content && content.trim() !== '') {
+
+              // 修复：不要过滤空格，即使内容只是空格也要保留
+              if (content !== undefined && content !== null && content !== '') {
                 const msg = messages.value[messageIndex]
                 if (msg) {
                   const oldLength = (msg.report || '').length
-                  msg.report = (msg.report || '') + content
+                  // 将 <BR> 替换为真正的换行符 \n（不区分大小写，处理所有变体）
+                  const processedContent = content.replace(/<BR>/gi, '\n').replace(/&lt;BR&gt;/gi, '\n')
+                  msg.report = (msg.report || '') + processedContent
                   const newLength = msg.report.length
-                  console.log('📊 报告长度: %d → %d (+%d)', oldLength, newLength, content.length)
+                  console.log('📊 报告长度: %d → %d (+%d)', oldLength, newLength, processedContent.length)
+
+                  // 同时更新右侧报告面板
+                  if (activeReport.value && activeReport.value.messageIndex === messageIndex) {
+                    activeReport.value.content = msg.report
+                  }
+
                   await nextTick()
                   scrollToBottom()
                 }
@@ -272,12 +391,17 @@ const handleGenerateReport = async (messageIndex: number) => {
           if (msg) {
             msg.isGenerating = false
             clearInterval(loadingInterval)
+
+            // 更新右侧报告面板状态
+            if (activeReport.value && activeReport.value.messageIndex === messageIndex) {
+              activeReport.value.isGenerating = false
+            }
           }
           break
         }
       }
     }
-    
+
     console.log('✨ 报告生成完成！最终长度:', currentMessage.report?.length || 0)
   } catch (error) {
     console.error('❌ 生成报告错误:', error)
@@ -286,8 +410,19 @@ const handleGenerateReport = async (messageIndex: number) => {
     if (msg) {
       msg.isGenerating = false
       msg.report = '生成报告时出现错误，请稍后重试。'
+
+      // 更新右侧报告面板
+      if (activeReport.value && activeReport.value.messageIndex === messageIndex) {
+        activeReport.value.isGenerating = false
+        activeReport.value.content = '生成报告时出现错误，请稍后重试。'
+      }
     }
   }
+}
+
+// 关闭报告面板
+const closeReportPanel = () => {
+  activeReport.value = null
 }
 </script>
 
@@ -296,20 +431,21 @@ const handleGenerateReport = async (messageIndex: number) => {
     <!-- 头部 -->
     <header class="header">
       <div class="header-content">
-        <h1 class="logo">AI论文助手</h1>
+        <h1 class="logo">AI开题报告写作助手</h1>
         <p class="subtitle">基于OpenAlex的学术文献搜索工具</p>
       </div>
     </header>
 
     <!-- 主体内容区 -->
-    <main ref="mainContentRef" class="main-content">
-      <div class="chat-container">
+    <main ref="mainContentRef" class="main-content" :class="{ 'has-report-panel': activeReport }">
+      <!-- 左侧：消息区域 -->
+      <div class="chat-container" :class="{ 'with-report': activeReport }">
         <!-- 欢迎页面 -->
         <div v-if="messages.length === 0" class="welcome-screen">
           <div class="welcome-icon">📚</div>
           <h2 class="welcome-title">开始您的学术研究</h2>
           <p class="welcome-desc">输入研究主题，在OpenAlex数据库中搜索全球学术文献</p>
-          
+
           <div class="suggestion-cards">
             <div class="suggestion-card" @click="inputText = '深度学习在图像识别中的应用'">
               <span class="suggestion-icon">🤖</span>
@@ -346,17 +482,17 @@ const handleGenerateReport = async (messageIndex: number) => {
                 <span v-else-if="message.role === 'assistant' && message.searchResults && message.searchResults.length > 0" class="status-badge status-success">
                   请查看文献
                 </span>
-                
+
                 <div class="message-text">{{ message.content }}</div>
               </div>
-              
+
               <!-- Loading状态 -->
               <div v-if="message.isLoading" class="loading-dots">
                 <span></span>
                 <span></span>
                 <span></span>
               </div>
-              
+
               <!-- 生成报告按钮 -->
               <div v-if="message.showGenerateButton" class="generate-section">
                 <p class="generate-prompt">📝 请问要生成开题报告吗？</p>
@@ -383,18 +519,9 @@ const handleGenerateReport = async (messageIndex: number) => {
                 </div>
               </div>
 
-              <!-- 生成的报告 -->
-              <div v-if="message.report" class="report-content">
-                <div class="report-header">
-                  <span class="status-badge status-success">已完成</span>
-                  <span class="report-title">开题报告</span>
-                </div>
-                <div class="report-body" v-html="formatMarkdown(message.report)"></div>
-              </div>
-
               <!-- 搜索结果列表 -->
               <div v-if="message.searchResults && message.searchResults.length > 0" class="search-results-container">
-                <div 
+                <div
                   class="results-toggle"
                   @click="message.collapseResults = !message.collapseResults"
                   v-if="message.report || message.isGenerating"
@@ -402,8 +529,8 @@ const handleGenerateReport = async (messageIndex: number) => {
                   <span class="toggle-icon" :class="{ 'toggle-icon-collapsed': message.collapseResults }">▼</span>
                   <span class="toggle-text">{{ message.collapseResults ? '展开' : '收起' }}文献列表（{{ message.searchResults.length }}篇）</span>
                 </div>
-                <div 
-                  class="search-results" 
+                <div
+                  class="search-results"
                   :class="{ 'search-results-collapsed': message.collapseResults }"
                 >
                   <div
@@ -434,6 +561,58 @@ const handleGenerateReport = async (messageIndex: number) => {
           </div>
         </div>
       </div>
+
+      <!-- 右侧：报告面板 -->
+      <div v-if="activeReport" class="report-panel">
+        <div class="report-panel-header">
+          <div class="report-panel-title">
+            <span class="report-icon">📝</span>
+            <span>开题报告</span>
+          </div>
+          <button @click="closeReportPanel" class="close-panel-btn" title="关闭">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+
+        <div class="report-panel-content">
+          <!-- 生成中状态 -->
+          <div v-if="activeReport.isGenerating" class="report-generating">
+            <div class="generating-header">
+              <span class="status-badge status-loading">生成中</span>
+              <span class="generating-text">
+                <span class="loading-text-animated">{{ loadingTexts[currentLoadingTextIndex] }}</span>
+                <span class="loading-dots-text">
+                  <span class="dot">.</span>
+                  <span class="dot">.</span>
+                  <span class="dot">.</span>
+                </span>
+              </span>
+            </div>
+            <div class="loading-progress">
+              <div class="progress-bar"></div>
+            </div>
+          </div>
+
+          <!-- 报告内容 -->
+          <div v-if="activeReport.content" class="report-content-wrapper">
+            <!-- 只在生成完成后显示下载按钮 -->
+            <div v-if="!activeReport.isGenerating" class="report-actions">
+              <button @click="handleDownloadDocx(activeReport.messageIndex)" class="download-btn" title="下载为Word文档">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                  <polyline points="7 10 12 15 17 10"/>
+                  <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                下载DOCX
+              </button>
+            </div>
+            <div class="report-body" v-html="formatMarkdown(activeReport.content)"></div>
+          </div>
+        </div>
+      </div>
     </main>
 
     <!-- 输入框 -->
@@ -453,7 +632,7 @@ const handleGenerateReport = async (messageIndex: number) => {
               </select>
             </div>
           </div>
-          
+
           <div class="option-item">
             <label class="option-label">结果数量</label>
             <select v-model.number="maxResults" class="result-select">
@@ -476,12 +655,12 @@ const handleGenerateReport = async (messageIndex: number) => {
             rows="1"
             :maxlength="maxChars"
           />
-          
+
           <div class="input-actions">
             <span class="char-count" :class="{ 'char-count-warn': charCount > maxChars * 0.9 }">
               {{ charCount }}/{{ maxChars }}
             </span>
-            <button 
+            <button
               class="send-btn"
               :class="{ 'send-btn-active': inputText.trim() && charCount <= maxChars }"
               @click="handleSend"
@@ -543,10 +722,25 @@ const handleGenerateReport = async (messageIndex: number) => {
 /* 主体内容 */
 .main-content {
   flex: 1;
-  overflow-y: auto;
+  overflow: hidden;
   padding: 2rem 1rem;
   display: flex;
-  flex-direction: column;
+  gap: 1rem;
+}
+
+/* 有报告面板时的布局 */
+.main-content.has-report-panel {
+  gap: 1rem;
+}
+
+.main-content.has-report-panel .chat-container {
+  flex: 0 0 28%;  /* 左侧约30% (3/10) */
+  overflow-y: auto;
+}
+
+.main-content .chat-container:not(.with-report) {
+  flex: 1;
+  overflow-y: auto;
 }
 
 .chat-container {
@@ -556,6 +750,13 @@ const handleGenerateReport = async (messageIndex: number) => {
   flex: 1;
   display: flex;
   flex-direction: column;
+  transition: all 0.3s ease;
+}
+
+/* 有报告时的聊天容器 */
+.chat-container.with-report {
+  max-width: none;
+  margin: 0;
 }
 
 /* 欢迎页面 */
@@ -677,33 +878,119 @@ const handleGenerateReport = async (messageIndex: number) => {
   padding: 1rem 1.5rem;
   border-radius: 24px;
   box-shadow: 0 2px 8px rgba(30, 60, 114, 0.08);
-  max-height: 600px;
   display: flex;
   flex-direction: column;
+}
+
+/* 报告面板 */
+.report-panel {
+  flex: 0 0 68%;  /* 右侧约70% (7/10) */
+  background: white;
+  border-radius: 24px;
+  box-shadow: 0 4px 16px rgba(30, 60, 114, 0.15);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: slideInRight 0.3s ease;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* 报告面板头部 */
+.report-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem;
+  border-bottom: 2px solid rgba(74, 144, 226, 0.1);
+  background: linear-gradient(135deg, rgba(74, 144, 226, 0.05) 0%, rgba(42, 82, 152, 0.05) 100%);
+  flex-shrink: 0;
+}
+
+.report-panel-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #2a5298;
+}
+
+.report-icon {
+  font-size: 1.5rem;
+}
+
+.close-panel-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(30, 60, 114, 0.1);
+  color: #2a5298;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.close-panel-btn:hover {
+  background: rgba(30, 60, 114, 0.2);
+  transform: rotate(90deg);
+}
+
+/* 报告面板内容 */
+.report-panel-content {
+  flex: 1;
   overflow-y: auto;
+  padding: 1.5rem;
+}
+
+.report-panel-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.report-panel-content::-webkit-scrollbar-track {
+  background: rgba(30, 60, 114, 0.05);
+  border-radius: 3px;
+}
+
+.report-panel-content::-webkit-scrollbar-thumb {
+  background: rgba(74, 144, 226, 0.3);
+  border-radius: 3px;
+}
+
+.report-panel-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(74, 144, 226, 0.5);
+}
+
+/* 报告内容包装器 */
+.report-content-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* 报告操作按钮 */
+.report-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(74, 144, 226, 0.1);
 }
 
 .message-user .message-content {
   background: rgba(74, 144, 226, 0.15);
   border: 1px solid rgba(74, 144, 226, 0.2);
-}
-
-.message-content::-webkit-scrollbar {
-  width: 6px;
-}
-
-.message-content::-webkit-scrollbar-track {
-  background: rgba(30, 60, 114, 0.05);
-  border-radius: 3px;
-}
-
-.message-content::-webkit-scrollbar-thumb {
-  background: rgba(30, 60, 114, 0.2);
-  border-radius: 3px;
-}
-
-.message-content::-webkit-scrollbar-thumb:hover {
-  background: rgba(30, 60, 114, 0.3);
 }
 
 .message-header {
@@ -893,10 +1180,17 @@ const handleGenerateReport = async (messageIndex: number) => {
 .report-header {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 1rem;
   margin-bottom: 1.5rem;
   padding-bottom: 1rem;
   border-bottom: 2px solid rgba(76, 175, 80, 0.2);
+}
+
+.report-header-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
 .report-title {
@@ -905,13 +1199,39 @@ const handleGenerateReport = async (messageIndex: number) => {
   color: #2e7d32;
 }
 
+.download-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: linear-gradient(135deg, #4CAF50 0%, #2e7d32 100%);
+  color: white;
+  border: none;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+}
+
+.download-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+}
+
+.download-btn:active {
+  transform: translateY(0);
+}
+
+.download-btn svg {
+  flex-shrink: 0;
+}
+
 .report-body {
   color: #333;
   line-height: 1.8;
   font-size: 0.95rem;
-  max-height: 400px;
-  overflow-y: auto;
-  padding-right: 0.5rem;
 }
 
 .report-body h1 {
@@ -1009,23 +1329,50 @@ const handleGenerateReport = async (messageIndex: number) => {
   border-bottom-color: #2a5298;
 }
 
-.report-body::-webkit-scrollbar {
-  width: 6px;
+.report-body table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+  background: #fff;
+  border: 1px solid rgba(30, 60, 114, 0.15);
+  border-radius: 8px;
+  overflow: hidden;
 }
 
-.report-body::-webkit-scrollbar-track {
-  background: rgba(30, 60, 114, 0.05);
-  border-radius: 3px;
+.report-body thead {
+  background: linear-gradient(135deg, #4a90e2 0%, #2a5298 100%);
 }
 
-.report-body::-webkit-scrollbar-thumb {
-  background: rgba(76, 175, 80, 0.3);
-  border-radius: 3px;
+.report-body thead th {
+  color: #fff;
+  font-weight: 600;
+  padding: 0.8rem 1rem;
+  text-align: left;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.2);
 }
 
-.report-body::-webkit-scrollbar-thumb:hover {
-  background: rgba(76, 175, 80, 0.5);
+.report-body tbody tr {
+  transition: background-color 0.2s ease;
 }
+
+.report-body tbody tr:nth-child(even) {
+  background: rgba(74, 144, 226, 0.03);
+}
+
+.report-body tbody tr:hover {
+  background: rgba(74, 144, 226, 0.08);
+}
+
+.report-body td {
+  padding: 0.8rem 1rem;
+  border-bottom: 1px solid rgba(30, 60, 114, 0.1);
+  color: #333;
+}
+
+.report-body tbody tr:last-child td {
+  border-bottom: none;
+}
+
 
 /* 搜索结果容器 */
 .search-results-container {
@@ -1228,11 +1575,11 @@ const handleGenerateReport = async (messageIndex: number) => {
 .loading-dots span:nth-child(2) { animation-delay: -0.16s; }
 
 @keyframes bounce {
-  0%, 80%, 100% { 
+  0%, 80%, 100% {
     transform: scale(0);
     opacity: 0.5;
   }
-  40% { 
+  40% {
     transform: scale(1);
     opacity: 1;
   }
@@ -1380,21 +1727,21 @@ const handleGenerateReport = async (messageIndex: number) => {
   background: #2a5298;
 }
 
-/* 滚动条样式 */
-.main-content::-webkit-scrollbar {
-  width: 8px;
+/* 聊天容器滚动条 */
+.chat-container::-webkit-scrollbar {
+  width: 6px;
 }
 
-.main-content::-webkit-scrollbar-track {
+.chat-container::-webkit-scrollbar-track {
   background: transparent;
 }
 
-.main-content::-webkit-scrollbar-thumb {
+.chat-container::-webkit-scrollbar-thumb {
   background: rgba(30, 60, 114, 0.2);
-  border-radius: 4px;
+  border-radius: 3px;
 }
 
-.main-content::-webkit-scrollbar-thumb:hover {
+.chat-container::-webkit-scrollbar-thumb:hover {
   background: rgba(30, 60, 114, 0.3);
 }
 </style>
