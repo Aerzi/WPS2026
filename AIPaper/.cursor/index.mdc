@@ -1,0 +1,162 @@
+---
+alwaysApply: true
+---
+
+# 作业
+
+如果没有特殊说明，默认我的两个端口已经运行
+
+## 需求描述
+
+通过调研一个可免费体验额度的搜索API与一个免费模型接口，实现一个从「主题输入→搜索资料→自动生成论文草稿」的Al开题报告写作demo。
+
+### 任务1
+
+一页文档说明：
+
+1. 使用什么搜索 API与模型
+2. 选择的原因
+3. 如何保证搜索结果适合”学术与论文“场景可用、效果最佳
+4. 如何保证选择的模型适合“学术与论文”场景可用、效果最佳
+
+### 任务2
+
+在Cursor中完成一个简易可运行的论文写作工具：
+
+1. 调用搜索 API 获取资料 (5-10 条)，展示标题 ＋ 摘要 ＋ 链接
+2. 调用模型API，根据检索资料生成至少1000字的开题报告
+
+## 建议
+
+- 对于搜索API，优先使用`arXiv`进行尝试，可以使用Restful API进行接入
+- 对于大模型，我为你推荐豆包1.6
+
+这是我的API： `export ARK_API_KEY="a4e439ac-f5b9-4deb-a4e0-2e1d3bb40db8`
+
+- 大模型可以使用golang进行后端搭建，前端发送请求即可
+
+### 框架
+
+前端使用vue，后端使用golang，前端端口3000，后端端口3001，注意不要跨域，可以前端代理
+
+### 搭建流程
+
+首先，安装环境`go get -u github.com/volcengine/volcengine-go-sdk`
+
+其次，搭载配置
+```golang
+package main
+
+import (
+	"context"
+	"fmt"
+	"io"
+	"os"
+
+	"github.com/volcengine/volcengine-go-sdk/service/arkruntime"
+	"github.com/volcengine/volcengine-go-sdk/service/arkruntime/model"
+)
+
+func main() {
+	// 请确保您已将 API Key 存储在环境变量 ARK_API_KEY 中
+	// 初始化Ark客户端，从环境变量中读取您的API Key
+	client := arkruntime.NewClientWithApiKey(
+		// 从环境变量中获取您的 API Key。此为默认方式，您可根据需要进行修改
+		os.Getenv("ARK_API_KEY"),
+		// 此为默认路径，您可根据业务所在地域进行配置
+		arkruntime.WithBaseUrl("https://ark.cn-beijing.volces.com/api/v3"),
+	)
+
+	ctx := context.Background()
+
+	fmt.Println("----- image input request -----")
+	req := model.CreateChatCompletionRequest{
+		// 指定您创建的方舟推理接入点 ID，此处已帮您修改为您的推理接入点 ID
+		Model: "ep-20251106234440-sm864",
+		Messages: []*model.ChatCompletionMessage{
+			{
+				Role: model.ChatMessageRoleUser,
+				Content: &model.ChatCompletionMessageContent{
+					ListValue: []*model.ChatCompletionMessageContentPart{
+						{
+							Type: model.ChatCompletionMessageContentPartTypeImageURL,
+							ImageURL: &model.ChatMessageImageURL{
+								URL: "https://ark-project.tos-cn-beijing.ivolces.com/images/view.jpeg",
+							},
+						},
+						{
+							Type: model.ChatCompletionMessageContentPartTypeText,
+							Text: "这是哪里？",
+						},
+					},
+				},
+			},
+		},
+		ReasoningEffort: "medium",
+	}
+
+	resp, err := client.CreateChatCompletion(ctx, req)
+	if err != nil {
+		fmt.Printf("standard chat error: %v\n", err)
+		return
+	}
+	fmt.Println(*resp.Choices[0].Message.Content.StringValue)
+
+	fmt.Println("----- streaming request -----")
+
+	req = model.CreateChatCompletionRequest{
+		// 指定您创建的方舟推理接入点 ID，此处已帮您修改为您的推理接入点 ID
+		Model: "ep-20251106234440-sm864",
+		Messages: []*model.ChatCompletionMessage{
+			{
+				Role: model.ChatMessageRoleUser,
+				Content: &model.ChatCompletionMessageContent{
+					ListValue: []*model.ChatCompletionMessageContentPart{
+						{
+							Type: model.ChatCompletionMessageContentPartTypeImageURL,
+							ImageURL: &model.ChatMessageImageURL{
+								URL: "https://ark-project.tos-cn-beijing.ivolces.com/images/view.jpeg",
+							},
+						},
+						{
+							Type: model.ChatCompletionMessageContentPartTypeText,
+							Text: "这是哪里？",
+						},
+					},
+				},
+			},
+		},
+		ReasoningEffort: "medium",
+	}
+	stream, err := client.CreateChatCompletionStream(ctx, req)
+	if err != nil {
+		fmt.Printf("stream chat error: %v\n", err)
+		return
+	}
+	defer stream.Close()
+
+	for {
+		recv, err := stream.Recv()
+		if err == io.EOF {
+			return
+		}
+		if err != nil {
+			fmt.Printf("Stream chat error: %v\n", err)
+			return
+		}
+
+		if len(recv.Choices) > 0 {
+			fmt.Print(recv.Choices[0].Delta.Content)
+		}
+	}
+}
+
+```
+
+最后，基于我的要求修改提示词，完成大模型的搭建
+
+## 功能流程
+
+1. 用户输入主题，此处应该提醒用户输入内容要简约直白，进行字数限制
+2. 提醒用户进行参数补全，包括论文的时间范围，这里的参数参考arXiv允许的参数
+3. 将收集得到的标题 + 摘要 + 链接交给大模型，让大模型进行开题报告生成
