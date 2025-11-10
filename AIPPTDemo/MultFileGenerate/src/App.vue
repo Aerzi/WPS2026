@@ -5,6 +5,7 @@ import FileUpload from './components/FileUpload.vue'
 import EditorPanel from './components/EditorPanel.vue'
 import ActionToolbar from './components/ActionToolbar.vue'
 import ExampleTags from './components/ExampleTags.vue'
+import optimizationMapping from './data/prompt-optimization-mapping.json'
 
 interface UploadedFile {
   name: string
@@ -165,8 +166,15 @@ const handleOptimize = () => {
   optimizedText.value = '' // 清空优化后的文本，让对比视图显示优化前
   inputText.value = '' // 清空输入框，准备显示流式生成的优化后文本
 
-  // 模拟优化过程，生成优化后的文本
-  const optimizedContent = `60多年前就提出的AI概念，为何会在今年迎来爆发？1956年，一批年轻且富有远见卓识的科学家们提出"AI"这一术语，其后几十年间，对AI技术的探索始终停留于学术研究层面，其间还曾几度因为遭到质疑而陷入停滞。而AI作为一种通用型技术为社会不同产业所接受则是近两年的事，特别是2017年，以现实的商业需求为主导的新一轮AI复兴，正让AI成为全民关注的焦点。凯文·凯利曾预言AI在未来将会成为一种可供人人购买的智能服务。目前来看虽然AI与商业的融合尚处于初期阶段，但智能终端设备制造商对AI技术的探索，正让这一预言逐步得到应验。最典型莫过于智能手机行业，华为已发布AI芯片麒麟970和首款AI手机Mate10，三星正加大对AI芯片投资力度，苹果则明确表示旗下产品未来将作为AI的主要平台。在愈发激烈的商业竞争带动下，AI产业迎来新一轮复兴。`
+  // 从映射表中查找对应的优化文本
+  const mapping = optimizationMapping.mappings.find(
+    (m: { original: string; optimized: string }) => m.original === currentText
+  )
+
+  // 如果找到映射，使用映射中的优化文本；否则使用默认的优化文本
+  const optimizedContent = mapping
+    ? mapping.optimized
+    : `60多年前就提出的AI概念，为何会在今年迎来爆发？1956年，一批年轻且富有远见卓识的科学家们提出"AI"这一术语，其后几十年间，对AI技术的探索始终停留于学术研究层面，其间还曾几度因为遭到质疑而陷入停滞。而AI作为一种通用型技术为社会不同产业所接受则是近两年的事，特别是2017年，以现实的商业需求为主导的新一轮AI复兴，正让AI成为全民关注的焦点。凯文·凯利曾预言AI在未来将会成为一种可供人人购买的智能服务。目前来看虽然AI与商业的融合尚处于初期阶段，但智能终端设备制造商对AI技术的探索，正让这一预言逐步得到应验。最典型莫过于智能手机行业，华为已发布AI芯片麒麟970和首款AI手机Mate10，三星正加大对AI芯片投资力度，苹果则明确表示旗下产品未来将作为AI的主要平台。在愈发激烈的商业竞争带动下，AI产业迎来新一轮复兴。`
 
   // 模拟优化延迟后开始流式输出
   setTimeout(() => {

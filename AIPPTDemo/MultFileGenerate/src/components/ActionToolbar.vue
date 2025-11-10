@@ -166,20 +166,22 @@ const showOptimizedButtons = () => {
 .action-btn {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  background: #f7f8fa;
-  border: 1px solid #e1e4e8;
-  border-radius: 18px;
-  font-size: 13px;
-  color: #646a73;
+  justify-content: center;
+  padding: var(--kd-space-150, 6px) var(--kd-space-250, 10px) var(--kd-space-150, 6px) var(--kd-space-250, 10px);
+  height: 32px;
+  min-width: 0;
+  transition: all .3s;
+  box-sizing: border-box;
+  border-radius: var(--kd-border-radius-circle, 999px);
+  border: none;
+  background: var(--kd-color-state-normal);
+  font-weight: 400;
   cursor: pointer;
-  transition: all 0.2s;
 }
 
 .action-btn:hover {
-  background: #f2f3f5;
-  border-color: #c9cdd4;
+  background: #f5f5f5;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .action__icon {
