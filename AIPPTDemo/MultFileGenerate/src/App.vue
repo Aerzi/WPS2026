@@ -18,17 +18,11 @@ const maxLength = 5000
 const uploadedFiles = ref<UploadedFile[]>([])
 const showPreferenceModal = ref(false)
 const isOptimizing = ref(false)
-const isGeneratingInspiration = ref(false)
-const inspirationCompleted = ref(false)
-const inspirationText = ref('')
 const optimizedText = ref('')
 const originalText = ref('')
 const displayedText = ref('')
 const isStreaming = ref(false)
-const isInspirationEdited = ref(false) // 跟踪灵感文本是否被编辑
 let streamIntervalId: number | null = null
-
-
 
 const examples = [
   'AI对传统教育的影响',
@@ -83,59 +77,93 @@ const handlePreferenceClose = () => {
   showPreferenceModal.value = false
 }
 
-// 流式输出文本的函数
-const streamText = (text: string) => {
-  displayedText.value = ''
-  isStreaming.value = true
-  let index = 0
+// 将文本分割成板块（按句子、段落分割）
+const splitIntoChunks = (text: string): string[] => {
+  // 按句号、问号、感叹号、换行符等分割
+  const chunks: string[] = []
+  let currentChunk = ''
 
-  streamIntervalId = setInterval(() => {
-    if (index < text.length) {
-      displayedText.value += text[index]
-      index++
-    } else {
-      if (streamIntervalId) clearInterval(streamIntervalId)
-      streamIntervalId = null
-      isStreaming.value = false
-      // 如果是灵感生成完成
-      if (inspirationText.value && !isOptimizing.value) {
-        inspirationCompleted.value = true
+  for (let i = 0; i < text.length; i++) {
+    currentChunk += text[i]
+
+    // 遇到句号、问号、感叹号、分号、换行符时，作为一个板块
+    if (/[。！？；\n]/.test(text[i])) {
+      // 如果下一个字符是引号或括号，也包含进去
+      if (i + 1 < text.length && /[""''）]/.test(text[i + 1])) {
+        currentChunk += text[i + 1]
+        i++
       }
+      chunks.push(currentChunk)
+      currentChunk = ''
     }
-  }, 30) as unknown as number // 每30毫秒显示一个字符
+    // 遇到逗号、顿号时，如果当前板块已经有内容，也作为一个板块
+    else if (/[，、]/.test(text[i]) && currentChunk.length > 10) {
+      chunks.push(currentChunk)
+      currentChunk = ''
+    }
+  }
+
+  // 如果还有剩余内容，也作为一个板块
+  if (currentChunk.trim()) {
+    chunks.push(currentChunk)
+  }
+
+  return chunks.length > 0 ? chunks : [text]
 }
 
-// 终止流式生成（保留以备将来使用）
-// const handleStop = () => {
-//   // 停止流式输出
-//   if (streamIntervalId) {
-//     clearInterval(streamIntervalId)
-//     streamIntervalId = null
-//   }
+// 终止流式生成
+const handleStop = () => {
+  // 停止流式输出
+  if (streamIntervalId) {
+    clearInterval(streamIntervalId)
+    streamIntervalId = null
+  }
 
-//   // 清除所有状态
-//   isOptimizing.value = false
-//   isGeneratingInspiration.value = false
-//   inspirationCompleted.value = false
-//   isStreaming.value = false
-//   optimizedText.value = ''
-//   originalText.value = ''
-//   displayedText.value = ''
-//   inspirationText.value = ''
-//   inputText.value = ''
-// }
+  // 更新状态
+  isStreaming.value = false
+  isOptimizing.value = false
+
+  // 如果正在优化，保留已生成的内容
+  if (optimizedText.value) {
+    inputText.value = displayedText.value || optimizedText.value
+  }
+}
 
 const handleOptimize = () => {
-  console.log('一键优化文本:', inputText.value)
-  originalText.value = inputText.value
-  isOptimizing.value = true
-  optimizedText.value = ''
+  // 如果输入框为空，使用placeholder作为优化文本
+  const textToOptimize = inputText.value.trim() || currentPlaceholder.value
+  console.log('一键优化文本:', textToOptimize)
+
+  // 立即保存原始文本并显示优化前板块
+  const currentText = textToOptimize
+  // 保存上一次优化后的文本（在清空之前）
+  const previousOptimizedText = optimizedText.value
+
+  // 先停止之前的流式输出（如果存在）
+  if (streamIntervalId) {
+    clearInterval(streamIntervalId)
+    streamIntervalId = null
+  }
+
+  // 清除之前的状态
   displayedText.value = ''
-  inputText.value = ''
-  // 清除灵感状态
-  inspirationCompleted.value = false
-  isGeneratingInspiration.value = false
-  inspirationText.value = ''
+  isStreaming.value = false
+
+  // 设置新的优化状态 - 确保顺序正确
+  // 如果 originalText 为空，保存当前文本
+  // 如果 originalText 不为空，但当前文本等于上一次优化后的文本，说明是再次优化，保持 originalText 不变
+  // 如果 originalText 不为空，但当前文本不等于上一次优化后的文本，说明用户输入了新文本，更新 originalText
+  if (!originalText.value) {
+    // 第一次优化，保存原始文本
+    originalText.value = currentText
+  } else if (previousOptimizedText && currentText !== previousOptimizedText) {
+    // 用户输入了新文本（当前文本既不是 originalText 也不是上一次的 optimizedText）
+    originalText.value = currentText
+  }
+  // 如果 currentText === previousOptimizedText，说明是再次优化，保持 originalText 不变
+  isOptimizing.value = true // 先设置 isOptimizing，确保 showLabel 立即为 true
+  optimizedText.value = '' // 清空优化后的文本，让对比视图显示优化前
+  inputText.value = '' // 清空输入框，准备显示流式生成的优化后文本
 
   // 模拟优化过程，生成优化后的文本
   const optimizedContent = `60多年前就提出的AI概念，为何会在今年迎来爆发？1956年，一批年轻且富有远见卓识的科学家们提出"AI"这一术语，其后几十年间，对AI技术的探索始终停留于学术研究层面，其间还曾几度因为遭到质疑而陷入停滞。而AI作为一种通用型技术为社会不同产业所接受则是近两年的事，特别是2017年，以现实的商业需求为主导的新一轮AI复兴，正让AI成为全民关注的焦点。凯文·凯利曾预言AI在未来将会成为一种可供人人购买的智能服务。目前来看虽然AI与商业的融合尚处于初期阶段，但智能终端设备制造商对AI技术的探索，正让这一预言逐步得到应验。最典型莫过于智能手机行业，华为已发布AI芯片麒麟970和首款AI手机Mate10，三星正加大对AI芯片投资力度，苹果则明确表示旗下产品未来将作为AI的主要平台。在愈发激烈的商业竞争带动下，AI产业迎来新一轮复兴。`
@@ -149,25 +177,26 @@ const handleOptimize = () => {
   }, 1000)
 }
 
-// 优化专用的流式输出函数，同时更新 inputText
+// 优化专用的流式输出函数，同时更新 inputText（按板块输出）
 const streamTextForOptimize = (text: string) => {
   displayedText.value = ''
   inputText.value = ''
   isStreaming.value = true
-  let index = 0
+  const chunks = splitIntoChunks(text)
+  let chunkIndex = 0
 
   streamIntervalId = setInterval(() => {
-    if (index < text.length) {
-      displayedText.value += text[index]
-      inputText.value += text[index]
-      index++
+    if (chunkIndex < chunks.length) {
+      displayedText.value += chunks[chunkIndex]
+      inputText.value += chunks[chunkIndex]
+      chunkIndex++
     } else {
       if (streamIntervalId) clearInterval(streamIntervalId)
       streamIntervalId = null
       isStreaming.value = false
       isOptimizing.value = false
     }
-  }, 30) as unknown as number // 每30毫秒显示一个字符
+  }, 150) as unknown as number // 每150毫秒输出一个板块
 }
 
 const handleRetry = () => {
@@ -185,63 +214,6 @@ const handleCancel = () => {
   optimizedText.value = ''
   originalText.value = ''
   displayedText.value = ''
-  // 不需要清除灵感状态，因为取消后可能还想看灵感
-}
-
-const handleInspiration = () => {
-  console.log('一键启发')
-  isGeneratingInspiration.value = true
-  inspirationCompleted.value = false
-  displayedText.value = ''
-  inputText.value = ''
-  inspirationText.value = ''
-  isInspirationEdited.value = false // 重置编辑状态
-  // 清除优化状态
-  isOptimizing.value = false
-  optimizedText.value = ''
-  originalText.value = ''
-
-  // 模拟生成灵感内容
-  const inspirations = [
-    '人工智能如何改变传统教育模式？探讨AI在个性化学习、智能辅导和教育资源分配中的应用',
-    '《西游记》中的人物成长与现代职场发展：从唐僧师徒四人的取经之路看团队协作与个人成长',
-    '人形机器人产业链分析：从技术突破到商业应用，探索下一个万亿级市场机遇',
-    '运动改变大脑：科学解读体育锻炼如何提升认知能力、改善心理健康与延缓衰老',
-    '可持续发展与绿色经济：企业如何在环保浪潮中寻找新的增长点',
-    '元宇宙时代的社交革命：虚拟现实如何重塑人际交往与商业模式',
-  ]
-  const randomIndex = Math.floor(Math.random() * inspirations.length)
-  const generatedText = inspirations[randomIndex]
-
-  // 模拟生成过程（延迟后开始流式输出）
-  setTimeout(() => {
-    isGeneratingInspiration.value = false
-    inspirationText.value = generatedText
-    inputText.value = generatedText
-
-    // 开始流式输出
-    streamText(generatedText)
-  }, 1500)
-}
-
-
-// 处理灵感文本编辑（保留以备将来使用）
-// const handleInspirationTextChange = (event: Event) => {
-//   isInspirationEdited.value = true
-//   // 同步到 inputText
-//   inputText.value = inspirationText.value
-
-//   // 自动调整 textarea 高度
-//   const target = event.target as HTMLTextAreaElement
-//   nextTick(() => {
-//     target.style.height = 'auto'
-//     target.style.height = target.scrollHeight + 'px'
-//   })
-// }
-
-// 处理灵感文本优化（用户编辑后）
-const handleInspirationOptimize = () => {
-  handleOptimize()
 }
 
 const refreshExamples = () => {
@@ -305,8 +277,10 @@ const removeFile = (index: number) => {
             v-model="inputText"
             :placeholder="currentPlaceholder"
             :maxLength="maxLength"
-            :showLabel="!!optimizedText"
+            :showLabel="!!optimizedText || (!!originalText && isOptimizing)"
             :originalText="originalText"
+            :isStreaming="isStreaming"
+            :isOptimizing="isOptimizing"
           />
 
           <!-- 工具栏 -->
@@ -316,16 +290,12 @@ const removeFile = (index: number) => {
             :uploadedFiles="uploadedFiles"
             :isOptimizing="isOptimizing"
             :isStreaming="isStreaming"
-            :isGeneratingInspiration="isGeneratingInspiration"
-            :inspirationCompleted="inspirationCompleted"
-            :isInspirationEdited="isInspirationEdited"
             :optimizedText="optimizedText"
             @retry="handleRetry"
             @cancel="handleCancel"
             @submit="handleSubmit"
-            @inspiration="handleInspiration"
-            @inspirationOptimize="handleInspirationOptimize"
             @optimize="handleOptimize"
+            @stop="handleStop"
           />
         </div>
       </div>
@@ -351,6 +321,10 @@ const removeFile = (index: number) => {
 <style scoped>
 .aippt-container {
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
   background: linear-gradient(180deg, #f5f7fa 0%, #ffffff 100%);
   padding: 40px 20px;
   font-family:
@@ -372,7 +346,8 @@ const removeFile = (index: number) => {
 }
 
 .aippt-content {
-  max-width: 900px;
+  width: 1000px;
+  max-width: 1000px;
   margin: 0 auto;
 }
 
@@ -383,6 +358,7 @@ const removeFile = (index: number) => {
 
 /* 输入区域 */
 .ppt-input-container {
+  width: 100%;
   background: #ffffff;
   border: 1px solid #e1e4e8;
   border-radius: 16px;
@@ -418,274 +394,6 @@ const removeFile = (index: number) => {
 
 .editor::placeholder {
   color: #bbbfc4;
-}
-
-/* 灵感生成视图 */
-.inspiration-view {
-  margin-bottom: 12px;
-  height: 166px;
-  overflow: hidden;
-}
-
-.inspiration-section {
-  padding: 4px 0;
-  border-bottom: 1px solid #e1e4e8;
-  height: 100%;
-}
-
-.inspiration-section:last-child {
-  border-bottom: none;
-  padding-bottom: 0;
-}
-
-/* 灵感内容包装器 */
-.inspiration-wrapper {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-}
-
-.inspiration-wrapper .loading-footer {
-  background: #ffffff;
-}
-
-/* 可滚动的灵感内容区域 */
-.inspiration-scrollable {
-  flex: 1;
-  overflow-y: auto;
-  overflow-x: hidden;
-  min-height: 0;
-  padding: 4px 0;
-}
-
-/* 灵感后区域的滚动条样式 */
-.inspiration-scrollable::-webkit-scrollbar {
-  width: 6px;
-}
-
-.inspiration-scrollable::-webkit-scrollbar-track {
-  background: #f7f8fa;
-  border-radius: 3px;
-}
-
-.inspiration-scrollable::-webkit-scrollbar-thumb {
-  background: #c9cdd4;
-  border-radius: 3px;
-  transition: background 0.2s;
-}
-
-.inspiration-scrollable::-webkit-scrollbar-thumb:hover {
-  background: #a8adb5;
-}
-
-.inspiration-label {
-  display: inline-block;
-  font-size: 13px;
-  font-style: italic;
-  font-weight: 500;
-  color: #667eea;
-  background-color: rgba(102, 126, 234, 0.2);
-  margin-right: 8px;
-  padding: 2px 8px;
-  border-radius: 8px;
-}
-
-.inspiration-content {
-  display: block;
-  padding: 0;
-  background: transparent;
-  font-size: 14px;
-  line-height: 1.8;
-  color: #1f2329;
-  white-space: pre-wrap;
-  word-break: break-word;
-}
-
-.inspiration-content--loading {
-  color: #1f2329;
-}
-
-/* 灵感生成完成状态 */
-.inspiration-wrapper--completed {
-  background: transparent;
-}
-
-/* 行内操作按钮容器 */
-.inspiration-actions-compact {
-  display: inline-flex;
-  align-items: center;
-  gap: 2px;
-  background: rgba(102, 126, 234, 0.08);
-  padding: 2px;
-  border-radius: 12px;
-  border: 1px solid rgba(102, 126, 234, 0.15);
-  margin-left: 6px;
-  vertical-align: middle;
-  height: 24px;
-  position: relative;
-  overflow: visible;
-  z-index: 100;
-}
-
-/* 紧凑按钮样式 */
-.compact-action-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 20px;
-  height: 20px;
-  padding: 0;
-  border: none;
-  background: transparent;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: all 0.2s;
-  position: relative;
-  z-index: 10;
-}
-
-.compact-action-btn svg {
-  flex-shrink: 0;
-  transition: all 0.2s;
-}
-
-/* 文本默认隐藏 */
-.compact-action-text {
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  margin-top: 6px;
-  white-space: nowrap;
-  font-size: 11px;
-  padding: 3px 6px;
-  background: rgba(45, 50, 56, 0.95);
-  color: #ffffff;
-  border-radius: 4px;
-  opacity: 0;
-  visibility: hidden;
-  transition: all 0.2s;
-  pointer-events: none;
-  font-weight: 500;
-  z-index: 1000;
-}
-
-/* 提示框小三角 */
-.compact-action-text::after {
-  content: '';
-  position: absolute;
-  bottom: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  border: 4px solid transparent;
-  border-bottom-color: rgba(45, 50, 56, 0.95);
-}
-
-/* hover 时显示文本 */
-.compact-action-btn:hover .compact-action-text {
-  opacity: 1;
-  visibility: visible;
-}
-
-.compact-action-btn--adopt {
-  color: #667eea;
-}
-
-.compact-action-btn--adopt:hover {
-  background: rgba(102, 126, 234, 0.15);
-}
-
-.compact-action-btn--adopt svg path {
-  stroke: #667eea;
-}
-
-.compact-action-btn--cancel {
-  color: #646a73;
-}
-
-.compact-action-btn--cancel:hover {
-  background: rgba(100, 106, 115, 0.1);
-}
-
-.compact-action-btn--cancel svg path {
-  stroke: #646a73;
-}
-
-.inspiration-content-completed {
-  height: 100%;
-  overflow-y: auto;
-  overflow-x: hidden;
-  padding: 4px 0;
-}
-
-.inspiration-content-completed .inspiration-label {
-  display: inline-block;
-  position: relative;
-  overflow: visible;
-}
-
-.inspiration-text {
-  display: inline;
-  font-size: 14px;
-  line-height: 1.8;
-  color: #1f2329;
-  white-space: pre-wrap;
-  word-break: break-word;
-}
-
-/* 可编辑的灵感文本输入框 */
-.inspiration-text-input {
-  display: inline-block;
-  width: calc(100% - 80px);
-  min-height: 28px;
-  padding: 2px 8px;
-  margin: 0;
-  font-size: 14px;
-  line-height: 1.8;
-  color: #1f2329;
-  background: transparent;
-  border: 1px solid transparent;
-  border-radius: 4px;
-  resize: none;
-  font-family: inherit;
-  transition: all 0.2s;
-  overflow: hidden;
-  vertical-align: middle;
-}
-
-.inspiration-text-input:hover {
-  background: rgba(102, 126, 234, 0.05);
-  border-color: rgba(102, 126, 234, 0.15);
-}
-
-.inspiration-text-input:focus {
-  outline: none;
-  background: rgba(102, 126, 234, 0.08);
-  border-color: #667eea;
-  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
-}
-
-.inspiration-text-input::placeholder {
-  color: #8f959e;
-}
-
-.inspiration-content-completed::-webkit-scrollbar {
-  width: 6px;
-}
-
-.inspiration-content-completed::-webkit-scrollbar-track {
-  background: #f7f8fa;
-  border-radius: 3px;
-}
-
-.inspiration-content-completed::-webkit-scrollbar-thumb {
-  background: #c9cdd4;
-  border-radius: 3px;
-  transition: background 0.2s;
-}
-
-.inspiration-content-completed::-webkit-scrollbar-thumb:hover {
-  background: #a8adb5;
 }
 
 /* 优化视图 */
@@ -1233,8 +941,15 @@ const removeFile = (index: number) => {
   height: 16px;
 }
 
-
 /* 响应式 */
+@media (max-width: 1300px) {
+  .aippt-content {
+    width: 100%;
+    max-width: 100%;
+    padding: 0 20px;
+  }
+}
+
 @media (max-width: 768px) {
   .aippt-slogan {
     font-size: 24px;
