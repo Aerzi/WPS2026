@@ -1,6 +1,8 @@
 export const HINT_TEXT = {
-  FULL: '点我一键优化提示词',
-  SHORT: '优化完成',
+  FULL: '点我一键优化提示词', // 未优化时
+  OPTIMIZING: '正在优化 ...', // 优化中
+  COMPLETED: '优化完成', // 优化后
+  SHRINK: '一键优化', // 超过30个字时
   SHRINK_THRESHOLD: 30, // 超过30个字时收缩文本
 } as const
 

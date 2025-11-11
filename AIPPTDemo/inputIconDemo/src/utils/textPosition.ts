@@ -1,7 +1,8 @@
 import { HINT_TEXT, PLACEHOLDER_TEXT } from '../constants/hintText'
+import { getDisplayTextLength, removeMarkers } from './textFormatter'
 
 export interface TextPositionConfig {
-  textarea: HTMLTextAreaElement
+  textarea: HTMLTextAreaElement | HTMLElement
   container: HTMLElement
   textValue: string
 }
@@ -20,12 +21,18 @@ export interface ComputedStyles {
 /**
  * 获取文本域的样式信息
  */
-export function getComputedStyles(textarea: HTMLTextAreaElement): ComputedStyles {
+export function getComputedStyles(textarea: HTMLTextAreaElement | HTMLElement): ComputedStyles {
   const computedStyle = window.getComputedStyle(textarea)
+  
+  const getPaddingValue = (value: string, defaultValue: number): number => {
+    const parsed = parseFloat(value)
+    return isNaN(parsed) ? defaultValue : parsed
+  }
+  
   return {
-    paddingLeft: parseFloat(computedStyle.paddingLeft) || 16,
-    paddingRight: parseFloat(computedStyle.paddingRight) || 16,
-    paddingTop: parseFloat(computedStyle.paddingTop) || 16,
+    paddingLeft: getPaddingValue(computedStyle.paddingLeft, 16),
+    paddingRight: getPaddingValue(computedStyle.paddingRight, 16),
+    paddingTop: getPaddingValue(computedStyle.paddingTop, 0),
     lineHeight: parseFloat(computedStyle.lineHeight) || 22,
     fontSize: parseFloat(computedStyle.fontSize) || 14,
     fontFamily: computedStyle.fontFamily,
@@ -71,10 +78,21 @@ export function calculatePositions(config: TextPositionConfig): void {
 
   const textareaWidth = textarea.clientWidth
 
-  // 根据文本长度决定是否收缩提示文本
-  const shouldShrink = textValue.length > HINT_TEXT.SHRINK_THRESHOLD
-  const hintTextContent = shouldShrink ? HINT_TEXT.SHORT : HINT_TEXT.FULL
-  hintText.textContent = hintTextContent
+  // 获取当前文本内容，如果已经是优化中或优化完成状态，优先保持该状态
+  const currentText = hintText.textContent || ''
+  let hintTextContent: string
+  
+  // 如果当前文本是优化完成或正在优化，优先保持该状态
+  if (currentText === HINT_TEXT.COMPLETED || currentText === HINT_TEXT.OPTIMIZING) {
+    hintTextContent = currentText
+  } else {
+    // 否则根据文本长度决定是否收缩提示文本
+    // 使用去掉 ** 标记后的实际显示文本长度来判断
+    const displayLength = getDisplayTextLength(textValue)
+    const shouldShrink = displayLength > HINT_TEXT.SHRINK_THRESHOLD
+    hintTextContent = shouldShrink ? HINT_TEXT.SHRINK : HINT_TEXT.FULL
+    hintText.textContent = hintTextContent
+  }
 
   // 计算文本垂直中心位置
   // 第一行文本的顶部位置 = textarea在wrapper中的偏移 + textarea的paddingTop（如果有）
@@ -89,7 +107,9 @@ export function calculatePositions(config: TextPositionConfig): void {
 
   if (textValue.trim() === '') {
     // 如果没有文本，容器显示在placeholder后面
-    const textWidth = context.measureText(PLACEHOLDER_TEXT).width
+    // 同样需要去掉 placeholder 中的 ** 标记来计算实际显示宽度
+    const displayPlaceholder = removeMarkers(PLACEHOLDER_TEXT)
+    const textWidth = context.measureText(displayPlaceholder).width
     const containerLeft = wrapperPaddingLeft + textWidth + 8
     // 容器与文本垂直中心对齐：容器高度由lineHeight决定，所以容器中心应该在文本中心
     const containerTop = firstLineCenter - styles.lineHeight / 2
@@ -109,7 +129,9 @@ export function calculatePositions(config: TextPositionConfig): void {
     }
   } else {
     // 如果有文本，计算文本末尾位置
-    const lines = textValue.split('\n')
+    // 使用去掉 ** 标记后的实际显示文本来计算宽度
+    const displayText = removeMarkers(textValue)
+    const lines = displayText.split('\n')
     const lastLine = lines[lines.length - 1]
 
     // 计算最后一行文本的实际宽度（考虑自动换行）
@@ -127,6 +149,7 @@ export function calculatePositions(config: TextPositionConfig): void {
     }
 
     // 计算所有行的总行数（手动换行 + 自动换行）
+    // 使用去掉 ** 标记后的实际显示文本
     let totalLines = 0
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i] || ''

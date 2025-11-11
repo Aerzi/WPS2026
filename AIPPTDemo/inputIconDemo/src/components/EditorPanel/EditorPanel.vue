@@ -3,9 +3,11 @@ import { ref, computed, onMounted, onBeforeUnmount, nextTick, watch } from 'vue'
 import starIcon from '@/assets/starPure.svg'
 import loadingIcon from '@/assets/loading.svg'
 import { calculatePositions } from '@/utils/textPosition'
+import { getDisplayTextLength } from '@/utils/textFormatter'
 import { HINT_TEXT } from '@/constants/hintText'
 import promptOptimizationMap from '@/assets/data/promptOptimizationMap.json'
 import UndoButton from '@/components/EditorPanel/UndoButton.vue'
+import RichTextEditor from '@/components/EditorPanel/RichTextEditor.vue'
 
 interface Props {
   modelValue: string
@@ -24,7 +26,8 @@ const emit = defineEmits<{
   blur: []
 }>()
 
-const textareaRef = ref<HTMLTextAreaElement | null>(null)
+const textareaRef = ref<HTMLDivElement | null>(null)
+const richTextEditorRef = ref<InstanceType<typeof RichTextEditor> | null>(null)
 const floatingContainerRef = ref<HTMLDivElement | null>(null)
 const hintTextWrapperRef = ref<HTMLDivElement | null>(null)
 const hintTextRef = ref<HTMLSpanElement | null>(null)
@@ -183,11 +186,13 @@ const handleInputChange = () => {
 }
 
 const updateButtonPosition = () => {
-  if (!textareaRef.value || !floatingContainerRef.value) return
+  // 获取富文本编辑器的 DOM 元素
+  const editorElement = richTextEditorRef.value?.getElement()
+  if (!editorElement || !floatingContainerRef.value) return
 
   nextTick(() => {
     calculatePositions({
-      textarea: textareaRef.value!,
+      textarea: editorElement,
       container: floatingContainerRef.value!,
       textValue: textValue.value,
     })
@@ -276,17 +281,19 @@ const handleUndoClick = () => {
 const updateHintText = () => {
   if (!hintTextRef.value) return
 
-  const shouldShrink = textValue.value.length > 30
-  const defaultText = shouldShrink ? HINT_TEXT.SHORT : HINT_TEXT.FULL
+  // 使用去掉 ** 标记后的实际显示文本长度来判断
+  const displayLength = getDisplayTextLength(textValue.value)
+  const shouldShrink = displayLength > HINT_TEXT.SHRINK_THRESHOLD
+  const defaultText = shouldShrink ? HINT_TEXT.SHRINK : HINT_TEXT.FULL
 
   // 确定新文本内容
   let newText = ''
   switch (hintTextStatus.value) {
     case 'optimizing':
-      newText = '优化中...'
+      newText = HINT_TEXT.OPTIMIZING
       break
     case 'completed':
-      newText = '优化完成'
+      newText = HINT_TEXT.COMPLETED
       break
     default:
       newText = defaultText
@@ -387,8 +394,9 @@ const streamText = (targetText: string) => {
       currentIndex++
       textValue.value = targetText.slice(0, currentIndex)
       // 滚动到底部
-      if (textareaRef.value) {
-        textareaRef.value.scrollTop = textareaRef.value.scrollHeight
+      const editorElement = richTextEditorRef.value?.getElement()
+      if (editorElement) {
+        editorElement.scrollTop = editorElement.scrollHeight
       }
     } else {
       // 流式输出完成
@@ -524,27 +532,32 @@ const handleOptimizeClick = (e: MouseEvent) => {
 }
 
 onMounted(() => {
-  updateButtonPosition()
-  updateHintText()
-  // 初始化时，如果有文本内容，隐藏提示文本
-  if (textValue.value.trim() !== '') {
-    if (hintTextWrapperRef.value) {
-      const currentWidth = hintTextWrapperRef.value.scrollWidth
-      hintTextWrapperRef.value.style.width = `${currentWidth}px`
-      void hintTextWrapperRef.value.offsetWidth
-      nextTick(() => {
-        if (hintTextWrapperRef.value) {
-          hintTextWrapperRef.value.style.width = '0px'
-        }
-      })
+  // 等待富文本编辑器渲染完成后再执行逻辑
+  nextTick(() => {
+    textareaRef.value = richTextEditorRef.value?.getElement() || null
+    updateButtonPosition()
+    updateHintText()
+    // 初始化时，如果有文本内容，隐藏提示文本
+    if (textValue.value.trim() !== '') {
+      if (hintTextWrapperRef.value) {
+        const currentWidth = hintTextWrapperRef.value.scrollWidth
+        hintTextWrapperRef.value.style.width = `${currentWidth}px`
+        void hintTextWrapperRef.value.offsetWidth
+        nextTick(() => {
+          if (hintTextWrapperRef.value) {
+            hintTextWrapperRef.value.style.width = '0px'
+          }
+        })
+      }
+      showHintText.value = false
+    } else {
+      // 确保初始状态时宽度是auto
+      if (hintTextWrapperRef.value) {
+        hintTextWrapperRef.value.style.width = 'auto'
+      }
     }
-    showHintText.value = false
-  } else {
-    // 确保初始状态时宽度是auto
-    if (hintTextWrapperRef.value) {
-      hintTextWrapperRef.value.style.width = 'auto'
-    }
-  }
+  })
+  window.addEventListener('resize', updateButtonPosition)
 })
 
 watch(textValue, () => {
@@ -565,20 +578,15 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="textarea-wrapper">
-    <textarea
-      ref="textareaRef"
-      :value="textValue"
+    <RichTextEditor
+      ref="richTextEditorRef"
+      :model-value="textValue"
       :placeholder="placeholder"
-      class="textarea"
-      @input="
-        (e) => {
-          textValue = (e.target as HTMLTextAreaElement).value
-        }
-      "
+      @update:model-value="textValue = $event"
       @focus="emit('focus')"
       @blur="emit('blur')"
       @scroll="updateButtonPosition"
-    ></textarea>
+    />
     <div
       v-if="showFloatingContainer"
       ref="floatingContainerRef"
@@ -606,7 +614,7 @@ onBeforeUnmount(() => {
       <template v-else>
         <UndoButton />
         <div ref="undoHintTextWrapperRef" class="hint-text-wrapper">
-          <span ref="undoHintTextRef" class="hint-text">优化完成</span>
+          <span ref="undoHintTextRef" class="hint-text">{{ HINT_TEXT.COMPLETED }}</span>
         </div>
       </template>
     </div>
@@ -629,59 +637,7 @@ onBeforeUnmount(() => {
   box-sizing: border-box;
 }
 
-.textarea {
-  width: 100%;
-  height: 66px;
-  font-size: 14px;
-  font-family: inherit;
-  line-height: 22px;
-  border: none;
-  background: transparent;
-  resize: none;
-  overflow-y: auto;
-  transition: all 0.3s ease;
-  box-sizing: content-box;
-  outline: none;
-  color: #333;
-}
-
-/* 自定义滚动条样式 */
-.textarea::-webkit-scrollbar {
-  width: 6px;
-}
-
-.textarea::-webkit-scrollbar-button {
-  display: none;
-}
-
-.textarea::-webkit-scrollbar-track {
-  background: transparent;
-  border-radius: 3px;
-}
-
-.textarea::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 3px;
-  transition: background 0.2s ease;
-}
-
-.textarea::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 0, 0, 0.35);
-}
-
-/* Firefox 滚动条样式 */
-.textarea {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
-}
-
-.textarea:focus {
-  outline: none;
-}
-
-.textarea::placeholder {
-  color: rgba(0, 0, 0, 0.4);
-}
+/* RichTextEditor 组件已包含所有样式 */
 
 .floating-container {
   position: absolute;
