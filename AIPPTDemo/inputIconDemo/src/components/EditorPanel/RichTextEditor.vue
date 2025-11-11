@@ -134,6 +134,12 @@ const handleInput = () => {
   if (!editorRef.value || isComposing.value) return
 
   const textWithMarkers = extractTextWithMarkers(editorRef.value)
+  
+  // 如果文本为空，强制清空编辑器，确保placeholder可以显示
+  if (textWithMarkers.trim() === '') {
+    editorRef.value.textContent = ''
+  }
+  
   emit('update:modelValue', textWithMarkers)
   emit('input', textWithMarkers)
 
@@ -156,6 +162,12 @@ watch(
   () => props.modelValue,
   (newValue, oldValue) => {
     if (!editorRef.value) return
+
+    // 如果新值为空，强制清空编辑器
+    if (!newValue || newValue.trim() === '') {
+      editorRef.value.textContent = ''
+      return
+    }
 
     // 检查是否是流式输出场景（文本在末尾增长）
     const isStreamingGrowth = oldValue && newValue.length > oldValue.length && newValue.startsWith(oldValue)

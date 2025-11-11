@@ -57,6 +57,7 @@ const showFloatingContainer = computed(() => {
   return textValue.value.trim() !== ''
 })
 
+// 监听外部modelValue变化
 watch(
   () => props.modelValue,
   (newValue) => {
@@ -64,24 +65,25 @@ watch(
   },
 )
 
+// 监听textValue变化，统一处理所有逻辑
 watch(textValue, (newValue) => {
   emit('update:modelValue', newValue)
 
   // 如果正在执行撤回操作，跳过处理
   if (isUndoing.value) {
-    console.log('watch: 正在执行撤回操作，跳过处理')
     return
   }
 
-  // 如果正在流式输出，不处理用户修改逻辑
+  // 如果正在流式输出，不处理用户修改逻辑（但要更新位置）
   if (isStreaming.value) {
-    console.log('watch: isStreaming 为 true，跳过处理')
+    nextTick(() => {
+      updateButtonPosition()
+    })
     return
   }
 
   // 如果正在优化中，用户修改了文本，停止流式输出
   if (hintTextStatus.value === 'optimizing' || isLoading.value) {
-    console.log('watch: 检测到优化中状态，重置状态')
     if (streamingTimer) {
       clearInterval(streamingTimer)
       streamingTimer = null
@@ -102,6 +104,11 @@ watch(textValue, (newValue) => {
   }
 
   handleInputChange()
+
+  // 统一在这里更新位置，使用nextTick确保DOM已更新
+  nextTick(() => {
+    updateButtonPosition()
+  })
 })
 
 const handleInputChange = () => {
@@ -190,12 +197,11 @@ const updateButtonPosition = () => {
   const editorElement = richTextEditorRef.value?.getElement()
   if (!editorElement || !floatingContainerRef.value) return
 
-  nextTick(() => {
-    calculatePositions({
-      textarea: editorElement,
-      container: floatingContainerRef.value!,
-      textValue: textValue.value,
-    })
+  calculatePositions({
+    textarea: editorElement,
+    container: floatingContainerRef.value!,
+    textValue: textValue.value,
+    placeholder: props.placeholder,
   })
 }
 
@@ -213,20 +219,13 @@ const handleFloatingContainerClick = (e: MouseEvent) => {
 
 // 处理撤回点击
 const handleUndoClick = () => {
-  console.log('handleUndoClick 被调用')
-  console.log('hintTextStatus:', hintTextStatus.value)
-  console.log('originalTextBeforeOptimization:', originalTextBeforeOptimization.value)
-  console.log('当前文本:', textValue.value)
-
   // 只要状态是 'completed'，就允许撤回，即使 originalTextBeforeOptimization 是空字符串
   if (hintTextStatus.value === 'completed') {
-    console.log('执行撤回操作')
     // 设置撤回标志，防止 watch 干扰
     isUndoing.value = true
 
     // 恢复原始文本
     const originalText = originalTextBeforeOptimization.value
-    console.log('恢复文本为:', originalText)
     textValue.value = originalText
 
     // 重置状态
@@ -268,12 +267,9 @@ const handleUndoClick = () => {
       } else {
         isUndoing.value = false
       }
-
-      // 更新按钮位置
-      updateButtonPosition()
+      
+      // 位置更新将由watch统一处理
     })
-  } else {
-    console.log('撤回条件不满足，hintTextStatus:', hintTextStatus.value)
   }
 }
 
@@ -366,10 +362,7 @@ const findOptimizedText = (original: string): string | null => {
 
 // 流式输出文本
 const streamText = (targetText: string) => {
-  console.log('streamText 开始，目标文本:', targetText)
-
   if (!textareaRef.value) {
-    console.log('textareaRef 不存在')
     isStreaming.value = false
     return
   }
@@ -383,11 +376,9 @@ const streamText = (targetText: string) => {
 
   // 确保流式输出标志已设置（可能在延迟期间已设置）
   isStreaming.value = true
-  console.log('isStreaming 设置为 true，开始流式输出')
 
   // 先清空文本，准备流式输出
   textValue.value = ''
-  console.log('文本已清空，开始流式输出')
 
   streamingTimer = setInterval(() => {
     if (currentIndex < targetText.length) {
@@ -408,6 +399,7 @@ const streamText = (targetText: string) => {
       isLoading.value = false
       hintTextStatus.value = 'completed'
       updateHintText()
+      
       // 显示撤回按钮的提示文本
       if (undoHintTextWrapperRef.value) {
         undoHintTextWrapperRef.value.style.width = '0px'
@@ -428,10 +420,8 @@ const streamText = (targetText: string) => {
           }
         })
       }
-      // 更新按钮位置
-      nextTick(() => {
-        updateButtonPosition()
-      })
+      
+      // 位置更新将由watch统一处理
     }
   }, 30) // 每30ms输出一个字符，可以根据需要调整速度
 }
@@ -440,40 +430,25 @@ const streamText = (targetText: string) => {
 const handleOptimizeClick = (e: MouseEvent) => {
   e.stopPropagation()
 
-  console.log('handleOptimizeClick 被调用')
-  console.log('isLoading:', isLoading.value)
-  console.log('hintTextStatus:', hintTextStatus.value)
-
   // 如果正在优化中，不允许重复触发
   if (isLoading.value || hintTextStatus.value === 'optimizing') {
-    console.log('已在优化中，返回')
     return
   }
 
   const currentText = textValue.value.trim()
-  console.log('当前文本:', currentText)
-
   // 如果文本为空，使用 placeholder 作为优化基础
   const textToOptimize = currentText || props.placeholder
-  console.log('用于优化的文本:', textToOptimize)
 
   if (!textToOptimize) {
-    console.log('没有文本和placeholder，返回')
     return
   }
 
-  console.log('开始优化流程')
-
   // 设置 loading 状态
-  console.log('步骤1: 设置 loading 状态')
   isLoading.value = true
   hintTextStatus.value = 'optimizing'
-  console.log('步骤2: 调用 updateHintText')
   updateHintText()
-  console.log('步骤3: updateHintText 完成')
 
   // 隐藏提示文本
-  console.log('步骤4: 隐藏提示文本')
   showHintText.value = false
   if (hintTextWrapperRef.value) {
     const currentWidth = hintTextWrapperRef.value.scrollWidth
@@ -485,31 +460,19 @@ const handleOptimizeClick = (e: MouseEvent) => {
       }
     })
   }
-  console.log('步骤5: 提示文本隐藏完成')
 
   // 保存原始文本（如果为空则保存空字符串，因为实际优化的是placeholder）
-  console.log('步骤6: 保存原始文本')
   // 注意：这里应该保存当前输入框的文本，而不是 currentText
   // 因为如果用户清空后优化，currentText 为空，但我们需要能够撤回到空状态
   originalTextBeforeOptimization.value = textValue.value
-  console.log('原始文本已保存:', originalTextBeforeOptimization.value)
 
   // 先设置流式输出标志，防止在延迟期间被watch重置
-  console.log('步骤7: 设置 isStreaming = true')
   isStreaming.value = true
-  console.log('设置 isStreaming = true，准备延迟1.5秒')
 
-  // 等待1.5秒后开始流式输出
+  // 等待1秒后开始流式输出
   setTimeout(() => {
-    console.log('setTimeout 回调执行')
-    console.log('检查状态 - isLoading:', isLoading.value)
-    console.log('检查状态 - hintTextStatus:', hintTextStatus.value)
-    console.log('检查状态 - isStreaming:', isStreaming.value)
-
     // 检查是否仍在loading状态（防止用户在此期间修改了文本导致状态被重置）
     if (!isLoading.value || hintTextStatus.value !== 'optimizing') {
-      console.log('状态已改变，取消流式输出')
-      console.log('isLoading:', isLoading.value, 'hintTextStatus:', hintTextStatus.value)
       isStreaming.value = false
       return
     }
@@ -518,7 +481,6 @@ const handleOptimizeClick = (e: MouseEvent) => {
     const optimizedText = findOptimizedText(textToOptimize)
 
     if (!optimizedText) {
-      console.log('未找到匹配的优化文本，取消流式输出')
       isLoading.value = false
       hintTextStatus.value = 'default'
       isStreaming.value = false
@@ -526,7 +488,6 @@ const handleOptimizeClick = (e: MouseEvent) => {
       return
     }
 
-    console.log('找到匹配的优化文本，开始流式输出')
     streamText(optimizedText)
   }, 1000)
 }
@@ -558,12 +519,6 @@ onMounted(() => {
     }
   })
   window.addEventListener('resize', updateButtonPosition)
-})
-
-watch(textValue, () => {
-  nextTick(() => {
-    updateButtonPosition()
-  })
 })
 
 onBeforeUnmount(() => {

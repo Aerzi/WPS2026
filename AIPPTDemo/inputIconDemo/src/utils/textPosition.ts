@@ -1,10 +1,11 @@
-import { HINT_TEXT, PLACEHOLDER_TEXT } from '../constants/hintText'
+import { HINT_TEXT } from '../constants/hintText'
 import { getDisplayTextLength, removeMarkers } from './textFormatter'
 
 export interface TextPositionConfig {
-  textarea: HTMLTextAreaElement | HTMLElement
-  container: HTMLElement
+  textarea: HTMLTextAreaElement | HTMLElement  // rich-text-editor元素
+  container: HTMLElement  // floating-container元素
   textValue: string
+  placeholder?: string
 }
 
 export interface ComputedStyles {
@@ -54,10 +55,19 @@ export function createTextContext(styles: ComputedStyles): CanvasRenderingContex
 }
 
 /**
+ * 获取光标位置的Range对象
+ */
+function getCaretRange(): Range | null {
+  const selection = window.getSelection()
+  if (!selection || selection.rangeCount === 0) return null
+  return selection.getRangeAt(0)
+}
+
+/**
  * 计算按钮和提示文本的位置
  */
 export function calculatePositions(config: TextPositionConfig): void {
-  const { textarea, container, textValue } = config
+  const { textarea, container, textValue, placeholder = '' } = config
   const styles = getComputedStyles(textarea)
   const context = createTextContext(styles)
   if (!context) return
@@ -66,17 +76,13 @@ export function calculatePositions(config: TextPositionConfig): void {
   const hintText = container.querySelector('.hint-text') as HTMLElement
   if (!hintText) return
 
-  // 获取wrapper的padding（如果有）
-  const wrapper = textarea.parentElement
-  const wrapperStyle = wrapper ? window.getComputedStyle(wrapper) : null
-  const wrapperPaddingLeft = wrapperStyle ? parseFloat(wrapperStyle.paddingLeft) || 0 : 0
+  // 获取wrapper（floating-container的父元素，也是定位上下文）
+  const wrapper = container.parentElement
+  if (!wrapper) return
 
-  // 获取textarea相对于wrapper的位置
+  // 获取位置信息（用于计算相对位置）
+  const wrapperRect = wrapper.getBoundingClientRect()
   const textareaRect = textarea.getBoundingClientRect()
-  const wrapperRect = wrapper ? wrapper.getBoundingClientRect() : textareaRect
-  const textareaOffsetTop = textareaRect.top - wrapperRect.top
-
-  const textareaWidth = textarea.clientWidth
 
   // 获取当前文本内容，如果已经是优化中或优化完成状态，优先保持该状态
   const currentText = hintText.textContent || ''
@@ -87,18 +93,11 @@ export function calculatePositions(config: TextPositionConfig): void {
     hintTextContent = currentText
   } else {
     // 否则根据文本长度决定是否收缩提示文本
-    // 使用去掉 ** 标记后的实际显示文本长度来判断
     const displayLength = getDisplayTextLength(textValue)
     const shouldShrink = displayLength > HINT_TEXT.SHRINK_THRESHOLD
     hintTextContent = shouldShrink ? HINT_TEXT.SHRINK : HINT_TEXT.FULL
     hintText.textContent = hintTextContent
   }
-
-  // 计算文本垂直中心位置
-  // 第一行文本的顶部位置 = textarea在wrapper中的偏移 + textarea的paddingTop（如果有）
-  const firstLineTop = textareaOffsetTop + styles.paddingTop
-  // 文本的垂直中心位置 = 顶部 + lineHeight / 2
-  const firstLineCenter = firstLineTop + styles.lineHeight / 2
 
   // 按钮宽度（16px）
   const buttonWidth = 16
@@ -107,12 +106,15 @@ export function calculatePositions(config: TextPositionConfig): void {
 
   if (textValue.trim() === '') {
     // 如果没有文本，容器显示在placeholder后面
-    // 同样需要去掉 placeholder 中的 ** 标记来计算实际显示宽度
-    const displayPlaceholder = removeMarkers(PLACEHOLDER_TEXT)
+    const displayPlaceholder = removeMarkers(placeholder)
     const textWidth = context.measureText(displayPlaceholder).width
-    const containerLeft = wrapperPaddingLeft + textWidth + 8
-    // 容器与文本垂直中心对齐：容器高度由lineHeight决定，所以容器中心应该在文本中心
-    const containerTop = firstLineCenter - styles.lineHeight / 2
+    
+    // textarea相对于wrapper的left偏移
+    const textareaOffsetLeft = textareaRect.left - wrapperRect.left
+    
+    // 计算容器位置（相对于wrapper）
+    const containerLeft = textareaOffsetLeft + textWidth + 8
+    const containerTop = textareaRect.top - wrapperRect.top
 
     container.style.left = `${containerLeft}px`
     container.style.top = `${containerTop}px`
@@ -121,69 +123,92 @@ export function calculatePositions(config: TextPositionConfig): void {
     const hintTextWidth = context.measureText(hintTextContent).width
     const containerWidth = buttonWidth + containerGap + hintTextWidth
 
-    // 检查是否会超出边界
-    if (containerLeft + containerWidth > textarea.clientWidth + wrapperPaddingLeft) {
+    // 检查是否会超出边界（相对于wrapper的宽度）
+    const wrapperWidth = wrapper.clientWidth
+    if (containerLeft + containerWidth > wrapperWidth) {
       // 如果超出，将容器移到下一行
-      container.style.left = `${wrapperPaddingLeft}px`
-      container.style.top = `${firstLineCenter + styles.lineHeight - styles.lineHeight / 2}px`
+      container.style.left = `${textareaOffsetLeft}px`
+      container.style.top = `${containerTop + styles.lineHeight}px`
     }
   } else {
-    // 如果有文本，计算文本末尾位置
-    // 使用去掉 ** 标记后的实际显示文本来计算宽度
-    const displayText = removeMarkers(textValue)
-    const lines = displayText.split('\n')
-    const lastLine = lines[lines.length - 1]
-
-    // 计算最后一行文本的实际宽度（考虑自动换行）
-    const lastLineWidth = context.measureText(lastLine || '').width
-
-    // 计算实际占用的宽度（考虑textarea宽度限制导致的换行）
-    let actualWidth = lastLineWidth
-    if (lastLineWidth > textareaWidth) {
-      // 如果文本宽度超过textarea宽度，计算余数（即当前行实际占用的宽度）
-      actualWidth = lastLineWidth % textareaWidth
-      if (actualWidth === 0) {
-        // 如果正好换行，则宽度为textarea宽度
-        actualWidth = textareaWidth
+    // 尝试获取光标位置
+    const range = getCaretRange()
+    
+    if (range) {
+      // 使用光标位置（光标位置是相对于视口的）
+      const rangeRect = range.getBoundingClientRect()
+      
+      // 计算相对于wrapper的位置
+      const containerLeft = rangeRect.left - wrapperRect.left + 8
+      const containerTop = rangeRect.top - wrapperRect.top
+      
+      container.style.left = `${containerLeft}px`
+      container.style.top = `${containerTop}px`
+      
+      // 计算容器总宽度
+      const hintTextWidth = context.measureText(hintTextContent).width
+      const containerWidth = buttonWidth + containerGap + hintTextWidth
+      
+      // 检查是否会超出边界
+      const wrapperWidth = wrapper.clientWidth
+      if (containerLeft + containerWidth > wrapperWidth) {
+        // 如果超出，将容器移到下一行
+        const textareaOffsetLeft = textareaRect.left - wrapperRect.left
+        container.style.left = `${textareaOffsetLeft}px`
+        container.style.top = `${containerTop + styles.lineHeight}px`
       }
-    }
+    } else {
+      // 如果无法获取光标位置，回退到文本末尾位置计算
+      const displayText = removeMarkers(textValue)
+      const lines = displayText.split('\n')
+      const lastLine = lines[lines.length - 1]
 
-    // 计算所有行的总行数（手动换行 + 自动换行）
-    // 使用去掉 ** 标记后的实际显示文本
-    let totalLines = 0
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i] || ''
-      const lineWidth = context.measureText(line).width
-      if (lineWidth > textareaWidth) {
-        // 计算这一行自动换行的行数
-        const lineAutoWrap = Math.ceil(lineWidth / textareaWidth)
-        totalLines += lineAutoWrap
-      } else {
-        totalLines += 1
+      // 计算最后一行文本的实际宽度
+      const lastLineWidth = context.measureText(lastLine || '').width
+
+      // 计算所有行的总行数（手动换行 + 自动换行）
+      let totalLines = 0
+      const textareaWidth = textarea.clientWidth
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i] || ''
+        const lineWidth = context.measureText(line).width
+        if (lineWidth > textareaWidth) {
+          const lineAutoWrap = Math.ceil(lineWidth / textareaWidth)
+          totalLines += lineAutoWrap
+        } else {
+          totalLines += 1
+        }
       }
-    }
 
-    // 计算最后一行文本的垂直中心位置
-    // 总行数 - 1 是因为行号从0开始
-    const lastLineCenter =
-      firstLineTop + (totalLines - 1) * styles.lineHeight + styles.lineHeight / 2
+      // 计算实际占用的宽度（考虑自动换行）
+      let actualWidth = lastLineWidth
+      if (lastLineWidth > textareaWidth) {
+        actualWidth = lastLineWidth % textareaWidth
+        if (actualWidth === 0) {
+          actualWidth = textareaWidth
+        }
+      }
 
-    const containerLeft = wrapperPaddingLeft + actualWidth + 8
-    // 容器与文本垂直中心对齐
-    const containerTop = lastLineCenter - styles.lineHeight / 2
+      // textarea相对于wrapper的偏移
+      const textareaOffsetLeft = textareaRect.left - wrapperRect.left
+      const textareaOffsetTop = textareaRect.top - wrapperRect.top
 
-    container.style.left = `${containerLeft}px`
-    container.style.top = `${containerTop}px`
+      const containerLeft = textareaOffsetLeft + actualWidth + 8
+      const containerTop = textareaOffsetTop + (totalLines - 1) * styles.lineHeight
 
-    // 计算容器总宽度
-    const hintTextWidth = context.measureText(hintTextContent).width
-    const containerWidth = buttonWidth + containerGap + hintTextWidth
+      container.style.left = `${containerLeft}px`
+      container.style.top = `${containerTop}px`
 
-    // 检查是否会超出边界
-    if (containerLeft + containerWidth > textarea.clientWidth + wrapperPaddingLeft) {
-      // 如果超出，将容器移到下一行
-      container.style.left = `${wrapperPaddingLeft}px`
-      container.style.top = `${lastLineCenter + styles.lineHeight - styles.lineHeight / 2}px`
+      // 计算容器总宽度
+      const hintTextWidth = context.measureText(hintTextContent).width
+      const containerWidth = buttonWidth + containerGap + hintTextWidth
+
+      // 检查是否会超出边界
+      const wrapperWidth = wrapper.clientWidth
+      if (containerLeft + containerWidth > wrapperWidth) {
+        container.style.left = `${textareaOffsetLeft}px`
+        container.style.top = `${containerTop + styles.lineHeight}px`
+      }
     }
   }
 }
