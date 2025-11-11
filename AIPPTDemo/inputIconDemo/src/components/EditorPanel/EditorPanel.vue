@@ -43,6 +43,7 @@ const originalTextBeforeOptimization = ref('')
 const isUndoing = ref(false) // 标记是否正在执行撤回操作
 let inputTimer: ReturnType<typeof setTimeout> | null = null
 let streamingTimer: ReturnType<typeof setTimeout> | null = null
+let positionUpdateTimer: ReturnType<typeof setTimeout> | null = null
 
 // 判断是否显示 floating-container
 // 1. 输入框完全为空且有 placeholder 时显示
@@ -74,7 +75,7 @@ watch(textValue, (newValue) => {
     return
   }
 
-  // 如果正在流式输出，不处理用户修改逻辑（但要更新位置）
+  // 如果正在流式输出，不处理用户修改逻辑（但要立即更新位置）
   if (isStreaming.value) {
     nextTick(() => {
       updateButtonPosition()
@@ -105,10 +106,15 @@ watch(textValue, (newValue) => {
 
   handleInputChange()
 
-  // 统一在这里更新位置，使用nextTick确保DOM已更新
-  nextTick(() => {
-    updateButtonPosition()
-  })
+  // 用户编辑时：使用防抖更新位置，避免频繁跳动
+  if (positionUpdateTimer) {
+    clearTimeout(positionUpdateTimer)
+  }
+  positionUpdateTimer = setTimeout(() => {
+    nextTick(() => {
+      updateButtonPosition()
+    })
+  }, 50) // 50ms防抖，保持响应性的同时减少抖动
 })
 
 const handleInputChange = () => {
@@ -202,6 +208,15 @@ const updateButtonPosition = () => {
     container: floatingContainerRef.value!,
     textValue: textValue.value,
     placeholder: props.placeholder,
+    forceEndPosition: true, // 始终使用文本末尾位置
+  })
+}
+
+// 处理input事件（用于中文输入法期间的位置更新）
+const handleInputForPosition = () => {
+  // 立即更新位置，不使用防抖，确保中文输入时跟随
+  nextTick(() => {
+    updateButtonPosition()
   })
 }
 
@@ -528,6 +543,9 @@ onBeforeUnmount(() => {
   if (streamingTimer) {
     clearInterval(streamingTimer)
   }
+  if (positionUpdateTimer) {
+    clearTimeout(positionUpdateTimer)
+  }
 })
 </script>
 
@@ -538,6 +556,7 @@ onBeforeUnmount(() => {
       :model-value="textValue"
       :placeholder="placeholder"
       @update:model-value="textValue = $event"
+      @input="handleInputForPosition"
       @focus="emit('focus')"
       @blur="emit('blur')"
       @scroll="updateButtonPosition"

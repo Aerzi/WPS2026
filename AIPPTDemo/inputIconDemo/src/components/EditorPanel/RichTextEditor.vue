@@ -24,6 +24,7 @@ const emit = defineEmits<{
 
 const editorRef = ref<HTMLDivElement | null>(null)
 const isComposing = ref(false) // 中文输入法标志
+const isInternalUpdate = ref(false) // 标记是否是内部更新（用户输入）
 
 // 保存光标位置
 let savedSelection: { start: number; end: number } | null = null
@@ -131,20 +132,26 @@ const setCaretPosition = (position: number) => {
 
 // 处理输入事件
 const handleInput = () => {
-  if (!editorRef.value || isComposing.value) return
+  if (!editorRef.value) return
+
+  // 如果正在中文输入，只触发input事件（用于位置更新），不更新modelValue
+  if (isComposing.value) {
+    const textWithMarkers = extractTextWithMarkers(editorRef.value)
+    emit('input', textWithMarkers)
+    return
+  }
 
   const textWithMarkers = extractTextWithMarkers(editorRef.value)
   
-  // 如果文本为空，强制清空编辑器，确保placeholder可以显示
-  if (textWithMarkers.trim() === '') {
-    editorRef.value.textContent = ''
-  }
-  
+  // 标记为内部更新，避免watch重新渲染
+  isInternalUpdate.value = true
   emit('update:modelValue', textWithMarkers)
   emit('input', textWithMarkers)
-
-  // 注意：不在这里重新渲染，让 watch 来处理
-  // 避免用户输入时的无限循环
+  
+  // 在下一个tick后重置标志
+  nextTick(() => {
+    isInternalUpdate.value = false
+  })
 }
 
 // 处理中文输入法
@@ -163,9 +170,8 @@ watch(
   (newValue, oldValue) => {
     if (!editorRef.value) return
 
-    // 如果新值为空，强制清空编辑器
-    if (!newValue || newValue.trim() === '') {
-      editorRef.value.textContent = ''
+    // 如果是内部更新（用户输入），不重新渲染，避免光标跳转
+    if (isInternalUpdate.value) {
       return
     }
 
