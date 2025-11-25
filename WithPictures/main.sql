@@ -1,34 +1,39 @@
 -- 1. 创建一个 CTE (all_data) 来合并两个表的数据
 WITH all_data AS 
-    (SELECT id,
+    (SELECT dt, -- [修改] 增加 dt 字段
+         id,
          strategy,
          behavior,
          _account_id,
          request_id
     FROM dw_wps_weboffice.ai_illustration
-    WHERE dt = '2025-11-23'
+    WHERE dt BETWEEN '2025-11-21' AND '2025-11-23'
     UNION ALL
-     SELECT id,
+     SELECT dt, -- [修改] 增加 dt 字段
+         id,
          strategy,
          behavior,
          _account_id,
          request_id
     FROM dw_wps_office_web_doc.ai_illustration
-    WHERE dt = '2025-11-23'),
+    WHERE dt BETWEEN '2025-11-21' AND '2025-11-23'),
 
 -- 2. 在合并后的数据基础上进行分类
     dw_tb AS 
-    (SELECT id,
+    (SELECT dt, -- [修改] 传递 dt 字段
+        id,
         CASE
             WHEN strategy LIKE 'ai_%' THEN '生图配图'
             WHEN strategy LIKE 'auto_%' THEN '智能配图'
             WHEN strategy LIKE 'gallery_%' THEN '图库配图'
-            -- 注意：这里没有 ELSE，会导致 NULL
         END AS picture_mode,
         CASE
-            WHEN id LIKE '%/v3/%' OR id LIKE '%/doubao_v3/%' THEN 'v3'
-            WHEN strategy LIKE '%3.0.2%' THEN 'v2'
-            ELSE 'v1'
+            WHEN strategy LIKE '%qingqiu%' THEN
+                CASE 
+                    WHEN id LIKE '%/v3/%' THEN 'v3'
+                    ELSE '非v3'
+                END
+            ELSE NULL 
         END AS version,
         strategy,
         behavior,
@@ -46,7 +51,8 @@ WITH all_data AS
 
 -- 4. 聚合 CTE：进行 CUBE 并只过滤聚合指标
     aggregated_data AS 
-    (SELECT MIN(id) AS id,
+    (SELECT dt, -- [修改] 增加 dt 字段
+             -- [修改] 移除 MIN(id)
              picture_mode,
              strategy,
              version,
@@ -62,7 +68,8 @@ WITH all_data AS
     JOIN recall_tb b
         ON a.request_id = b.join_request_id
     WHERE a.picture_mode IS NOT NULL
-    GROUP BY CUBE(picture_mode, strategy, version)
+    -- [修改] 在 GROUP BY 中加入 dt，实现逐日聚合
+    GROUP BY dt, CUBE(picture_mode, strategy, version)
     HAVING COUNT(DISTINCT IF(behavior = 'recall', _account_id, NULL)) > 100),
 
 -- 5. 过滤 CTE：保留汇总行和明细行
@@ -72,7 +79,7 @@ WITH all_data AS
     WHERE (grp_picture_mode = 1 OR picture_mode IS NOT NULL))
 
 -- 6. 最终 SELECT：从 filtered_data 中选择和格式化
-SELECT id AS `编号`,
+SELECT dt AS `日期`, -- [修改] 将 dt 作为第一列，并移除 id
      COALESCE(picture_mode, '总') AS `配图模式`,
      COALESCE(strategy, '总') AS `配图策略`,
      COALESCE(version, '总') AS `版本`,
@@ -103,4 +110,5 @@ SELECT id AS `编号`,
          ELSE NULL
      END AS `删图率(uv)`
 FROM filtered_data
-ORDER BY picture_mode DESC, version DESC;
+-- [修改] 优先按日期倒序，再按配图模式和版本
+ORDER BY dt DESC, picture_mode DESC, version DESC;
