@@ -8,6 +8,8 @@ import json
 import argparse
 from pathlib import Path
 import logging
+from datetime import datetime
+from typing import Dict
 
 # 添加当前目录到Python路径
 sys.path.insert(0, os.path.dirname(__file__))
@@ -15,6 +17,8 @@ sys.path.insert(0, os.path.dirname(__file__))
 from data_loader import DataLoader
 from analyzer import FeedbackAnalyzer
 from report_generator import ReportGenerator
+from request_analyzer import RequestAnalyzer
+from request_report_generator import RequestReportGenerator
 
 # 配置日志
 logging.basicConfig(
@@ -31,23 +35,52 @@ logger = logging.getLogger(__name__)
 class FeedbackAnalysisSystem:
     """用户反馈分析系统主类"""
     
-    def __init__(self, config_path: str = None):
+    def __init__(self, config_path: str = None, input_filename: str = None, analysis_type: str = 'feedback'):
         """
         初始化系统
         
         Args:
             config_path: 配置文件路径
+            input_filename: 输入文件名（用于命名输出文件夹）
+            analysis_type: 分析类型 ('feedback' 反馈分析 或 'request' 请求分析)
         """
         self.config = self._load_config(config_path)
         self.data_loader = DataLoader()
-        self.analyzer = FeedbackAnalyzer(
-            custom_dict_path=self.config.get('custom_dict_path')
-        )
-        self.report_generator = ReportGenerator(
-            output_dir=self.config.get('output_dir', 'output')
-        )
+        self.analysis_type = analysis_type
         
-        logger.info("系统初始化完成")
+        if analysis_type == 'request':
+            # 请求分析模式
+            self.analyzer = RequestAnalyzer(
+                custom_dict_path=self.config.get('custom_dict_path')
+            )
+            # 创建输出目录
+            output_base = self.config.get('output_dir', 'output')
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            if input_filename:
+                safe_name = input_filename.replace('/', '_').replace('\\', '_')
+                safe_name = safe_name.replace(':', '_').replace('*', '_')
+                safe_name = safe_name.replace('?', '_').replace('"', '_')
+                safe_name = safe_name.replace('<', '_').replace('>', '_')
+                safe_name = safe_name.replace('|', '_')
+                if len(safe_name) > 50:
+                    safe_name = safe_name[:50]
+                folder_name = f"{safe_name}_{timestamp}"
+            else:
+                folder_name = f"请求分析_{timestamp}"
+            output_dir = os.path.join(output_base, folder_name)
+            
+            self.report_generator = RequestReportGenerator(output_dir=output_dir)
+        else:
+            # 反馈分析模式（默认）
+            self.analyzer = FeedbackAnalyzer(
+                custom_dict_path=self.config.get('custom_dict_path')
+            )
+            self.report_generator = ReportGenerator(
+                output_dir=self.config.get('output_dir', 'output'),
+                input_filename=input_filename
+            )
+        
+        logger.info(f"系统初始化完成 - 分析类型: {analysis_type}")
     
     def _load_config(self, config_path: str = None) -> dict:
         """加载配置文件"""
@@ -70,6 +103,21 @@ class FeedbackAnalysisSystem:
         return default_config
     
     def analyze_from_excel(self, file_path: str) -> dict:
+        """
+        从Excel文件分析数据（根据analysis_type自动选择分析模式）
+        
+        Args:
+            file_path: Excel文件路径
+            
+        Returns:
+            分析结果字典
+        """
+        if self.analysis_type == 'request':
+            return self._analyze_requests(file_path)
+        else:
+            return self._analyze_feedbacks(file_path)
+    
+    def _analyze_feedbacks(self, file_path: str) -> dict:
         """
         从Excel文件分析用户反馈
         
@@ -129,6 +177,73 @@ class FeedbackAnalysisSystem:
                 'analysis_results': analysis_results,
                 'summary': summary,
                 'pain_points': pain_points,
+                'report_files': report_files
+            }
+            
+        except Exception as e:
+            logger.error(f"分析失败: {str(e)}", exc_info=True)
+            raise
+    
+    def _analyze_requests(self, file_path: str) -> dict:
+        """
+        从Excel文件分析用户请求
+        
+        Args:
+            file_path: Excel文件路径
+            
+        Returns:
+            分析结果字典
+        """
+        logger.info("=" * 60)
+        logger.info("开始用户请求分析流程")
+        logger.info("=" * 60)
+        
+        try:
+            # 步骤1: 加载数据
+            logger.info("步骤 1/4: 加载数据...")
+            requests = self.data_loader.load_from_excel(
+                file_path,
+                feedback_column=self.config.get('feedback_column')
+            )
+            data_report = self.data_loader.validate_data(requests)
+            
+            if not requests:
+                raise ValueError("没有有效的请求数据")
+            
+            # 步骤2: 请求分类
+            logger.info("步骤 2/4: 进行请求分类...")
+            analysis_results = self.analyzer.batch_classify_requests(requests)
+            
+            # 步骤3: 提取功能需求
+            logger.info("步骤 3/4: 提取高频功能需求...")
+            features = self.analyzer.extract_features(
+                requests,
+                topK=self.config.get('top_pain_points', 20)
+            )
+            
+            # 生成摘要
+            summary = self.analyzer.generate_summary(analysis_results)
+            
+            # 步骤4: 生成报告
+            logger.info("步骤 4/4: 生成分析报告...")
+            report_files = self.report_generator.generate_full_report(
+                analysis_results,
+                summary,
+                features
+            )
+            
+            # 打印结果
+            self._print_request_summary(summary, features, report_files)
+            
+            logger.info("=" * 60)
+            logger.info("分析流程完成！")
+            logger.info("=" * 60)
+            
+            return {
+                'data_report': data_report,
+                'analysis_results': analysis_results,
+                'summary': summary,
+                'features': features,
                 'report_files': report_files
             }
             
@@ -212,6 +327,40 @@ class FeedbackAnalysisSystem:
                     print(f"  {key:15s}: {os.path.abspath(path)}")
             print("=" * 60 + "\n")
         except UnicodeEncodeError:
+            logger.info("控制台输出完成（部分字符因编码问题未显示）")
+    
+    def _print_request_summary(self, summary: Dict, features: list, report_files: dict):
+        """打印请求分析摘要"""
+        try:
+            print("\n" + "=" * 60)
+            print("[分析摘要]")
+            print("=" * 60)
+            print(f"总请求数: {summary['total_requests']}")
+            print(f"高紧急度: {summary['high_urgency_count']} ({summary['high_urgency_ratio']}%)")
+            
+            print("\n" + "=" * 60)
+            print("[请求类型分布]")
+            print("=" * 60)
+            for req_type, count in summary['type_distribution'].items():
+                ratio = count / summary['total_requests'] * 100
+                print(f"{req_type}: {count} ({ratio:.1f}%)")
+            
+            print("\n" + "=" * 60)
+            print("[Top 10 高频功能需求]")
+            print("=" * 60)
+            for i, (feature, freq) in enumerate(features[:10], 1):
+                print(f"{i:2d}. {feature:20s} - {freq} 次")
+            
+            print("\n" + "=" * 60)
+            print("[生成的报告文件]")
+            print("=" * 60)
+            for key, path in report_files.items():
+                if path:
+                    print(f"  {key:15s}: {os.path.abspath(path)}")
+            print("=" * 60 + "\n")
+        except UnicodeEncodeError:
+            logger.info("控制台输出完成（部分字符因编码问题未显示）")
+        except UnicodeEncodeError:
             # 如果遇到编码错误，输出简化版本
             logger.info("控制台输出完成（部分字符因编码问题未显示）")
 
@@ -240,6 +389,12 @@ def main():
         help='反馈内容列名（不指定则自动检测）',
         default=None
     )
+    parser.add_argument(
+        '--type',
+        choices=['feedback', 'request'],
+        default='feedback',
+        help='分析类型：feedback=反馈分析（默认），request=请求分析'
+    )
     
     args = parser.parse_args()
     
@@ -247,6 +402,9 @@ def main():
     if not os.path.exists(args.input_file):
         print(f"错误: 文件不存在 - {args.input_file}")
         sys.exit(1)
+    
+    # 获取输入文件名（不含扩展名）
+    input_filename = os.path.splitext(os.path.basename(args.input_file))[0]
     
     # 创建配置
     config = {
@@ -266,8 +424,12 @@ def main():
             config_path = f.name
     
     try:
-        # 初始化系统
-        system = FeedbackAnalysisSystem(config_path)
+        # 初始化系统（传入文件名和分析类型）
+        system = FeedbackAnalysisSystem(
+            config_path, 
+            input_filename=input_filename,
+            analysis_type=args.type
+        )
         
         # 执行分析
         result = system.analyze_from_excel(args.input_file)
@@ -311,7 +473,7 @@ if __name__ == "__main__":
         ] * 10  # 重复以生成更多数据
         
         # 运行分析
-        system = FeedbackAnalysisSystem()
+        system = FeedbackAnalysisSystem(input_filename="演示数据")
         result = system.analyze_from_list(demo_feedbacks)
         
         print("\n[提示] 要分析自己的Excel文件，请使用以下命令:")

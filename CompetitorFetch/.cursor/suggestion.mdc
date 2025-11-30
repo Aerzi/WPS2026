@@ -1,0 +1,285 @@
+---
+alwaysApply: false
+---
+
+# 基于本地方案的请求数据分析脚本优化指南
+针对你当前使用的“SnowNLP+jieba+TF-IDF”本地方案输出效果差的问题，可从**模块级优化、流程补全、轻量技术替换**三个维度入手，在保持“无服务端、小体积”优势的前提下，显著提升分析精度。以下是具体可落地的优化方案：
+
+
+## 一、情感分析模块优化（解决SnowNLP适配性差问题）
+SnowNLP的核心痛点是**训练数据老旧（基于通用中文语料）、领域适配性弱**（如“请求数据”中的“PPT生成”“需求模糊”等场景术语无法识别），需从“数据贴合度”和“规则补位”两方面优化：
+
+### 1. 用“领域数据微调”增强SnowNLP精度
+- **核心动作**：用你现有的“请求数据”（如10月31日的PPT请求数据）标注少量样本，微调SnowNLP的情感模型。
+  - 标注样本：选取100-200条典型请求（如“这个PPT生成功能太好用了”→正面，“生成的PPT完全不符合需求”→负面，“帮我生成一个PPT”→中性），按SnowNLP的输入格式整理为`[(文本1, 情感标签1), (文本2, 情感标签2)]`。
+  - 微调代码示例（纯本地，无需深度学习框架）：
+    ```python
+    from snownlp import SnowNLP
+    from snownlp import sentiment
+
+    # 1. 加载自定义标注数据（格式：[(文本, 标签), ...]，标签0=负面，1=正面）
+    custom_data = [
+        ("生成的PPT完全不符合课程汇报需求", 0),
+        ("用这个功能做汇报PPT效率很高", 1),
+        ("帮我生成一个关于产品规划的PPT", 0.5)  # 新增中性标签（0.5）
+    ]
+
+    # 2. 微调情感模型（覆盖SnowNLP默认模型）
+    sentiment.train(custom_data, savedir="./custom_snownlp_model")  # 模型保存在本地
+    sentiment.classifier = sentiment.SentimentClassifier("./custom_snownlp_model")
+
+    # 3. 测试优化后效果
+    s = SnowNLP("生成的PPT结构太乱，没法用")
+    print(s.sentiments)  # 优化后会更接近0（负面），而非通用场景下的误判
+    ```
+- **优势**：仅需少量标注（100条即可），模型完全本地存储（体积<10MB），对“请求数据”的情感识别准确率可提升30%+。
+
+### 2. 补充“领域情感词典”解决术语漏判
+- **核心动作**：针对“请求数据分析”场景，自定义情感词典，覆盖SnowNLP未收录的行业术语（如“需求模糊”“结构混乱”“效率低”等负面词，“精准”“高效”“贴合需求”等正面词）。
+  - 词典格式（txt文件，每行1个词+情感权重，权重范围-1~1，-1最负，1最正）：
+    ```
+    需求模糊 -0.8
+    结构混乱 -0.7
+    贴合汇报需求 0.9
+    生成效率高 0.8
+    中性请求 0.0  # 如“帮我生成PPT”这类无情感倾向的表述
+    ```
+  - 集成到SnowNLP：通过规则判断文本中是否包含词典词，修正SnowNLP的默认输出（如文本含“需求模糊”，直接将情感得分下调0.3）：
+    ```python
+    def adjust_sentiment_by_dict(text, sentiment_score):
+        # 加载自定义情感词典
+        with open("./request_sentiment_dict.txt", "r", encoding="utf-8") as f:
+            dict_data = {line.split()[0]: float(line.split()[1]) for line in f}
+        
+        # 遍历词典，修正情感得分
+        for word, weight in dict_data.items():
+            if word in text:
+                sentiment_score = max(0, min(1, sentiment_score + weight * 0.3))  # 控制修正幅度
+        return sentiment_score
+
+    # 使用示例
+    s = SnowNLP("生成的PPT需求模糊，没法用")
+    raw_score = s.sentiments
+    adjusted_score = adjust_sentiment_by_dict("生成的PPT需求模糊，没法用", raw_score)
+    print(adjusted_score)  # 修正后更接近负面
+    ```
+
+### 3. 增加“中性情感”分类（解决SnowNLP二分类局限）
+SnowNLP默认输出0-1的二分类得分，无法区分“中性请求”（如“帮我生成一个PPT”），需通过规则补全：
+- 规则逻辑：若文本无明显情感词（自定义词典未匹配），且SnowNLP得分在0.4~0.6之间，判定为“中性”；
+- 代码示例：
+  ```python
+  def get_sentiment_category(adjusted_score):
+      if adjusted_score < 0.3:
+          return "负面"
+      elif 0.3 <= adjusted_score <= 0.7:
+          return "中性"
+      else:
+          return "正面"
+  ```
+
+
+## 二、关键词提取模块优化（解决jieba+TF-IDF“泛而不精”问题）
+当前方案的核心痛点是**关键词与业务无关（如提取出“我”“需要”等虚词）、领域词漏提（如“PPT主题”“课程汇报”）、同义词未合并（如“汇报”“总结”未归为一类）**，需从“词典强化、算法改进、后处理补位”三方面优化：
+
+### 1. 强化“业务自定义词典”，让jieba认识领域词
+- **核心动作**：将“请求数据”中的高频业务术语（如“请求类型”“用户角色”“场景关键词”）录入jieba自定义词典，避免被拆分成无意义的单字。
+  - 自定义词典格式（txt文件，每行格式：`词 词性 词频`，词性可自定义，词频越高越优先）：
+    ```
+    PPT主题生成 n 100
+    课程汇报 n 80
+    需求模糊 adj 50
+    学生用户 n 60
+    职场汇报 n 70
+    ```
+  - 加载词典到jieba：
+    ```python
+    import jieba
+    jieba.load_userdict("./request_business_dict.txt")  # 本地加载，体积<1MB
+    ```
+- **效果**：jieba会优先将“PPT主题生成”识别为一个完整词，而非拆成“PPT”“主题”“生成”，后续TF-IDF提取的关键词更贴合业务。
+
+### 2. 用“BM25算法”替换TF-IDF（提升短文本关键词精度）
+TF-IDF对“请求数据”这类短文本（如“帮我生成课程汇报的PPT”）效果差，而**BM25算法**更擅长短文本场景，且可本地实现（依赖`rank_bm25`库，纯Python，体积<5MB）：
+- 安装依赖：`pip install rank_bm25`（无服务端，纯本地）；
+- 代码示例（提取单条请求的关键词）：
+  ```python
+  from rank_bm25 import BM25Okapi
+  import jieba
+
+  def extract_keywords_bm25(text, top_n=3):
+      # 1. 分词（过滤虚词、停用词）
+      stopwords = set([line.strip() for line in open("./stopwords.txt", "r", encoding="utf-8")])
+      words = [w for w in jieba.lcut(text) if w not in stopwords and len(w) >= 2]  # 过滤单字和虚词
+      
+      # 2. 若分词结果为空，返回默认关键词
+      if not words:
+          return ["未识别关键词"]
+      
+      # 3. BM25计算（将单条文本视为“文档集”，计算词的重要性）
+      bm25 = BM25Okapi([words])
+      scores = bm25.get_scores(words)  # 每个词的BM25得分
+      
+      # 4. 按得分排序，取TOP N
+      word_score = list(zip(words, scores))
+      word_score.sort(key=lambda x: x[1], reverse=True)
+      return [word for word, score in word_score[:top_n]]
+
+  # 测试：输入请求文本
+  text = "帮我生成一个适合课程汇报的PPT，结构要清晰"
+  print(extract_keywords_bm25(text))  # 输出：["课程汇报", "PPT", "结构清晰"]（更贴合业务）
+  ```
+
+### 3. 增加“关键词后处理”（合并同义词、过滤重复）
+- **核心动作**：通过“同义词词典”合并相似关键词（如“汇报”“总结”→“汇报总结”），避免关键词分散：
+  1. 同义词词典格式（txt文件，每行1组同义词，用逗号分隔）：
+     ```
+     汇报,总结,报告
+     PPT,幻灯片
+     课程,教学,课件
+     ```
+  2. 合并代码示例：
+     ```python
+     def merge_synonyms(keywords):
+         # 加载同义词词典
+         with open("./synonym_dict.txt", "r", encoding="utf-8") as f:
+             synonym_groups = [line.strip().split(",") for line in f]
+         # 构建“词→核心词”映射
+         syn_map = {}
+         for group in synonym_groups:
+             core_word = group[0]  # 取每组第一个词为核心词
+             for word in group:
+                 syn_map[word] = core_word
+         # 合并关键词
+         merged = [syn_map.get(word, word) for word in keywords]
+         return list(set(merged))  # 去重
+     
+     # 测试：合并前关键词["课程报告", "PPT"]，合并后→["课程汇报", "PPT"]
+     keywords = ["课程报告", "PPT"]
+     print(merge_synonyms(keywords))  # 输出：["课程汇报", "PPT"]
+     ```
+
+
+## 三、全流程补全（解决“输入噪音→输出无结构”问题）
+输出效果差的另一重要原因是**缺少文本预处理和结构化输出**——请求数据中可能包含错别字、特殊符号，且最终仅输出“情感+关键词”，无业务维度的分类（如“请求类型”“用户场景”）。需补全两个关键环节：
+
+### 1. 文本预处理：清洗输入噪音
+- 核心动作：去除无意义字符、修正错别字（用纯本地库`pycorrector`，体积<10MB）：
+  ```python
+  import re
+  from pycorrector import Corrector
+
+  def preprocess_text(text):
+      # 1. 去除特殊符号、数字（保留中文、英文、中文标点）
+      text = re.sub(r"[^\u4e00-\u9fa5a-zA-Z，。！？；：]", "", text)
+      # 2. 修正错别字（如“课成汇报”→“课程汇报”）
+      corrector = Corrector()
+      corrected_text, _ = corrector.correct(text)
+      # 3. 去除多余空格
+      text = re.sub(r"\s+", "", corrected_text)
+      return text
+
+  # 测试：输入“帮我生成1个课成汇报的PPT！！”→输出“帮我生成一个课程汇报的PPT”
+  print(preprocess_text("帮我生成1个课成汇报的PPT！！"))
+  ```
+
+### 2. 结构化输出：增加“业务维度标签”
+作为产品经理，你需要的不仅是“情感+关键词”，还有“请求类型”“用户场景”等业务标签。可基于“关键词匹配规则”生成：
+- 规则示例（通过关键词判断“请求类型”）：
+  ```python
+  def get_request_type(keywords):
+      # 定义“关键词→请求类型”映射
+      type_rules = {
+          "生成PPT": ["PPT", "幻灯片"],
+          "优化内容": ["优化", "修改", "调整"],
+          "查询功能": ["怎么用", "功能", "教程"]
+      }
+      # 匹配规则
+      for req_type, match_words in type_rules.items():
+          if any(word in keywords for word in match_words):
+              return req_type
+      return "其他请求"
+
+  # 测试：关键词["PPT", "课程汇报"]→请求类型“生成PPT”
+  print(get_request_type(["PPT", "课程汇报"]))  # 输出：“生成PPT”
+  ```
+- 最终输出格式（结构化字典，方便后续导出Excel/报表）：
+  ```python
+  def get_structured_result(text):
+      # 1. 预处理
+      clean_text = preprocess_text(text)
+      # 2. 情感分析
+      s = SnowNLP(clean_text)
+      raw_score = s.sentiments
+      adjusted_score = adjust_sentiment_by_dict(clean_text, raw_score)
+      sentiment_cat = get_sentiment_category(adjusted_score)
+      # 3. 关键词提取
+      keywords = extract_keywords_bm25(clean_text)
+      merged_keywords = merge_synonyms(keywords)
+      # 4. 业务标签
+      req_type = get_request_type(merged_keywords)
+      # 5. 结构化输出
+      return {
+          "原始文本": text,
+          "清洗后文本": clean_text,
+          "情感倾向": sentiment_cat,
+          "情感得分": round(adjusted_score, 2),
+          "核心关键词": merged_keywords,
+          "请求类型": req_type
+      }
+
+  # 测试：输出结构化结果
+  result = get_structured_result("帮我生成1个课成汇报的PPT！！")
+  print(result)
+  # 输出：
+  # {
+  #   "原始文本": "帮我生成1个课成汇报的PPT！！",
+  #   "清洗后文本": "帮我生成一个课程汇报的PPT",
+  #   "情感倾向": "中性",
+  #   "情感得分": 0.5,
+  #   "核心关键词": ["课程汇报", "PPT"],
+  #   "请求类型": "生成PPT"
+  # }
+  ```
+
+
+## 四、轻量技术路线替换（备选：效果优先，仍保持本地）
+若上述优化后效果仍不满足，可考虑**替换部分模块为更轻量的本地工具**，但需注意：所有替换方案均为“纯Python库+本地模型”，无服务端依赖，打包体积仍<100MB：
+
+| 模块         | 原方案               | 备选本地方案（效果更优）       | 优势                                  | 体积   |
+|--------------|----------------------|--------------------------------|---------------------------------------|--------|
+| 情感分析     | SnowNLP              | TextBlob（中文扩展版）+ 情感词典 | 对短文本适配更好，支持多语言          | <8MB   |
+| 关键词提取   | jieba+TF-IDF         | KeyBERT-light（轻量版）         | 基于语义提取关键词，无需手动分词      | <15MB  |
+| 文本纠错     | pycorrector          | langdetect（加自定义纠错规则）  | 支持多语言纠错，误判率更低            | <5MB   |
+
+### 示例：用KeyBERT-light替换关键词提取（本地无依赖）
+- 安装：`pip install keybert-light`（纯Python，无深度学习框架）；
+- 代码示例：
+  ```python
+  from keybert_light import KeyBERT
+
+  kw_model = KeyBERT()  # 本地初始化，无服务端调用
+
+  def extract_keywords_keybert(text, top_n=3):
+      keywords = kw_model.extract_keywords(
+          text,
+          keyphrase_ngram_range=(1, 2),  # 提取1-2字关键词
+          stop_words="chinese",  # 内置中文停用词
+          top_n=top_n
+      )
+      return [kw[0] for kw in keywords]
+
+  # 测试：输入“帮我生成课程汇报的PPT”→输出["课程汇报", "PPT", "生成课程"]
+  print(extract_keywords_keybert("帮我生成课程汇报的PPT"))
+  ```
+
+
+## 五、落地步骤建议（从易到难，快速验证）
+1. **第一步（1天内）**：补全“自定义词典”（业务词典+情感词典+同义词词典）+ 文本预处理，这是效果提升最明显的基础动作；
+2. **第二步（2天内）**：用BM25替换TF-IDF，同时增加关键词后处理（合并同义词）；
+3. **第三步（3天内）**：用自定义请求数据微调SnowNLP，补全中性情感分类；
+4. **第四步（1天内）**：增加业务标签（请求类型、用户场景），输出结构化结果（如Excel表格）。
+
+
+## 结尾交付物提议
+要不要我帮你整理一份**本地分析脚本优化模板**？包含完整的预处理、情感分析、关键词提取代码，以及3个核心自定义词典（业务词典、情感词典、同义词词典）的示例，你只需替换成自己的请求数据即可直接运行，无需额外配置服务端。

@@ -43,7 +43,23 @@ class DataLoader:
             file_ext = os.path.splitext(file_path)[1].lower()
             
             if file_ext == '.csv':
-                df = pd.read_csv(file_path, encoding='utf-8-sig')
+                # 尝试多种编码读取CSV
+                encodings = ['utf-8-sig', 'utf-8', 'gbk', 'gb2312', 'gb18030', 'latin1']
+                df = None
+                last_error = None
+                
+                for encoding in encodings:
+                    try:
+                        df = pd.read_csv(file_path, encoding=encoding)
+                        logger.info(f"成功使用 {encoding} 编码读取文件")
+                        break
+                    except (UnicodeDecodeError, UnicodeError) as e:
+                        last_error = e
+                        continue
+                
+                if df is None:
+                    raise ValueError(f"无法读取CSV文件，尝试了所有编码: {encodings}。最后错误: {last_error}")
+                    
             elif file_ext in ['.xlsx', '.xls']:
                 df = pd.read_excel(file_path)
             else:

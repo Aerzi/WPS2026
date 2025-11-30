@@ -3,6 +3,7 @@
 # 核心NLP库
 snownlp>=0.12.3
 jieba>=0.42.1
+rank-bm25>=0.2.2
 
 # 数据处理
 pandas>=2.0.0

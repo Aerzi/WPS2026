@@ -21,16 +21,43 @@ logger = logging.getLogger(__name__)
 class ReportGenerator:
     """报表生成器"""
     
-    def __init__(self, output_dir: str = "output"):
+    def __init__(self, output_dir: str = "output", create_subdir: bool = True, input_filename: str = None):
         """
         初始化报表生成器
         
         Args:
             output_dir: 输出目录
+            create_subdir: 是否为每次分析创建子目录
+            input_filename: 输入文件名（用于命名子目录）
         """
-        self.output_dir = output_dir
-        os.makedirs(output_dir, exist_ok=True)
-        logger.info(f"报表输出目录: {output_dir}")
+        self.base_output_dir = output_dir
+        self.create_subdir = create_subdir
+        
+        # 如果需要创建子目录，使用文件名_时间戳
+        if create_subdir:
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            
+            # 清理文件名（移除特殊字符）
+            if input_filename:
+                # 移除不安全的文件名字符
+                safe_filename = input_filename.replace('/', '_').replace('\\', '_')
+                safe_filename = safe_filename.replace(':', '_').replace('*', '_')
+                safe_filename = safe_filename.replace('?', '_').replace('"', '_')
+                safe_filename = safe_filename.replace('<', '_').replace('>', '_')
+                safe_filename = safe_filename.replace('|', '_')
+                # 限制长度
+                if len(safe_filename) > 50:
+                    safe_filename = safe_filename[:50]
+                folder_name = f"{safe_filename}_{timestamp}"
+            else:
+                folder_name = f"分析报告_{timestamp}"
+                
+            self.output_dir = os.path.join(output_dir, folder_name)
+        else:
+            self.output_dir = output_dir
+            
+        os.makedirs(self.output_dir, exist_ok=True)
+        logger.info(f"报表输出目录: {self.output_dir}")
     
     def generate_excel_report(
         self, 
@@ -52,8 +79,7 @@ class ReportGenerator:
             生成的文件路径
         """
         if filename is None:
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            filename = f"用户反馈分析报告_{timestamp}.xlsx"
+            filename = "分析报告.xlsx"
         
         filepath = os.path.join(self.output_dir, filename)
         
@@ -117,8 +143,7 @@ class ReportGenerator:
             图片文件路径
         """
         if filename is None:
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            filename = f"情感分布_{timestamp}.png"
+            filename = "情感分布图.png"
         
         filepath = os.path.join(self.output_dir, filename)
         
@@ -171,8 +196,7 @@ class ReportGenerator:
             图片文件路径
         """
         if filename is None:
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            filename = f"痛点词云_{timestamp}.png"
+            filename = "痛点词云图.png"
         
         filepath = os.path.join(self.output_dir, filename)
         
@@ -226,8 +250,7 @@ class ReportGenerator:
             图片文件路径
         """
         if filename is None:
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            filename = f"痛点排行_{timestamp}.png"
+            filename = "痛点排行图.png"
         
         filepath = os.path.join(self.output_dir, filename)
         
@@ -297,12 +320,85 @@ class ReportGenerator:
         # 生成柱状图
         files['bar_chart'] = self.generate_bar_chart(pain_points)
         
+        # 生成README说明文件
+        self._generate_readme(summary, pain_points)
+        
         logger.info("=" * 50)
         logger.info("完整报告生成完成！")
         logger.info(f"输出目录: {os.path.abspath(self.output_dir)}")
         logger.info("=" * 50)
         
         return files
+    
+    def _generate_readme(self, summary: Dict, pain_points: List[tuple]):
+        """
+        生成README说明文件
+        
+        Args:
+            summary: 统计摘要
+            pain_points: 痛点列表
+        """
+        readme_path = os.path.join(self.output_dir, "README.txt")
+        
+        content = f"""用户反馈分析报告
+{'=' * 50}
+
+生成时间: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
+
+{'=' * 50}
+分析摘要
+{'=' * 50}
+
+总反馈数: {summary['total_feedback']}
+正面反馈: {summary['positive_count']} ({summary['positive_ratio']}%)
+中性反馈: {summary['neutral_count']} ({summary['neutral_ratio']}%)
+负面反馈: {summary['negative_count']} ({summary['negative_ratio']}%)
+平均情感得分: {summary['avg_sentiment_score']}
+
+{'=' * 50}
+Top 10 高频痛点
+{'=' * 50}
+
+"""
+        for i, (word, freq) in enumerate(pain_points[:10], 1):
+            content += f"{i:2d}. {word:15s} - {freq} 次\n"
+        
+        content += f"""
+{'=' * 50}
+报告文件说明
+{'=' * 50}
+
+1. 分析报告.xlsx - 详细的Excel报表
+   - Sheet 1: 详细分析（每条反馈的情感分类）
+   - Sheet 2: 统计摘要（总体数据）
+   - Sheet 3: 高频痛点（问题排行）
+
+2. 情感分布图.png - 正面/负面/中性占比饼图
+
+3. 痛点词云图.png - 高频问题词云可视化
+
+4. 痛点排行图.png - Top 15 问题柱状图
+
+5. README.txt - 本说明文件
+
+{'=' * 50}
+使用建议
+{'=' * 50}
+
+1. 重点关注"负面反馈"和"高频痛点"
+2. 对比不同时期的报告，观察趋势变化
+3. 结合业务场景，制定改进措施
+4. 定期分析，持续优化产品体验
+
+{'=' * 50}
+"""
+        
+        try:
+            with open(readme_path, 'w', encoding='utf-8') as f:
+                f.write(content)
+            logger.info(f"已生成说明文件: {readme_path}")
+        except Exception as e:
+            logger.warning(f"生成README失败: {e}")
 
 
 if __name__ == "__main__":
