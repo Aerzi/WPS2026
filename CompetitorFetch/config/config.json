@@ -1,0 +1,17 @@
+{
+  "description": "用户反馈分析系统配置文件",
+  "custom_dict_path": null,
+  "output_dir": "output",
+  "feedback_column": null,
+  "top_pain_points": 20,
+  "sentiment_thresholds": {
+    "positive_min": 0.6,
+    "neutral_min": 0.4
+  },
+  "report_settings": {
+    "generate_excel": true,
+    "generate_pie_chart": true,
+    "generate_wordcloud": true,
+    "generate_bar_chart": true
+  }
+}
