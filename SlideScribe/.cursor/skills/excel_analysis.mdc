@@ -1,0 +1,53 @@
+---
+alwaysApply: false
+---
+
+# Skill: Excel 数据自动化处理与分析 (XLSX to CSV & Insight)
+
+本 Skill 用于快速处理项目中的 Excel 原始数据，并将其转化为结构化的分析洞察。
+
+## 1. 数据转换技巧 (XLSX -> CSV)
+当无法直接读取 `.xlsx` 文件时，使用以下 Python 脚本进行静默转换。
+
+### 核心代码
+```python
+import pandas as pd
+import os
+
+def convert_to_csv(file_path):
+    df = pd.read_excel(file_path)
+    csv_path = file_path.replace('.xlsx', '.csv')
+    df.to_csv(csv_path, index=False, encoding='utf-8-sig')
+    return csv_path
+```
+
+### 使用场景
+- 自动化流水线：在分析前置步骤中运行。
+- 环境兼容：解决部分环境库缺失对 Excel 的直接支持。
+
+## 2. 负反馈清洗与聚类 (Skill Logic)
+基于 `数析洞察官` 人设，处理负反馈数据时遵循以下逻辑：
+
+- **维度提取**：从 CSV 中提取 `功能点`、`内容`、`反馈时间`。
+- **关键词匹配**：
+    - 稳定性：`报错`、`中断`、`解析失败`、`403`。
+    - 质量：`太水`、`废话`、`人机`、`不专业`。
+    - 适配：`Mac`、`苹果`、`入口`、`找不到`。
+    - 语言：`英文`、`English`、`翻译`。
+- **需求转化公式**：`[负反馈现象] + [用户动机] = [优化方向]`。
+
+## 3. 洞察文档输出规范
+输出的 `.md` 文档必须包含以下结构：
+1. **核心洞察摘要**：一句话总结当前产品健康度。
+2. **痛点聚类分析**：按 P0/P1/P2 优先级排列。
+3. **用户原话引用**：确保每一个洞察都有数据支撑（强相关）。
+4. **行动建议**：区分短期 Quick Wins 和长期规划。
+
+## 4. 常用脚本命令
+```bash
+# 安装依赖
+pip install pandas openpyxl
+
+# 运行转换脚本
+python convert_xlsx.py
+```
